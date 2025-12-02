@@ -1,0 +1,21 @@
+# Trading Bot Dependencies
+
+# Exchange API (Bybit support)
+ccxt>=4.0.0
+
+# Data manipulation
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Configuration
+pyyaml>=6.0
+
+# HTTP requests (Discord webhook)
+requests>=2.31.0
+
+# Job scheduling
+schedule>=1.2.0
+
+# Date handling (pandas dependency)
+python-dateutil>=2.8.0
+

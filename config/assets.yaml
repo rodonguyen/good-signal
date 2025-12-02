@@ -1,0 +1,39 @@
+# Trading Assets Configuration
+# Define which assets to monitor and which strategies to apply
+
+assets:
+  # Bitcoin - Bollinger Band Trendline Strategy
+  - symbol: BTCUSDT:USDT          # Bybit perpetual futures format
+    timeframe: 1h                  # Candle interval
+    strategy: BBTrendlineStrategy  # Strategy class name
+    indicator: BollingerBands      # Indicator class name
+    indicator_params:              # Indicator configuration
+      period: 20                   # BB period (SMA length)
+      std_dev: 2.0                 # Standard deviation multiplier
+
+  # Ethereum - Example (uncomment to enable)
+  # - symbol: ETHUSDT:USDT
+  #   timeframe: 1h
+  #   strategy: BBTrendlineStrategy
+  #   indicator: BollingerBands
+  #   indicator_params:
+  #     period: 20
+  #     std_dev: 2.0
+
+  # S&P 500 - Example (uncomment to enable)
+  # Note: Check Bybit for correct SPX futures symbol
+  # - symbol: SPXUSDT:USDT
+  #   timeframe: 1h
+  #   strategy: BBTrendlineStrategy
+  #   indicator: BollingerBands
+  #   indicator_params:
+  #     period: 20
+  #     std_dev: 2.5              # Wider bands for indices
+
+# Notes:
+# - Symbol format: {BASE}{QUOTE}:{SETTLE} for Bybit perpetuals
+# - Timeframe options: 1m, 5m, 15m, 1h, 4h, 1d (1h only currently)
+# - Each asset runs independently
+# - Easy to add new assets: just add new entry
+# - Easy to test different parameters: adjust indicator_params
+
