@@ -8,6 +8,7 @@ import logging
 from typing import Dict, Any
 from datetime import datetime
 from .base import BaseNotifier
+from src.utils.datetime_utils import to_local_timezone
 
 logger = logging.getLogger(__name__)
 
@@ -118,6 +119,9 @@ class DiscordNotifier(BaseNotifier):
         bb_middle = signal_data["bb_middle"]
         timestamp = signal_data["timestamp"]
 
+        # Convert timestamp to local timezone
+        local_timestamp = to_local_timezone(timestamp)
+
         # Extract metadata
         metadata = signal_data.get("metadata", {})
         slope = metadata.get("slope", 0)
@@ -142,7 +146,7 @@ class DiscordNotifier(BaseNotifier):
 **Trendline:**
 • Slope: {slope:+.2f}
 
-**Time:** {timestamp.strftime('%Y-%m-%d %H:%M:%S UTC')}
+**Time:** {local_timestamp.strftime('%Y-%m-%d %H:%M:%S')}
 """
 
         return message.strip()

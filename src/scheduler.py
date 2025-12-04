@@ -16,6 +16,7 @@ from src.data.bybit_fetcher import BybitFetcher
 from src.indicators.bollinger_bands import BollingerBands
 from src.strategies.bb_trendline import BBTrendlineStrategy
 from src.notifiers.discord_notifier import DiscordNotifier
+from src.utils.datetime_utils import to_local_timezone
 
 logger = logging.getLogger(__name__)
 
@@ -120,8 +121,11 @@ class TradingScheduler:
         try:
             metadata = signal_data.get("metadata", {})
 
+            # Convert timestamp to local timezone
+            local_timestamp = to_local_timezone(signal_data["timestamp"])
+
             row = [
-                signal_data["timestamp"].strftime("%Y-%m-%d %H:%M:%S"),
+                local_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
                 symbol,
                 signal_data["signal"],
                 f"{signal_data['price']:.2f}",
@@ -214,11 +218,12 @@ class TradingScheduler:
                 bb_upper = float(df.iloc[-1]["bb_upper"])
                 bb_lower = float(df.iloc[-1]["bb_lower"])
                 timestamp = df.iloc[-1]["timestamp"]
+                local_timestamp = to_local_timezone(timestamp)
 
                 status_message = (
                     f"💤Update: {symbol} | ${current_price:,.2f} "
                     f"(BB Upper: ${bb_upper:,.2f} | Lower: ${bb_lower:,.2f})\n"
-                    f"No breakout detected  |  {timestamp.strftime('%Y-%m-%d %H:%M:%S')}"
+                    f"No breakout detected  |  {local_timestamp.strftime('%Y-%m-%d %H:%M:%S')}"
                 )
                 self.notifier.send(status_message)
 
