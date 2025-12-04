@@ -681,8 +681,8 @@ Bollinger Band Trendline Breakout Strategy.
 Strategy Logic:
 - Calculate trendline from BB values at t-2 and t-1
 - Extrapolate to current time t
-- Generate BUY signal if price breaks below lower trendline
-- Generate SELL signal if price breaks above upper trendline
+- Generate BUY signal if price breaks above upper trendline (breakout up)
+- Generate SELL signal if price breaks below lower trendline (breakout down)
 """
 import pandas as pd
 import numpy as np
@@ -699,19 +699,20 @@ class BBTrendlineStrategy(BaseStrategy):
     Bollinger Band Trendline Breakout Strategy.
     
     Entry Signals:
-    - BUY: Close price crosses below extrapolated lower BB trendline
-    - SELL: Close price crosses above extrapolated upper BB trendline
+    - BUY: Close price breaks above extrapolated upper BB trendline (breakout up)
+    - SELL: Close price breaks below extrapolated lower BB trendline (breakout down)
     
     Trendline Calculation:
+    - Upper: slope = (BB_upper[t-1] - BB_upper[t-2]) / 1
+    - Threshold_upper = BB_upper[t-1] + slope
     - Lower: slope = (BB_lower[t-1] - BB_lower[t-2]) / 1
     - Threshold_lower = BB_lower[t-1] + slope
-    - Similar for upper band
     
     Example:
-        If BB_lower at t-2 = 45000, t-1 = 44900 (declining)
-        slope = -100
-        threshold = 44900 + (-100) = 44800
-        If current price = 44750 < 44800 → BUY signal
+        If BB_upper at t-2 = 46000, t-1 = 46100 (rising)
+        slope = +100
+        threshold = 46100 + 100 = 46200
+        If current price = 46250 > 46200 → BUY signal (breakout up)
     """
     
     def __init__(self):
@@ -765,14 +766,14 @@ class BBTrendlineStrategy(BaseStrategy):
             logger.warning("NaN values in Bollinger Bands, skipping signal")
             return None
         
-        # === LOWER BAND TRENDLINE (BUY SIGNAL) ===
-        lower_slope = float(t_minus_1['bb_lower'] - t_minus_2['bb_lower'])
-        lower_threshold = float(t_minus_1['bb_lower'] + lower_slope)
-        
         current_price = float(t_current['close'])
         
-        # Check for BUY signal (price breaks below lower trendline)
-        if current_price < lower_threshold:
+        # === UPPER BAND TRENDLINE (BUY SIGNAL - Breakout Up) ===
+        upper_slope = float(t_minus_1['bb_upper'] - t_minus_2['bb_upper'])
+        upper_threshold = float(t_minus_1['bb_upper'] + upper_slope)
+        
+        # Check for BUY signal (price breaks above upper trendline)
+        if current_price > upper_threshold:
             distance = lower_threshold - current_price
             bb_width = float(t_current['bb_upper'] - t_current['bb_lower'])
             
@@ -799,12 +800,12 @@ class BBTrendlineStrategy(BaseStrategy):
             
             return signal_data
         
-        # === UPPER BAND TRENDLINE (SELL SIGNAL) ===
-        upper_slope = float(t_minus_1['bb_upper'] - t_minus_2['bb_upper'])
-        upper_threshold = float(t_minus_1['bb_upper'] + upper_slope)
+        # === LOWER BAND TRENDLINE (SELL SIGNAL - Breakout Down) ===
+        lower_slope = float(t_minus_1['bb_lower'] - t_minus_2['bb_lower'])
+        lower_threshold = float(t_minus_1['bb_lower'] + lower_slope)
         
-        # Check for SELL signal (price breaks above upper trendline)
-        if current_price > upper_threshold:
+        # Check for SELL signal (price breaks below lower trendline)
+        if current_price < lower_threshold:
             distance = current_price - upper_threshold
             bb_width = float(t_current['bb_upper'] - t_current['bb_lower'])
             
@@ -1707,6 +1708,26 @@ python -c "import yaml; yaml.safe_load(open('config/assets.yaml'))"
 ```
 
 **3. Component Testing**
+
+**Using pytest (Recommended):**
+```bash
+# Run all tests
+python -m pytest
+
+# Run with coverage report
+python -m pytest --cov=src --cov-report=html
+
+# Run specific test file
+python -m pytest tests/test_bollinger_bands.py
+
+# Run specific test
+python -m pytest tests/test_bb_trendline_strategy.py::test_buy_signal_upper_breakout
+
+# Run with verbose output
+python -m pytest -v
+```
+
+**Manual Component Testing:**
 ```bash
 # Test imports
 python -c "from src.scheduler import TradingScheduler; print('OK')"
@@ -2108,10 +2129,12 @@ if signal_data and self.auto_trade_enabled:
 - [ ] Error handling
 
 ### Phase 4: Testing (Day 2-3)
-- [ ] Component unit tests
+- [ ] Install pytest and dependencies (`pip install -r requirements.txt`)
+- [ ] Component unit tests (pytest)
 - [ ] Integration testing
 - [ ] Error scenario testing
 - [ ] Production dry run
+- [ ] Verify test coverage (`python -m pytest --cov=src`)
 
 ### Phase 5: Deployment (Day 3)
 - [ ] Deploy to production environment

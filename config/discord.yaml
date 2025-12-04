@@ -5,7 +5,7 @@
 # 3. Copy webhook URL
 # 4. Paste below
 
-webhook_url: "PLACEHOLDER_ADD_YOUR_WEBHOOK"
+webhook_url: "https://discord.com/api/webhooks/1446049529450463313/I-rhmGMAb7wwYH3nKI2aNj4ovmBciBi52pPMHoLB7J2Dsdd6ved1wkeH7RMe-0dvPc63"
 
 # Example:
 # webhook_url: "https://discord.com/api/webhooks/1234567890/abcdefghijklmnopqrstuvwxyz"
