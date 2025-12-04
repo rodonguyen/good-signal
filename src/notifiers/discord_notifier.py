@@ -36,7 +36,7 @@ class DiscordNotifier(BaseNotifier):
             webhook_url: Discord webhook URL from channel settings
         """
         if not webhook_url or webhook_url == "PLACEHOLDER_ADD_YOUR_WEBHOOK":
-            logger.warning("Discord webhook not configured!")
+            logger.warning("⚠️Discord webhook not configured!")
 
         self.webhook_url = webhook_url
         self.timeout = 10  # seconds

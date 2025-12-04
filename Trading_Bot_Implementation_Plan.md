@@ -471,7 +471,7 @@ class BybitFetcher:
                 )
                 
                 if not ohlcv:
-                    logger.warning(f"Empty data returned for {symbol}")
+                    logger.warning(f"⚠️ Empty data returned for {symbol}")
                     continue
                 
                 # Convert to DataFrame
@@ -752,7 +752,7 @@ class BBTrendlineStrategy(BaseStrategy):
             return None
         
         if len(df) < 3:
-            logger.warning("Need at least 3 rows for trendline calculation")
+            logger.warning("⚠️Need at least 3 rows for trendline calculation")
             return None
         
         # Get last 3 rows (t-2, t-1, t)
@@ -763,7 +763,7 @@ class BBTrendlineStrategy(BaseStrategy):
         # Check for NaN values
         if pd.isna([t_minus_2['bb_lower'], t_minus_1['bb_lower'], 
                     t_minus_2['bb_upper'], t_minus_1['bb_upper']]).any():
-            logger.warning("NaN values in Bollinger Bands, skipping signal")
+            logger.warning("⚠️NaN values in Bollinger Bands, skipping signal")
             return None
         
         current_price = float(t_current['close'])
@@ -895,7 +895,7 @@ class DiscordNotifier(BaseNotifier):
             webhook_url: Discord webhook URL from channel settings
         """
         if not webhook_url or webhook_url == "PLACEHOLDER_ADD_YOUR_WEBHOOK":
-            logger.warning("Discord webhook not configured!")
+            logger.warning("⚠️Discord webhook not configured!")
         
         self.webhook_url = webhook_url
         self.timeout = 10  # seconds
@@ -1291,7 +1291,7 @@ class TradingScheduler:
         assets = self.assets_config.get('assets', [])
         
         if not assets:
-            logger.warning("No assets configured in assets.yaml")
+            logger.warning("⚠️No assets configured in assets.yaml")
             return
         
         for asset_config in assets:

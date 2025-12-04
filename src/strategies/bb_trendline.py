@@ -76,7 +76,7 @@ class BBTrendlineStrategy(BaseStrategy):
             return None
 
         if len(df) < 3:
-            logger.warning("Need at least 3 rows for trendline calculation")
+            logger.warning("⚠️Need at least 3 rows for trendline calculation")
             return None
 
         # Get last 3 rows (t-2, t-1, t)
@@ -93,7 +93,7 @@ class BBTrendlineStrategy(BaseStrategy):
                 t_minus_1["bb_upper"],
             ]
         ).any():
-            logger.warning("NaN values in Bollinger Bands, skipping signal")
+            logger.warning("⚠️NaN values in Bollinger Bands, skipping signal")
             return None
 
         current_price = float(t_current["close"])
