@@ -5,7 +5,7 @@
 - **Purpose**: Comprehensive implementation guide for trading signal bot
 - **Target Platform**: Python 3.9+
 - **Exchange**: Bybit Derivatives
-- **Initial Asset**: Bitcoin (BTCUSDT:USDT)
+- **Initial Asset**: Bitcoin (BTCUSDT)
 
 ---
 
@@ -445,7 +445,7 @@ class BybitFetcher:
         Fetch OHLCV data with retry logic.
         
         Args:
-            symbol: Bybit symbol format 'BTCUSDT:USDT' (perpetual)
+            symbol: Bybit symbol format 'BTCUSDT' (perpetual futures)
             timeframe: Candle interval ('1m', '5m', '15m', '1h', '4h', '1d')
             limit: Number of candles to fetch (default 100)
             
@@ -454,7 +454,7 @@ class BybitFetcher:
             Returns None if all retries fail
             
         Example:
-            df = fetcher.get_ohlcv('BTCUSDT:USDT', '1h', 50)
+            df = fetcher.get_ohlcv('BTCUSDT', '1h', 50)
             # Returns last 50 hourly candles
         """
         for attempt in range(1, self.max_retries + 1):
@@ -549,7 +549,7 @@ class BybitFetcher:
 - Handles all ccxt exception types
 - Notifier integration for critical failures
 - Test method for initial validation
-- Symbol format: 'BTCUSDT:USDT' (Bybit perpetuals in ccxt)
+- Symbol format: 'BTCUSDT' (Bybit perpetual futures)
 
 ---
 
@@ -946,7 +946,7 @@ class DiscordNotifier(BaseNotifier):
         Send formatted trading signal to Discord.
         
         Args:
-            symbol: Trading pair (e.g., 'BTCUSDT:USDT')
+            symbol: Trading pair (e.g., 'BTCUSDT')
             signal_data: Signal dict from strategy
             
         Returns:
@@ -1517,7 +1517,7 @@ if __name__ == "__main__":
 
 assets:
   # Bitcoin - Bollinger Band Trendline Strategy
-  - symbol: BTCUSDT:USDT          # Bybit perpetual futures format
+  - symbol: BTCUSDT          # Bybit perpetual futures format
     timeframe: 1h                  # Candle interval
     strategy: BBTrendlineStrategy  # Strategy class name
     indicator: BollingerBands      # Indicator class name
@@ -1526,7 +1526,7 @@ assets:
       std_dev: 2.0                 # Standard deviation multiplier
 
   # Ethereum - Example (uncomment to enable)
-  # - symbol: ETHUSDT:USDT
+  # - symbol: ETHUSDT
   #   timeframe: 1h
   #   strategy: BBTrendlineStrategy
   #   indicator: BollingerBands
@@ -1536,7 +1536,7 @@ assets:
 
   # S&P 500 - Example (uncomment to enable)
   # Note: Check Bybit for correct SPX futures symbol
-  # - symbol: SPXUSDT:USDT
+  # - symbol: SPXUSDT
   #   timeframe: 1h
   #   strategy: BBTrendlineStrategy
   #   indicator: BollingerBands
@@ -1545,7 +1545,7 @@ assets:
   #     std_dev: 2.5              # Wider bands for indices
 
 # Notes:
-# - Symbol format: {BASE}{QUOTE}:{SETTLE} for Bybit perpetuals
+# - Symbol format: {BASE}{QUOTE} for Bybit perpetuals (e.g., BTCUSDT)
 # - Timeframe options: 1m, 5m, 15m, 1h, 4h, 1d (1h only currently)
 # - Each asset runs independently
 # - Easy to add new assets: just add new entry
@@ -1607,8 +1607,8 @@ python-dateutil>=2.8.0
 **Console Output (INFO level):**
 ```
 2024-12-02 14:00:00 - scheduler - INFO - Running strategies at 2024-12-02 14:00:00
-2024-12-02 14:00:01 - bybit_fetcher - INFO - Fetching BTCUSDT:USDT 1h data
-2024-12-02 14:00:02 - scheduler - INFO - Calculated BollingerBands for BTCUSDT:USDT
+2024-12-02 14:00:01 - bybit_fetcher - INFO - Fetching BTCUSDT 1h data
+2024-12-02 14:00:02 - scheduler - INFO - Calculated BollingerBands for BTCUSDT
 2024-12-02 14:00:03 - bb_trendline - INFO - BUY signal generated: price=45123.50
 2024-12-02 14:00:04 - discord_notifier - INFO - Discord notification sent
 2024-12-02 14:00:05 - scheduler - INFO - Signal logged to CSV
@@ -1617,7 +1617,7 @@ python-dateutil>=2.8.0
 **CSV Output (`logs/signals.csv`):**
 ```csv
 timestamp,symbol,signal,price,threshold,bb_upper,bb_lower,bb_middle,slope,distance,bb_width
-2024-12-02 14:00:00,BTCUSDT:USDT,BUY,45123.50,45200.00,46000.00,44500.00,45250.00,-76.50,76.50,1500.00
+2024-12-02 14:00:00,BTCUSDT,BUY,45123.50,45200.00,46000.00,44500.00,45250.00,-76.50,76.50,1500.00
 ```
 
 ### Error Scenarios & Handling
@@ -1632,7 +1632,7 @@ Action:
 
 Discord Message:
 ⚠️ BYBIT API FAILURE ⚠️
-Symbol: BTCUSDT:USDT
+Symbol: BTCUSDT
 Failed after 3 attempts
 Time: 2024-12-02 14:00:00
 ```
@@ -1874,7 +1874,7 @@ docker run -d --name trading-bot --restart unless-stopped trading-bot
 **1. Edit `config/assets.yaml`:**
 ```yaml
 assets:
-  - symbol: BTCUSDT:USDT
+  - symbol: BTCUSDT
     timeframe: 1h
     strategy: BBTrendlineStrategy
     indicator: BollingerBands
@@ -1883,7 +1883,7 @@ assets:
       std_dev: 2.0
   
   # Add Ethereum
-  - symbol: ETHUSDT:USDT
+  - symbol: ETHUSDT
     timeframe: 1h
     strategy: BBTrendlineStrategy
     indicator: BollingerBands
@@ -1928,7 +1928,7 @@ self.indicator_map = {
 
 **3. Use in `assets.yaml`:**
 ```yaml
-- symbol: BTCUSDT:USDT
+- symbol: BTCUSDT
   timeframe: 1h
   strategy: RSICrossStrategy  # New strategy needed too
   indicator: RSI
@@ -2162,7 +2162,7 @@ python main.py 2>&1 | tee bot.log
 **No Signals Generated:**
 ```bash
 # Check Bybit data is fetching
-python -c "from src.data.bybit_fetcher import BybitFetcher; f = BybitFetcher(); print(f.get_ohlcv('BTCUSDT:USDT', '1h'))"
+python -c "from src.data.bybit_fetcher import BybitFetcher; f = BybitFetcher(); print(f.get_ohlcv('BTCUSDT', '1h'))"
 
 # Verify BB calculation
 # (Check console logs for "Calculated BollingerBands")
