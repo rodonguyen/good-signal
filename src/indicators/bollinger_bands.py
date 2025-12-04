@@ -2,6 +2,7 @@
 Bollinger Bands indicator implementation.
 Calculates upper/lower bands based on SMA and standard deviation.
 """
+
 import pandas as pd
 import numpy as np
 from .base import BaseIndicator
@@ -54,9 +55,7 @@ class BollingerBands(BaseIndicator):
             raise ValueError("DataFrame must have 'close' column")
 
         if len(df) < self.period:
-            raise ValueError(
-                f"Not enough data: need at least {self.period} rows, got {len(df)}"
-            )
+            raise ValueError(f"Not enough data: need at least {self.period} rows, got {len(df)}")
 
         # Calculate middle band (SMA)
         df["bb_middle"] = df["close"].rolling(window=self.period).mean()
@@ -100,4 +99,3 @@ class BollingerBands(BaseIndicator):
 
     def __repr__(self) -> str:
         return f"BollingerBands(period={self.period}, std_dev={self.std_dev})"
-

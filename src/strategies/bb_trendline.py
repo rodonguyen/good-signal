@@ -124,8 +124,7 @@ class BBTrendlineStrategy(BaseStrategy):
             }
 
             logger.info(
-                f"BUY signal generated (breakout up): price={current_price:.2f}, "
-                f"threshold={upper_threshold:.2f}, distance={distance:.2f}"
+                f"BUY signal generated (breakout up): price={current_price:.2f}, " f"threshold={upper_threshold:.2f}, distance={distance:.2f}"
             )
 
             return signal_data
@@ -156,18 +155,13 @@ class BBTrendlineStrategy(BaseStrategy):
             }
 
             logger.info(
-                f"SELL signal generated (breakout down): price={current_price:.2f}, "
-                f"threshold={lower_threshold:.2f}, distance={distance:.2f}"
+                f"SELL signal generated (breakout down): price={current_price:.2f}, " f"threshold={lower_threshold:.2f}, distance={distance:.2f}"
             )
 
             return signal_data
 
         # No signal
-        logger.debug(
-            f"No signal: price={current_price:.2f}, "
-            f"lower_threshold={lower_threshold:.2f}, "
-            f"upper_threshold={upper_threshold:.2f}"
-        )
+        logger.debug(f"No signal: price={current_price:.2f}, " f"lower_threshold={lower_threshold:.2f}, " f"upper_threshold={upper_threshold:.2f}")
         return None
 
     def __repr__(self) -> str:

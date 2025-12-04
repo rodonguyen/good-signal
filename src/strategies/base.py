@@ -2,6 +2,7 @@
 Abstract base class for all trading strategies.
 Ensures consistent signal generation interface.
 """
+
 from abc import ABC, abstractmethod
 from typing import Optional, Dict, Any
 import pandas as pd
@@ -10,21 +11,21 @@ import pandas as pd
 class BaseStrategy(ABC):
     """
     Base class for all trading strategies.
-    
+
     All strategies must implement generate_signal() which:
     - Analyzes DataFrame with OHLCV + indicator data
     - Returns signal dict or None
     - Includes all metadata needed for logging/notification
     """
-    
+
     @abstractmethod
     def generate_signal(self, df: pd.DataFrame) -> Optional[Dict[str, Any]]:
         """
         Generate trading signal based on data and indicators.
-        
+
         Args:
             df: DataFrame with OHLCV + calculated indicators
-            
+
         Returns:
             Signal dictionary with structure:
             {
@@ -37,9 +38,9 @@ class BaseStrategy(ABC):
                 'timestamp': datetime,    # Signal generation time
                 'metadata': dict          # Strategy-specific data
             }
-            
+
             Returns None if no signal generated
-            
+
         Example:
             {
                 'signal': 'BUY',
@@ -53,8 +54,7 @@ class BaseStrategy(ABC):
             }
         """
         pass
-    
+
     def __repr__(self) -> str:
         """String representation for debugging"""
         return f"{self.__class__.__name__}()"
-

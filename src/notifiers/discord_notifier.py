@@ -54,17 +54,13 @@ class DiscordNotifier(BaseNotifier):
         try:
             payload = {"content": message}
 
-            response = requests.post(
-                self.webhook_url, json=payload, timeout=self.timeout
-            )
+            response = requests.post(self.webhook_url, json=payload, timeout=self.timeout)
 
             if response.status_code == 204:
                 logger.info("Discord notification sent successfully")
                 return True
             else:
-                logger.error(
-                    f"Discord webhook failed: {response.status_code} - {response.text}"
-                )
+                logger.error(f"Discord webhook failed: {response.status_code} - {response.text}")
                 return False
 
         except requests.Timeout:
@@ -98,9 +94,7 @@ class DiscordNotifier(BaseNotifier):
 
         return self.send(message)
 
-    def _format_signal_message(
-        self, symbol: str, signal_data: Dict[str, Any], emoji: str
-    ) -> str:
+    def _format_signal_message(self, symbol: str, signal_data: Dict[str, Any], emoji: str) -> str:
         """
         Format trading signal into readable Discord message.
 

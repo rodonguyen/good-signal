@@ -194,10 +194,7 @@ class TradingScheduler:
 
             # Step 4: Process signal if generated
             if signal_data:
-                logger.info(
-                    f"Signal generated for {symbol}: "
-                    f"{signal_data['signal']} at {signal_data['price']:.2f}"
-                )
+                logger.info(f"Signal generated for {symbol}: " f"{signal_data['signal']} at {signal_data['price']:.2f}")
 
                 # Send Discord notification
                 success = self.notifier.send_signal(symbol, signal_data)
@@ -235,11 +232,7 @@ class TradingScheduler:
         Execute strategies for all configured assets.
         Called by scheduler every hour.
         """
-        logger.info("=" * 60)
-        logger.info(
-            f"Running strategies at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
-        )
-        logger.info("=" * 60)
+        logger.info(f"Running strategies at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
         assets = self.assets_config.get("assets", [])
 

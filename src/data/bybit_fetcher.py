@@ -34,18 +34,14 @@ class BybitFetcher:
         self.exchange = ccxt.bybit(
             {
                 "enableRateLimit": True,  # Respect Bybit rate limits
-                "options": {
-                    "defaultType": "linear"  # Perpetual futures (USDT-margined)
-                },
+                "options": {"defaultType": "linear"},  # Perpetual futures (USDT-margined)
             }
         )
         self.notifier = notifier
         self.max_retries = 3
         self.base_retry_delay = 5  # seconds
 
-    def get_ohlcv(
-        self, symbol: str, timeframe: str = "1h", limit: int = 100
-    ) -> Optional[pd.DataFrame]:
+    def get_ohlcv(self, symbol: str, timeframe: str = "1h", limit: int = 100) -> Optional[pd.DataFrame]:
         """
         Fetch OHLCV data with retry logic.
 
@@ -64,14 +60,10 @@ class BybitFetcher:
         """
         for attempt in range(1, self.max_retries + 1):
             try:
-                logger.info(
-                    f"Fetching {symbol} {timeframe} data (attempt {attempt}/{self.max_retries})"
-                )
+                logger.info(f"Fetching {symbol} {timeframe} data (attempt {attempt}/{self.max_retries})")
 
                 # Fetch OHLCV from Bybit
-                ohlcv = self.exchange.fetch_ohlcv(
-                    symbol=symbol, timeframe=timeframe, limit=limit
-                )
+                ohlcv = self.exchange.fetch_ohlcv(symbol=symbol, timeframe=timeframe, limit=limit)
 
                 if not ohlcv:
                     logger.warning(f"Empty data returned for {symbol}")
@@ -89,19 +81,14 @@ class BybitFetcher:
                 # Sort by timestamp (oldest first)
                 df = df.sort_values("timestamp").reset_index(drop=True)
 
-                logger.info(
-                    f"Successfully fetched {len(df)} candles for {symbol} "
-                    f"(latest: {df['timestamp'].iloc[-1]})"
-                )
+                logger.info(f"Successfully fetched {len(df)} candles for {symbol} " f"(latest: {df['timestamp'].iloc[-1]})")
 
                 return df
 
             except ccxt.NetworkError as e:
                 logger.error(f"Network error on attempt {attempt}: {e}")
                 if attempt < self.max_retries:
-                    delay = self.base_retry_delay * (
-                        2 ** (attempt - 1)
-                    )  # Exponential backoff
+                    delay = self.base_retry_delay * (2 ** (attempt - 1))  # Exponential backoff
                     logger.info(f"Retrying in {delay} seconds...")
                     time.sleep(delay)
 

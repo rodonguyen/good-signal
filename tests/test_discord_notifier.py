@@ -287,9 +287,7 @@ def test_test_method(mock_post):
 
 def test_repr():
     """Test __repr__ method."""
-    notifier1 = DiscordNotifier(
-        webhook_url="https://discord.com/api/webhooks/test/test"
-    )
+    notifier1 = DiscordNotifier(webhook_url="https://discord.com/api/webhooks/test/test")
     assert "webhook_configured=True" in repr(notifier1)
 
     notifier2 = DiscordNotifier(webhook_url="")

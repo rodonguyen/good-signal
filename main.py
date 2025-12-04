@@ -14,6 +14,7 @@ Requirements:
     - Discord webhook configured in config/discord.yaml
     - Assets configured in config/assets.yaml
 """
+
 import logging
 import sys
 from pathlib import Path
@@ -52,10 +53,7 @@ def validate_config_files():
 
     for file_path in required_files:
         if not Path(file_path).exists():
-            raise FileNotFoundError(
-                f"Required config file not found: {file_path}\n"
-                f"Please create it before running the bot."
-            )
+            raise FileNotFoundError(f"Required config file not found: {file_path}\n" f"Please create it before running the bot.")
 
 
 def main():
@@ -73,9 +71,7 @@ def main():
         validate_config_files()
 
         # Initialize scheduler
-        scheduler = TradingScheduler(
-            config_path="config/assets.yaml", discord_config_path="config/discord.yaml"
-        )
+        scheduler = TradingScheduler(config_path="config/assets.yaml", discord_config_path="config/discord.yaml")
 
         # Start scheduler (runs forever)
         scheduler.start()
@@ -85,8 +81,8 @@ def main():
         sys.exit(1)
 
     except KeyboardInterrupt:
-        logger.info("Shutdown requested by user")
         logger.info("=" * 70)
+        logger.info("Shutdown requested by user")
         logger.info("TRADING SIGNAL BOT - Shut Down")
         logger.info("=" * 70)
         sys.exit(0)
@@ -98,4 +94,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
