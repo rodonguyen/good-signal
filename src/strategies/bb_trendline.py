@@ -226,7 +226,7 @@ class BBTrendlineStrategy(BaseStrategy):
 
 **Symbol:** {display_symbol}
 **Price:** ${price:,.2f}
-**Threshold:** ${threshold:,.2f}
+**Threshold:** ${threshold:,.2f} 
 **Distance:** ${distance:,.2f} ({abs(distance/price)*100:.2f}%)
 
 **Bollinger Bands:**
@@ -237,7 +237,7 @@ class BBTrendlineStrategy(BaseStrategy):
 **Trendline:**
 • {band_label} (t-3): ${bb_t_minus_3:,.2f}
 • {band_label} (t-2): ${bb_t_minus_2:,.2f}
-• Threshold: {(price+slope):,.2f} ({slope:+.2f})
+• Slope: {slope:+.2f}
 • Penetration: {penetration_pct:.2f}%
 
 **Open Time:** {local_open_timestamp.strftime('%Y-%m-%d %H:%M:%S')}
