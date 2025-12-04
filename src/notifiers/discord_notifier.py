@@ -171,7 +171,7 @@ class DiscordNotifier(BaseNotifier):
         Returns:
             True if test successful, False otherwise
         """
-        test_message = "✅ Discord webhook test successful - Bot is online!"
+        test_message = "✅ Bot is online!"
         return self.send(test_message)
 
     def __repr__(self) -> str:
