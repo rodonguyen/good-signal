@@ -134,7 +134,11 @@ requests>=2.31.0         # HTTP for Discord webhook
 schedule>=1.2.0          # Job scheduling
 numpy>=1.24.0            # Numerical operations (pandas dependency)
 python-dateutil>=2.8.0   # Date handling
+black>=23.0.0            # Code formatting
 ```
+
+### Development Tools
+- **Black**: Code formatter (configured in `pyproject.toml` with 150 char line length, 4-space indentation)
 
 ### Why Python?
 1. **CCXT library**: Battle-tested, supports 100+ exchanges including Bybit
@@ -1597,6 +1601,51 @@ schedule>=1.2.0
 
 # Date handling (pandas dependency)
 python-dateutil>=2.8.0
+
+# Code formatting
+black>=23.0.0
+```
+
+### File: `pyproject.toml`
+
+```
+[tool.black]
+line-length = 150
+target-version = ['py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+```
+
+**Usage:**
+```bash
+# Format all Python files
+black .
+
+# Format specific file
+black src/scheduler.py
+
+# Check formatting without changing files
+black --check .
+```
+
+### Example Configuration Files
+
+**File: `config/assets.yaml.example`** - Template for asset configuration
+- Copy to `config/assets.yaml` and customize
+- Contains example asset entries with comments
+
+**File: `config/discord.yaml.example`** - Template for Discord webhook
+- Copy to `config/discord.yaml` and add your webhook URL
+- Contains placeholder: `YOUR_WEBHOOK_URL_HERE`
+
+**Setup:**
+```bash
+# Copy example files to actual config files
+cp config/assets.yaml.example config/assets.yaml
+cp config/discord.yaml.example config/discord.yaml
+
+# Edit with your settings
+nano config/assets.yaml
+nano config/discord.yaml
 ```
 
 ---
@@ -1700,11 +1749,16 @@ pip install -r requirements.txt
 
 **2. Configuration Setup**
 ```bash
-# Create Discord webhook
-# Add to config/discord.yaml
+# Copy example config files
+cp config/assets.yaml.example config/assets.yaml
+cp config/discord.yaml.example config/discord.yaml
 
-# Verify assets.yaml syntax
+# Create Discord webhook and add to config/discord.yaml
+# Edit config/assets.yaml with your asset settings
+
+# Verify YAML syntax
 python -c "import yaml; yaml.safe_load(open('config/assets.yaml'))"
+python -c "import yaml; yaml.safe_load(open('config/discord.yaml'))"
 ```
 
 **3. Component Testing**
@@ -1799,6 +1853,9 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 # 4. Setup configuration
+# Copy example files
+cp config/assets.yaml.example config/assets.yaml
+cp config/discord.yaml.example config/discord.yaml
 # Edit config/assets.yaml (set BTC parameters)
 # Edit config/discord.yaml (add webhook URL)
 
@@ -2213,8 +2270,9 @@ python -c "from src.notifiers.discord_notifier import DiscordNotifier; import ya
 ## Security Considerations
 
 ### API Keys & Webhooks
-- **Never commit** discord.yaml to version control
-- Add to .gitignore: `config/discord.yaml`
+- **Never commit** actual config files to version control
+- Add to .gitignore: `config/discord.yaml` and `config/assets.yaml`
+- Commit example files (`*.example`) as templates
 - Rotate webhooks if exposed
 - Use environment variables for production
 
@@ -2286,8 +2344,10 @@ python -c "from src.notifiers.discord_notifier import DiscordNotifier; import ya
 ```
 trading_bot/
 ├── config/
-│   ├── assets.yaml           ✓ Create & configure
-│   └── discord.yaml          ✓ Create & add webhook
+│   ├── assets.yaml           ✓ Create & configure (from .example)
+│   ├── assets.yaml.example   ✓ Template file (commit to git)
+│   ├── discord.yaml          ✓ Create & add webhook (from .example)
+│   └── discord.yaml.example  ✓ Template file (commit to git)
 ├── src/
 │   ├── __init__.py           ✓ Create (empty file)
 │   ├── data/
@@ -2310,9 +2370,11 @@ trading_bot/
 │   └── signals.csv           ✓ Auto-created by bot
 ├── main.py                   ✓ Implement
 ├── requirements.txt          ✓ Create
+├── pyproject.toml            ✓ Black formatter config
+├── .gitignore                ✓ Ignore config files & cache
 └── README.md                 ✓ Create (optional)
 
-Total: 18 files
+Total: 22 files (18 Python + 2 config examples + 2 config actual + pyproject.toml + .gitignore)
 ```
 
 ---
@@ -2326,6 +2388,9 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Configure
+# Copy example files first
+cp config/assets.yaml.example config/assets.yaml
+cp config/discord.yaml.example config/discord.yaml
 nano config/discord.yaml  # Add webhook
 nano config/assets.yaml   # Verify BTC config
 
@@ -2349,6 +2414,7 @@ Ctrl+C
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2024-12-02 | Initial comprehensive implementation plan |
+| 1.1 | 2024-12-02 | Added Black formatter, pyproject.toml, example config files, updated .gitignore |
 
 ---
 
