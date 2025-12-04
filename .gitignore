@@ -1,3 +1,4 @@
 __pycache__/
 local_test.py
-discord.yaml
+config/discord.yaml
+config/assets.yaml

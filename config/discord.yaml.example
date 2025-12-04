@@ -1,0 +1,19 @@
+# Discord Webhook Configuration
+# Get webhook URL from Discord:
+# 1. Go to channel settings → Integrations
+# 2. Create webhook
+# 3. Copy webhook URL
+# 4. Paste below
+#
+# Copy this file to discord.yaml and add your webhook URL
+
+webhook_url: "YOUR_WEBHOOK_URL_HERE"
+
+# Example format:
+# webhook_url: "https://discord.com/api/webhooks/1234567890/abcdefghijklmnopqrstuvwxyz"
+
+# Security:
+# - Keep discord.yaml private (add to .gitignore)
+# - Don't commit webhook URL to version control
+# - Rotate webhook if exposed
+
