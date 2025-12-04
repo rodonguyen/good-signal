@@ -5,10 +5,7 @@ Sends formatted trading signals to Discord channel.
 
 import requests
 import logging
-from typing import Dict, Any
-from datetime import datetime
 from .base import BaseNotifier
-from src.utils.datetime_utils import to_local_timezone
 
 logger = logging.getLogger(__name__)
 
@@ -76,91 +73,17 @@ class DiscordNotifier(BaseNotifier):
             logger.error(f"Unexpected error sending Discord notification: {e}")
             return False
 
-    def send_signal(self, symbol: str, signal_data: Dict[str, Any]) -> bool:
+    def send_signal(self, message: str) -> bool:
         """
-        Send formatted trading signal to Discord.
+        Send message to Discord.
 
         Args:
-            symbol: Trading pair (e.g., 'BTCUSDT')
-            signal_data: Signal dict from strategy
+            message: Pre-formatted message string from strategy
 
         Returns:
             True if sent successfully, False otherwise
         """
-        signal_type = signal_data["signal"]
-        emoji = "🟢" if signal_type == "BUY" else "🔴"
-
-        # Format message
-        message = self._format_signal_message(symbol, signal_data, emoji)
-
         return self.send(message)
-
-    def _format_signal_message(self, symbol: str, signal_data: Dict[str, Any], emoji: str) -> str:
-        """
-        Format trading signal into readable Discord message.
-
-        Args:
-            symbol: Trading pair
-            signal_data: Signal dict
-            emoji: Signal emoji indicator
-
-        Returns:
-            Formatted message string
-        """
-        # Clean symbol for display (remove :USDT suffix if present)
-        display_symbol = symbol.replace(":USDT", "")
-
-        # Extract data
-        signal_type = signal_data["signal"]
-        price = signal_data["price"]
-        threshold = signal_data["threshold"]
-        bb_upper = signal_data["bb_upper"]
-        bb_lower = signal_data["bb_lower"]
-        bb_middle = signal_data["bb_middle"]
-        open_timestamp = signal_data["open_timestamp"]
-
-        # Convert open_timestamp to local timezone
-        local_open_timestamp = to_local_timezone(open_timestamp)
-
-        # Get current timestamp
-        current_timestamp = to_local_timezone(datetime.utcnow())
-
-        # Extract metadata
-        metadata = signal_data.get("metadata", {})
-        slope = metadata.get("slope", 0)
-        distance = metadata.get("distance_to_threshold", 0)
-        penetration_pct = metadata.get("penetration_pct", 0)
-        bb_t_minus_1 = metadata.get("bb_t_minus_1", 0)
-        bb_t_minus_2 = metadata.get("bb_t_minus_2", 0)
-
-        # Determine band label based on signal type
-        band_label = "Upper Band" if signal_type == "BUY" else "Lower Band"
-
-        # Build message
-        message = f"""
-{emoji} **{signal_type} SIGNAL** {emoji}
-
-**Symbol:** {display_symbol}
-**Price:** ${price:,.2f}
-**Threshold:** ${threshold:,.2f}
-**Distance:** ${distance:,.2f} ({abs(distance/price)*100:.2f}%)
-
-**Bollinger Bands:**
-• Upper: ${bb_upper:,.2f}
-• Middle: ${bb_middle:,.2f}
-• Lower: ${bb_lower:,.2f}
-
-**Trendline:**
-• {band_label} (t-1): ${bb_t_minus_1:,.2f}
-• {band_label} (t-2): ${bb_t_minus_2:,.2f}
-• Slope: {slope:+.2f}
-• Penetration: {penetration_pct:.2f}%
-
-**Open Time:** {local_open_timestamp.strftime('%Y-%m-%d %H:%M:%S')}
-**Timestamp:** {current_timestamp.strftime('%Y-%m-%d %H:%M:%S')}
-"""
-
-        return message.strip()
 
     def send_error(self, error_message: str) -> bool:
         """

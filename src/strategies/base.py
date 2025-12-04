@@ -6,6 +6,7 @@ Ensures consistent signal generation interface.
 from abc import ABC, abstractmethod
 from typing import Optional, Dict, Any
 import pandas as pd
+from datetime import datetime
 
 
 class BaseStrategy(ABC):
@@ -54,6 +55,27 @@ class BaseStrategy(ABC):
             }
         """
         pass
+
+    def format_signal_message(self, symbol: str, signal_data: Dict[str, Any]) -> str:
+        """
+        Format trading signal into a readable message string.
+
+        Args:
+            symbol: Trading pair (e.g., 'BTCUSDT')
+            signal_data: Signal dict from generate_signal()
+
+        Returns:
+            Formatted message string ready for notification
+
+        Default implementation provides basic formatting.
+        Subclasses should override for strategy-specific formatting.
+        """
+        signal_type = signal_data["signal"]
+        price = signal_data["price"]
+        threshold = signal_data["threshold"]
+
+        message = f"{signal_type} Signal for {symbol}\nPrice: {price:.2f}\nThreshold: {threshold:.2f}"
+        return message
 
     def __repr__(self) -> str:
         """String representation for debugging"""

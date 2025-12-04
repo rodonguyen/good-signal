@@ -203,8 +203,11 @@ class TradingScheduler:
 
             logger.info(f"Signal generated for {symbol}: " f"{signal_data['signal']} at {signal_data['price']:.2f}")
 
+            # Format message using strategy
+            formatted_message = strategy.format_signal_message(symbol, signal_data)
+
             # Send Discord notification
-            success = self.notifier.send_signal(symbol, signal_data)
+            success = self.notifier.send_signal(formatted_message)
             if success:
                 logger.info(f"Discord notification sent for {symbol}")
             else:

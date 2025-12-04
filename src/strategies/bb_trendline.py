@@ -14,6 +14,7 @@ import numpy as np
 from typing import Optional, Dict, Any
 from datetime import datetime
 from .base import BaseStrategy
+from src.utils.datetime_utils import to_local_timezone
 import logging
 
 logger = logging.getLogger(__name__)
@@ -159,8 +160,8 @@ class BBTrendlineStrategy(BaseStrategy):
                 "bb_middle": float(t_minus_1["bb_middle"]),
                 "open_timestamp": t_minus_1["timestamp"],
                 "metadata": {
-                    "bb_t_minus_1": float(t_minus_2["bb_lower"]),
-                    "bb_t_minus_2": float(t_minus_3["bb_lower"]),
+                    "bb_t_minus_3": float(t_minus_3["bb_lower"]),
+                    "bb_t_minus_2": float(t_minus_2["bb_lower"]),
                     "slope": lower_slope,
                     "distance_to_threshold": distance,
                     "bb_width": bb_width,
@@ -177,6 +178,73 @@ class BBTrendlineStrategy(BaseStrategy):
         # No signal
         logger.debug(f"No signal: price={t_minus_1_price:.2f}, " f"lower_threshold={lower_threshold:.2f}, " f"upper_threshold={upper_threshold:.2f}")
         return None
+
+    def format_signal_message(self, symbol: str, signal_data: Dict[str, Any]) -> str:
+        """
+        Format trading signal into readable Discord message.
+
+        Args:
+            symbol: Trading pair (e.g., 'BTCUSDT')
+            signal_data: Signal dict from generate_signal()
+
+        Returns:
+            Formatted message string
+        """
+        # Clean symbol for display (remove :USDT suffix if present)
+        display_symbol = symbol.replace(":USDT", "")
+
+        # Extract data
+        signal_type = signal_data["signal"]
+        price = signal_data["price"]
+        threshold = signal_data["threshold"]
+        bb_upper = signal_data["bb_upper"]
+        bb_lower = signal_data["bb_lower"]
+        bb_middle = signal_data["bb_middle"]
+        open_timestamp = signal_data["open_timestamp"]
+
+        # Convert open_timestamp to local timezone
+        local_open_timestamp = to_local_timezone(open_timestamp)
+
+        # Get current timestamp
+        current_timestamp = to_local_timezone(datetime.utcnow())
+
+        # Extract metadata
+        metadata = signal_data.get("metadata", {})
+        slope = metadata.get("slope", 0)
+        distance = metadata.get("distance_to_threshold", 0)
+        penetration_pct = metadata.get("penetration_pct", 0)
+        bb_t_minus_3 = metadata.get("bb_t_minus_3", 0)
+        bb_t_minus_2 = metadata.get("bb_t_minus_2", 0)
+
+        # Determine band label based on signal type
+        band_label = "Upper Band" if signal_type == "BUY" else "Lower Band"
+        emoji = "🟢" if signal_type == "BUY" else "🔴"
+
+        # Build message
+        message = f"""
+{emoji} **{signal_type} SIGNAL** {emoji}
+
+**Symbol:** {display_symbol}
+**Price:** ${price:,.2f}
+**Threshold:** ${threshold:,.2f}
+**Distance:** ${distance:,.2f} ({abs(distance/price)*100:.2f}%)
+
+**Bollinger Bands:**
+• Upper: ${bb_upper:,.2f}
+• Middle: ${bb_middle:,.2f}
+• Lower: ${bb_lower:,.2f}
+
+**Trendline:**
+• {band_label} (t-3): ${bb_t_minus_3:,.2f}
+• {band_label} (t-2): ${bb_t_minus_2:,.2f}
+• Threshold: {(price+slope):,.2f} ({slope:+.2f})
+• Penetration: {penetration_pct:.2f}%
+
+**Open Time:** {local_open_timestamp.strftime('%Y-%m-%d %H:%M:%S')}
+**Timestamp:** {current_timestamp.strftime('%Y-%m-%d %H:%M:%S')}
+"""
+
+        return message.strip()
 
     def __repr__(self) -> str:
         return "BBTrendlineStrategy()"
