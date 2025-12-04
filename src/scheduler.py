@@ -121,8 +121,8 @@ class TradingScheduler:
         try:
             metadata = signal_data.get("metadata", {})
 
-            # Convert timestamp to local timezone
-            local_timestamp = to_local_timezone(signal_data["timestamp"])
+            # Convert open_timestamp to local timezone
+            local_timestamp = to_local_timezone(signal_data["open_timestamp"])
 
             row = [
                 local_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
@@ -197,35 +197,21 @@ class TradingScheduler:
             signal_data = strategy.generate_signal(df)
 
             # Step 4: Process signal if generated
-            if signal_data:
-                logger.info(f"Signal generated for {symbol}: " f"{signal_data['signal']} at {signal_data['price']:.2f}")
-
-                # Send Discord notification
-                success = self.notifier.send_signal(symbol, signal_data)
-                if success:
-                    logger.info(f"Discord notification sent for {symbol}")
-                else:
-                    logger.warning(f"Failed to send Discord notification for {symbol}")
-
-                # Log to CSV
-                self._log_signal_to_csv(symbol, signal_data)
-
-            else:
+            if not signal_data:
                 logger.info(f"No signal for {symbol}")
+                return
 
-                # Send status update notification when no signal
-                current_price = float(df.iloc[-1]["close"])
-                bb_upper = float(df.iloc[-1]["bb_upper"])
-                bb_lower = float(df.iloc[-1]["bb_lower"])
-                timestamp = df.iloc[-1]["timestamp"]
-                local_timestamp = to_local_timezone(timestamp)
+            logger.info(f"Signal generated for {symbol}: " f"{signal_data['signal']} at {signal_data['price']:.2f}")
 
-                status_message = (
-                    f"💤Update: {symbol} | ${current_price:,.2f} "
-                    f"(BB Upper: ${bb_upper:,.2f} | Lower: ${bb_lower:,.2f})\n"
-                    f"No breakout detected  |  {local_timestamp.strftime('%Y-%m-%d %H:%M:%S')}"
-                )
-                self.notifier.send(status_message)
+            # Send Discord notification
+            success = self.notifier.send_signal(symbol, signal_data)
+            if success:
+                logger.info(f"Discord notification sent for {symbol}")
+            else:
+                logger.warning(f"Failed to send Discord notification for {symbol}")
+
+            # Log to CSV
+            self._log_signal_to_csv(symbol, signal_data)
 
         except Exception as e:
             logger.error(f"Error running strategy for {symbol}: {e}", exc_info=True)

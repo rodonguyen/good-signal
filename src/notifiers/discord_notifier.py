@@ -117,16 +117,24 @@ class DiscordNotifier(BaseNotifier):
         bb_upper = signal_data["bb_upper"]
         bb_lower = signal_data["bb_lower"]
         bb_middle = signal_data["bb_middle"]
-        timestamp = signal_data["timestamp"]
+        open_timestamp = signal_data["open_timestamp"]
 
-        # Convert timestamp to local timezone
-        local_timestamp = to_local_timezone(timestamp)
+        # Convert open_timestamp to local timezone
+        local_open_timestamp = to_local_timezone(open_timestamp)
+
+        # Get current timestamp
+        current_timestamp = to_local_timezone(datetime.utcnow())
 
         # Extract metadata
         metadata = signal_data.get("metadata", {})
         slope = metadata.get("slope", 0)
         distance = metadata.get("distance_to_threshold", 0)
-        bb_width = metadata.get("bb_width", 0)
+        penetration_pct = metadata.get("penetration_pct", 0)
+        bb_t_minus_1 = metadata.get("bb_t_minus_1", 0)
+        bb_t_minus_2 = metadata.get("bb_t_minus_2", 0)
+
+        # Determine band label based on signal type
+        band_label = "Upper Band" if signal_type == "BUY" else "Lower Band"
 
         # Build message
         message = f"""
@@ -141,12 +149,15 @@ class DiscordNotifier(BaseNotifier):
 • Upper: ${bb_upper:,.2f}
 • Middle: ${bb_middle:,.2f}
 • Lower: ${bb_lower:,.2f}
-• Width: ${bb_width:,.2f}
 
 **Trendline:**
+• {band_label} (t-1): ${bb_t_minus_1:,.2f}
+• {band_label} (t-2): ${bb_t_minus_2:,.2f}
 • Slope: {slope:+.2f}
+• Penetration: {penetration_pct:.2f}%
 
-**Time:** {local_timestamp.strftime('%Y-%m-%d %H:%M:%S')}
+**Open Time:** {local_open_timestamp.strftime('%Y-%m-%d %H:%M:%S')}
+**Timestamp:** {current_timestamp.strftime('%Y-%m-%d %H:%M:%S')}
 """
 
         return message.strip()

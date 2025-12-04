@@ -2,10 +2,11 @@
 Bollinger Band Trendline Breakout Strategy.
 
 Strategy Logic:
-- Calculate trendline from BB values at t-2 and t-1
-- Extrapolate to current time t
-- Generate BUY signal if price breaks above upper trendline (breakout up)
-- Generate SELL signal if price breaks below lower trendline (breakout down)
+- Calculate trendline from BB values at t-3 and t-2
+- Extrapolate to t-1 position
+- Generate BUY signal if t-1's close price breaks above upper trendline (breakout up)
+- Generate SELL signal if t-1's close price breaks below lower trendline (breakout down)
+- Uses completed candle (t-1) for signal generation when new candle (t) appears
 """
 
 import pandas as pd
@@ -23,20 +24,20 @@ class BBTrendlineStrategy(BaseStrategy):
     Bollinger Band Trendline Breakout Strategy.
 
     Entry Signals:
-    - BUY: Close price breaks above extrapolated upper BB trendline (breakout up)
-    - SELL: Close price breaks below extrapolated lower BB trendline (breakout down)
+    - BUY: t-1's close price breaks above extrapolated upper BB trendline (breakout up)
+    - SELL: t-1's close price breaks below extrapolated lower BB trendline (breakout down)
 
     Trendline Calculation:
-    - Upper: slope = (BB_upper[t-1] - BB_upper[t-2]) / 1
-    - Threshold_upper = BB_upper[t-1] + slope
-    - Lower: slope = (BB_lower[t-1] - BB_lower[t-2]) / 1
-    - Threshold_lower = BB_lower[t-1] + slope
+    - Upper: slope = (BB_upper[t-2] - BB_upper[t-3]) / 1
+    - Threshold_upper = BB_upper[t-2] + slope (extrapolated to t-1)
+    - Lower: slope = (BB_lower[t-2] - BB_lower[t-3]) / 1
+    - Threshold_lower = BB_lower[t-2] + slope (extrapolated to t-1)
 
     Example:
-        If BB_upper at t-2 = 46000, t-1 = 46100 (rising)
+        If BB_upper at t-3 = 46000, t-2 = 46100 (rising)
         slope = +100
-        threshold = 46100 + 100 = 46200
-        If current price = 46250 > 46200 → BUY signal (breakout up)
+        threshold = 46100 + 100 = 46200 (at t-1 position)
+        If t-1's close price = 46250 > 46200 → BUY signal (breakout up)
     """
 
     def __init__(self):
@@ -61,7 +62,7 @@ class BBTrendlineStrategy(BaseStrategy):
                 'bb_upper': float,
                 'bb_lower': float,
                 'bb_middle': float,
-                'timestamp': datetime,
+                'open_timestamp': datetime,
                 'metadata': {
                     'slope': float,
                     'distance_to_threshold': float,
@@ -75,11 +76,15 @@ class BBTrendlineStrategy(BaseStrategy):
             logger.error(f"Missing required columns. Need: {required_cols}")
             return None
 
-        if len(df) < 3:
-            logger.warning("⚠️Need at least 3 rows for trendline calculation")
+        if len(df) < 4:
+            logger.warning("⚠️Need at least 4 rows for trendline calculation (t-3, t-2, t-1, t)")
             return None
 
-        # Get last 3 rows (t-2, t-1, t)
+        # Get last 4 rows (t-3, t-2, t-1, t)
+        # t-3 and t-2 are used for trendline calculation
+        # t-1 is the completed candle we check for signal
+        # t is the current/new candle
+        t_minus_3 = df.iloc[-4]
         t_minus_2 = df.iloc[-3]
         t_minus_1 = df.iloc[-2]
         t_current = df.iloc[-1]
@@ -87,66 +92,75 @@ class BBTrendlineStrategy(BaseStrategy):
         # Check for NaN values
         if pd.isna(
             [
+                t_minus_3["bb_lower"],
                 t_minus_2["bb_lower"],
-                t_minus_1["bb_lower"],
+                t_minus_3["bb_upper"],
                 t_minus_2["bb_upper"],
-                t_minus_1["bb_upper"],
+                t_minus_1["close"],
             ]
         ).any():
-            logger.warning("⚠️NaN values in Bollinger Bands, skipping signal")
+            logger.warning("⚠️NaN values in Bollinger Bands or close price, skipping signal")
             return None
 
-        current_price = float(t_current["close"])
+        # Use t-1's completed close price for signal comparison
+        t_minus_1_price = float(t_minus_1["close"])
 
         # === UPPER BAND TRENDLINE (BUY SIGNAL - Breakout Up) ===
-        upper_slope = float(t_minus_1["bb_upper"] - t_minus_2["bb_upper"])
-        upper_threshold = float(t_minus_1["bb_upper"] + upper_slope)
+        # Calculate slope from t-3 to t-2
+        upper_slope = float(t_minus_2["bb_upper"] - t_minus_3["bb_upper"])
+        # Extrapolate to t-1 position: threshold = BB_upper[t-2] + slope
+        upper_threshold = float(t_minus_2["bb_upper"] + upper_slope)
 
-        # Check for BUY signal (price breaks above upper trendline)
-        if current_price > upper_threshold:
-            distance = current_price - upper_threshold
-            bb_width = float(t_current["bb_upper"] - t_current["bb_lower"])
+        # Check for BUY signal (t-1's close price breaks above upper trendline)
+        if t_minus_1_price > upper_threshold:
+            distance = t_minus_1_price - upper_threshold
+            bb_width = float(t_minus_1["bb_upper"] - t_minus_1["bb_lower"])
 
             signal_data = {
                 "signal": "BUY",
-                "price": current_price,
+                "price": t_minus_1_price,
                 "threshold": upper_threshold,
-                "bb_upper": float(t_current["bb_upper"]),
-                "bb_lower": float(t_current["bb_lower"]),
-                "bb_middle": float(t_current["bb_middle"]),
-                "timestamp": t_current["timestamp"],
+                "bb_upper": float(t_minus_1["bb_upper"]),
+                "bb_lower": float(t_minus_1["bb_lower"]),
+                "bb_middle": float(t_minus_1["bb_middle"]),
+                "open_timestamp": t_minus_1["timestamp"],
                 "metadata": {
+                    "bb_t_minus_1": float(t_minus_2["bb_upper"]),
+                    "bb_t_minus_2": float(t_minus_3["bb_upper"]),
                     "slope": upper_slope,
                     "distance_to_threshold": distance,
-                    "bb_width": bb_width,
                     "penetration_pct": (distance / upper_threshold) * 100,
                 },
             }
 
             logger.info(
-                f"BUY signal generated (breakout up): price={current_price:.2f}, " f"threshold={upper_threshold:.2f}, distance={distance:.2f}"
+                f"BUY signal generated (breakout up): price={t_minus_1_price:.2f}, " f"threshold={upper_threshold:.2f}, distance={distance:.2f}"
             )
 
             return signal_data
 
         # === LOWER BAND TRENDLINE (SELL SIGNAL - Breakout Down) ===
-        lower_slope = float(t_minus_1["bb_lower"] - t_minus_2["bb_lower"])
-        lower_threshold = float(t_minus_1["bb_lower"] + lower_slope)
+        # Calculate slope from t-3 to t-2
+        lower_slope = float(t_minus_2["bb_lower"] - t_minus_3["bb_lower"])
+        # Extrapolate to t-1 position: threshold = BB_lower[t-2] + slope
+        lower_threshold = float(t_minus_2["bb_lower"] + lower_slope)
 
-        # Check for SELL signal (price breaks below lower trendline)
-        if current_price < lower_threshold:
-            distance = lower_threshold - current_price
-            bb_width = float(t_current["bb_upper"] - t_current["bb_lower"])
+        # Check for SELL signal (t-1's close price breaks below lower trendline)
+        if t_minus_1_price < lower_threshold:
+            distance = lower_threshold - t_minus_1_price
+            bb_width = float(t_minus_1["bb_upper"] - t_minus_1["bb_lower"])
 
             signal_data = {
                 "signal": "SELL",
-                "price": current_price,
+                "price": t_minus_1_price,
                 "threshold": lower_threshold,
-                "bb_upper": float(t_current["bb_upper"]),
-                "bb_lower": float(t_current["bb_lower"]),
-                "bb_middle": float(t_current["bb_middle"]),
-                "timestamp": t_current["timestamp"],
+                "bb_upper": float(t_minus_1["bb_upper"]),
+                "bb_lower": float(t_minus_1["bb_lower"]),
+                "bb_middle": float(t_minus_1["bb_middle"]),
+                "open_timestamp": t_minus_1["timestamp"],
                 "metadata": {
+                    "bb_t_minus_1": float(t_minus_2["bb_lower"]),
+                    "bb_t_minus_2": float(t_minus_3["bb_lower"]),
                     "slope": lower_slope,
                     "distance_to_threshold": distance,
                     "bb_width": bb_width,
@@ -155,13 +169,13 @@ class BBTrendlineStrategy(BaseStrategy):
             }
 
             logger.info(
-                f"SELL signal generated (breakout down): price={current_price:.2f}, " f"threshold={lower_threshold:.2f}, distance={distance:.2f}"
+                f"SELL signal generated (breakout down): price={t_minus_1_price:.2f}, " f"threshold={lower_threshold:.2f}, distance={distance:.2f}"
             )
 
             return signal_data
 
         # No signal
-        logger.debug(f"No signal: price={current_price:.2f}, " f"lower_threshold={lower_threshold:.2f}, " f"upper_threshold={upper_threshold:.2f}")
+        logger.debug(f"No signal: price={t_minus_1_price:.2f}, " f"lower_threshold={lower_threshold:.2f}, " f"upper_threshold={upper_threshold:.2f}")
         return None
 
     def __repr__(self) -> str:

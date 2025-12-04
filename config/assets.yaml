@@ -12,13 +12,13 @@ assets:
       std_dev: 2.0                 # Standard deviation multiplier
 
   # Ethereum - Example (uncomment to enable)
-  # - symbol: ETHUSDT
-  #   timeframe: 1h
-  #   strategy: BBTrendlineStrategy
-  #   indicator: BollingerBands
-  #   indicator_params:
-  #     period: 20
-  #     std_dev: 2.0
+  - symbol: ETHUSDT
+    timeframe: 1h
+    strategy: BBTrendlineStrategy
+    indicator: BollingerBands
+    indicator_params:
+      period: 20
+      std_dev: 2.0
 
   # S&P 500 - Example (uncomment to enable)
   # Note: Check Bybit for correct SPX futures symbol
