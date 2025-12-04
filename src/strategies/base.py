@@ -6,7 +6,6 @@ Ensures consistent signal generation interface.
 from abc import ABC, abstractmethod
 from typing import Optional, Dict, Any
 import pandas as pd
-from datetime import datetime
 
 
 class BaseStrategy(ABC):
