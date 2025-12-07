@@ -104,113 +104,102 @@ def test_send_unexpected_exception(mock_post):
     assert result is False
 
 
-def test_format_signal_message():
-    """Test signal message formatting."""
-    notifier = DiscordNotifier(webhook_url="test")
-
-    signal_data = {
-        "signal": "BUY",
-        "price": 45123.50,
-        "threshold": 45200.00,
-        "bb_upper": 46000.00,
-        "bb_lower": 44500.00,
-        "bb_middle": 45250.00,
-        "timestamp": datetime(2024, 12, 2, 14, 0, 0),
-        "metadata": {
-            "slope": 100.0,
-            "distance_to_threshold": 76.50,
-            "bb_width": 1500.00,
-        },
-    }
-
-    message = notifier._format_signal_message("BTCUSDT", signal_data, "🟢")
-
-    assert "BUY SIGNAL" in message
-    assert "BTCUSDT" in message
-    assert "$45,123.50" in message
-    assert "$45,200.00" in message
-    assert "$46,000.00" in message
-    assert "$44,500.00" in message
-    assert "$45,250.00" in message
-    assert "$1,500.00" in message
-    assert "+100.00" in message
-    assert "2024-12-02 14:00:00 UTC" in message
-
-
-def test_format_signal_message_sell():
-    """Test signal message formatting for SELL signal."""
-    notifier = DiscordNotifier(webhook_url="test")
-
-    signal_data = {
-        "signal": "SELL",
-        "price": 44800.00,
-        "threshold": 44700.00,
-        "bb_upper": 46000.00,
-        "bb_lower": 44000.00,
-        "bb_middle": 45000.00,
-        "timestamp": datetime(2024, 12, 2, 15, 30, 0),
-        "metadata": {
-            "slope": -50.0,
-            "distance_to_threshold": 100.00,
-            "bb_width": 2000.00,
-        },
-    }
-
-    message = notifier._format_signal_message("ETHUSDT", signal_data, "🔴")
-
-    assert "SELL SIGNAL" in message
-    assert "ETHUSDT" in message
-    assert "$44,800.00" in message
-    assert "-50.00" in message
-
-
-def test_format_signal_message_cleans_symbol():
-    """Test that symbol cleaning removes :USDT suffix."""
-    notifier = DiscordNotifier(webhook_url="test")
-
-    signal_data = {
-        "signal": "BUY",
-        "price": 45000.00,
-        "threshold": 45100.00,
-        "bb_upper": 46000.00,
-        "bb_lower": 44000.00,
-        "bb_middle": 45000.00,
-        "timestamp": datetime.now(),
-        "metadata": {},
-    }
-
-    message = notifier._format_signal_message("BTCUSDT:USDT", signal_data, "🟢")
-
-    # Should show BTCUSDT, not BTCUSDT:USDT
-    assert "BTCUSDT" in message
-    assert "BTCUSDT:USDT" not in message
-
-
 @patch("src.notifiers.discord_notifier.requests.post")
-def test_send_signal(mock_post):
-    """Test send_signal method."""
+def test_format_signal_message(mock_post):
+    """Test that notifier can send pre-formatted signal messages."""
     mock_response = Mock()
     mock_response.status_code = 204
     mock_post.return_value = mock_response
 
     notifier = DiscordNotifier(webhook_url="https://discord.com/api/webhooks/test/test")
 
-    signal_data = {
-        "signal": "BUY",
-        "price": 45000.00,
-        "threshold": 45100.00,
-        "bb_upper": 46000.00,
-        "bb_lower": 44000.00,
-        "bb_middle": 45000.00,
-        "timestamp": datetime.now(),
-        "metadata": {
-            "slope": 100.0,
-            "distance_to_threshold": 100.00,
-            "bb_width": 2000.00,
-        },
-    }
+    # Pre-formatted message from strategy
+    formatted_message = """🟢 **BUY SIGNAL** 🟢
 
-    result = notifier.send_signal("BTCUSDT", signal_data)
+**Symbol:** BTCUSDT = $45,123.50
+**Threshold:** $45,200.00
+
+**Bollinger Bands:** $46,000.00 / $44,500.00 / $45,250.00"""
+
+    result = notifier.send_signal(formatted_message)
+
+    assert result is True
+    mock_post.assert_called_once()
+    call_args = mock_post.call_args
+    message_content = call_args[1]["json"]["content"]
+    assert "BUY SIGNAL" in message_content
+    assert "BTCUSDT" in message_content
+    assert "$45,123.50" in message_content
+
+
+@patch("src.notifiers.discord_notifier.requests.post")
+def test_format_signal_message_sell(mock_post):
+    """Test that notifier can send pre-formatted SELL signal messages."""
+    mock_response = Mock()
+    mock_response.status_code = 204
+    mock_post.return_value = mock_response
+
+    notifier = DiscordNotifier(webhook_url="https://discord.com/api/webhooks/test/test")
+
+    # Pre-formatted message from strategy
+    formatted_message = """🔴 **SELL SIGNAL** 🔴
+
+**Symbol:** ETHUSDT = $44,800.00
+**Threshold:** $44,700.00
+
+**Bollinger Bands:** $46,000.00 / $44,000.00 / $45,000.00"""
+
+    result = notifier.send_signal(formatted_message)
+
+    assert result is True
+    call_args = mock_post.call_args
+    message_content = call_args[1]["json"]["content"]
+    assert "SELL SIGNAL" in message_content
+    assert "ETHUSDT" in message_content
+    assert "$44,800.00" in message_content
+
+
+@patch("src.notifiers.discord_notifier.requests.post")
+def test_format_signal_message_cleans_symbol(mock_post):
+    """Test that notifier sends messages with cleaned symbols."""
+    mock_response = Mock()
+    mock_response.status_code = 204
+    mock_post.return_value = mock_response
+
+    notifier = DiscordNotifier(webhook_url="https://discord.com/api/webhooks/test/test")
+
+    # Pre-formatted message with cleaned symbol (strategy handles cleaning)
+    formatted_message = """🟢 **BUY SIGNAL** 🟢
+
+**Symbol:** BTCUSDT = $45,000.00"""
+
+    result = notifier.send_signal(formatted_message)
+
+    # Should send BTCUSDT, not BTCUSDT:USDT (strategy cleans the symbol)
+    assert result is True
+    call_args = mock_post.call_args
+    message_content = call_args[1]["json"]["content"]
+    assert "BTCUSDT" in message_content
+
+
+@patch("src.notifiers.discord_notifier.requests.post")
+def test_send_signal(mock_post):
+    """Test send_signal method with pre-formatted message."""
+    mock_response = Mock()
+    mock_response.status_code = 204
+    mock_post.return_value = mock_response
+
+    notifier = DiscordNotifier(webhook_url="https://discord.com/api/webhooks/test/test")
+
+    # Pre-formatted message from strategy
+    formatted_message = """🟢 **BUY SIGNAL** 🟢
+
+**Symbol:** BTCUSDT = $45,000.00
+**Threshold:** $45,100.00
+
+**Bollinger Bands:** $46,000.00 / $44,000.00 / $45,000.00"""
+
+    result = notifier.send_signal(formatted_message)
 
     assert result is True
     mock_post.assert_called_once()
@@ -230,18 +219,15 @@ def test_send_signal_sell(mock_post):
 
     notifier = DiscordNotifier(webhook_url="https://discord.com/api/webhooks/test/test")
 
-    signal_data = {
-        "signal": "SELL",
-        "price": 44800.00,
-        "threshold": 44700.00,
-        "bb_upper": 46000.00,
-        "bb_lower": 44000.00,
-        "bb_middle": 45000.00,
-        "timestamp": datetime.now(),
-        "metadata": {},
-    }
+    # Pre-formatted message from strategy
+    formatted_message = """🔴 **SELL SIGNAL** 🔴
 
-    result = notifier.send_signal("ETHUSDT", signal_data)
+**Symbol:** ETHUSDT = $44,800.00
+**Threshold:** $44,700.00
+
+**Bollinger Bands:** $46,000.00 / $44,000.00 / $45,000.00"""
+
+    result = notifier.send_signal(formatted_message)
 
     assert result is True
     call_args = mock_post.call_args
@@ -282,7 +268,7 @@ def test_test_method(mock_post):
     mock_post.assert_called_once()
     call_args = mock_post.call_args
     message_content = call_args[1]["json"]["content"]
-    assert "Discord webhook test successful" in message_content
+    assert "Bot is online" in message_content
 
 
 def test_repr():
@@ -294,48 +280,51 @@ def test_repr():
     assert "webhook_configured=False" in repr(notifier2)
 
 
-def test_format_signal_message_missing_metadata():
-    """Test formatting with missing metadata fields."""
-    notifier = DiscordNotifier(webhook_url="test")
+@patch("src.notifiers.discord_notifier.requests.post")
+def test_format_signal_message_missing_metadata(mock_post):
+    """Test sending messages works regardless of metadata."""
+    mock_response = Mock()
+    mock_response.status_code = 204
+    mock_post.return_value = mock_response
 
-    signal_data = {
-        "signal": "BUY",
-        "price": 45000.00,
-        "threshold": 45100.00,
-        "bb_upper": 46000.00,
-        "bb_lower": 44000.00,
-        "bb_middle": 45000.00,
-        "timestamp": datetime.now(),
-        # Missing metadata
-    }
+    notifier = DiscordNotifier(webhook_url="https://discord.com/api/webhooks/test/test")
 
-    message = notifier._format_signal_message("BTCUSDT", signal_data, "🟢")
+    # Pre-formatted message (strategy handles missing metadata gracefully)
+    formatted_message = """🟢 **BUY SIGNAL** 🟢
 
-    # Should still work with default values
-    assert "BUY SIGNAL" in message
-    assert "BTCUSDT" in message
+**Symbol:** BTCUSDT = $45,000.00"""
+
+    result = notifier.send_signal(formatted_message)
+
+    # Should still work with minimal message
+    assert result is True
+    call_args = mock_post.call_args
+    message_content = call_args[1]["json"]["content"]
+    assert "BUY SIGNAL" in message_content
+    assert "BTCUSDT" in message_content
 
 
-def test_format_signal_message_partial_metadata():
-    """Test formatting with partial metadata."""
-    notifier = DiscordNotifier(webhook_url="test")
+@patch("src.notifiers.discord_notifier.requests.post")
+def test_format_signal_message_partial_metadata(mock_post):
+    """Test sending messages works with partial information."""
+    mock_response = Mock()
+    mock_response.status_code = 204
+    mock_post.return_value = mock_response
 
-    signal_data = {
-        "signal": "BUY",
-        "price": 45000.00,
-        "threshold": 45100.00,
-        "bb_upper": 46000.00,
-        "bb_lower": 44000.00,
-        "bb_middle": 45000.00,
-        "timestamp": datetime.now(),
-        "metadata": {
-            "slope": 100.0,
-            # Missing distance_to_threshold and bb_width
-        },
-    }
+    notifier = DiscordNotifier(webhook_url="https://discord.com/api/webhooks/test/test")
 
-    message = notifier._format_signal_message("BTCUSDT", signal_data, "🟢")
+    # Pre-formatted message with some metadata (strategy handles partial metadata)
+    formatted_message = """🟢 **BUY SIGNAL** 🟢
 
-    # Should use default values for missing metadata
-    assert "BUY SIGNAL" in message
-    assert "+100.00" in message  # slope should be present
+**Symbol:** BTCUSDT = $45,000.00
+**Threshold:** $45,100.00
+**Slope:** +100.00"""
+
+    result = notifier.send_signal(formatted_message)
+
+    # Should work with partial information
+    assert result is True
+    call_args = mock_post.call_args
+    message_content = call_args[1]["json"]["content"]
+    assert "BUY SIGNAL" in message_content
+    assert "+100.00" in message_content  # slope should be present

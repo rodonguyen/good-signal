@@ -12,17 +12,18 @@ def test_buy_signal_upper_breakout(sample_ohlcv_with_bb):
     """Test BUY signal when price breaks above upper trendline."""
     strategy = BBTrendlineStrategy()
 
-    # Get last 3 rows
+    # Strategy uses last 4 rows: t-3, t-2, t-1 (signal check), t (current)
+    # Test needs to set up data so t-1's close breaks above threshold
+    t_minus_3 = sample_ohlcv_with_bb.iloc[-4]
     t_minus_2 = sample_ohlcv_with_bb.iloc[-3]
-    t_minus_1 = sample_ohlcv_with_bb.iloc[-2]
 
-    # Calculate upper threshold
-    upper_slope = float(t_minus_1["bb_upper"] - t_minus_2["bb_upper"])
-    upper_threshold = float(t_minus_1["bb_upper"] + upper_slope)
+    # Calculate upper threshold (extrapolated from t-3 to t-2, projected to t-1)
+    upper_slope = float(t_minus_2["bb_upper"] - t_minus_3["bb_upper"])
+    upper_threshold = float(t_minus_2["bb_upper"] + upper_slope)
 
-    # Force price above threshold
+    # Force t-1's close price above threshold (iloc[-2] is t-1)
     df = sample_ohlcv_with_bb.copy()
-    df.loc[df.index[-1], "close"] = upper_threshold + 100
+    df.loc[df.index[-2], "close"] = upper_threshold + 100
 
     signal = strategy.generate_signal(df)
 
@@ -37,17 +38,17 @@ def test_sell_signal_lower_breakout(sample_ohlcv_with_bb):
     """Test SELL signal when price breaks below lower trendline."""
     strategy = BBTrendlineStrategy()
 
-    # Get last 3 rows
+    # Strategy uses last 4 rows: t-3, t-2, t-1 (signal check), t (current)
+    t_minus_3 = sample_ohlcv_with_bb.iloc[-4]
     t_minus_2 = sample_ohlcv_with_bb.iloc[-3]
-    t_minus_1 = sample_ohlcv_with_bb.iloc[-2]
 
-    # Calculate lower threshold
-    lower_slope = float(t_minus_1["bb_lower"] - t_minus_2["bb_lower"])
-    lower_threshold = float(t_minus_1["bb_lower"] + lower_slope)
+    # Calculate lower threshold (extrapolated from t-3 to t-2, projected to t-1)
+    lower_slope = float(t_minus_2["bb_lower"] - t_minus_3["bb_lower"])
+    lower_threshold = float(t_minus_2["bb_lower"] + lower_slope)
 
-    # Force price below threshold
+    # Force t-1's close price below threshold (iloc[-2] is t-1)
     df = sample_ohlcv_with_bb.copy()
-    df.loc[df.index[-1], "close"] = lower_threshold - 100
+    df.loc[df.index[-2], "close"] = lower_threshold - 100
 
     signal = strategy.generate_signal(df)
 
