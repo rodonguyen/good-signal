@@ -35,7 +35,6 @@ class BaseStrategy(ABC):
                 'bb_upper': float,        # Current BB upper band
                 'bb_lower': float,        # Current BB lower band
                 'bb_middle': float,       # Current BB middle (SMA)
-                'timestamp': datetime,    # Signal generation time
                 'metadata': dict          # Strategy-specific data
             }
 
@@ -49,7 +48,6 @@ class BaseStrategy(ABC):
                 'bb_upper': 46000.00,
                 'bb_lower': 44500.00,
                 'bb_middle': 45250.00,
-                'timestamp': datetime(2024, 12, 2, 14, 0),
                 'metadata': {'slope': -76.5, 'distance': 76.5}
             }
         """

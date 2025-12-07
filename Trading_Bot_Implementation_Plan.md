@@ -1259,24 +1259,21 @@ class TradingScheduler:
             signal_data = strategy.generate_signal(df)
             
             # Step 4: Process signal if generated
-            if signal_data:
-                logger.info(
-                    f"Signal generated for {symbol}: "
-                    f"{signal_data['signal']} at {signal_data['price']:.2f}"
-                )
-                
-                # Send Discord notification
-                success = self.notifier.send_signal(symbol, signal_data)
-                if success:
-                    logger.info(f"Discord notification sent for {symbol}")
-                else:
-                    logger.warning(f"Failed to send Discord notification for {symbol}")
-                
-                # Log to CSV
-                self._log_signal_to_csv(symbol, signal_data)
-                
+            logger.info(
+                f"Signal generated for {symbol}: "
+                f"{signal_data['signal']} at {signal_data['price']:.2f}"
+            )
+            
+            # Send Discord notification
+            success = self.notifier.send_signal(symbol, signal_data)
+            if success:
+                logger.info(f"Discord notification sent for {symbol}")
             else:
-                logger.info(f"No signal for {symbol}")
+                logger.warning(f"Failed to send Discord notification for {symbol}")
+            
+            # Log to CSV
+            self._log_signal_to_csv(symbol, signal_data)
+                
                 
         except Exception as e:
             logger.error(f"Error running strategy for {symbol}: {e}", exc_info=True)
@@ -2418,6 +2415,909 @@ Ctrl+C
 
 ---
 
-**END OF IMPLEMENTATION PLAN**
+## Appendix C: Spike Signals Feature Implementation Plan
 
-This document contains all information needed to build the trading signal bot from scratch. Hand this to your implementation agent and they should be able to execute without further questions.
+### Overview
+
+This appendix documents the implementation plan for adding spike detection signals using separate Price + Volume Z-scores to the trading bot.
+
+### Feature Description
+
+**Spike Signal Detection Strategy** uses dual z-score confirmation (Price Returns + Volume) to identify unusual market movements that are validated by both price action and volume activity.
+
+**Core Concept:**
+- Price z-score > threshold = unusual price move
+- Volume z-score > threshold = unusual activity
+- Both together = validated spike (not just noise)
+
+### Design Approach
+
+#### Why Separate Price + Volume Z-Scores?
+
+**Confirmation Logic:**
+- Price spike without volume = weak signal (often reverses)
+- High volume without price spike = accumulation/distribution
+- Both = institutional/significant move
+
+**Implementation Formula:**
+```python
+price_zscore = (return - rolling_mean) / rolling_std
+volume_zscore = (volume - rolling_mean_vol) / rolling_std_vol
+
+spike = (abs(price_zscore) > 2.5) AND (volume_zscore > 1.5)
+```
+
+**Flexibility:**
+- Can weight them differently
+- Can use additive score: price_z + volume_z > 4.0
+- Easier to tune per asset/timeframe
+
+**Typical Thresholds:**
+- Conservative: Price z > 3.0, Volume z > 2.0
+- Moderate: Price z > 2.5, Volume z > 1.5 (default)
+- Aggressive: Price z > 2.0, Volume z > 1.0
+
+### Technical Design
+
+#### 1. New Indicator: ZScoreIndicator
+
+**Location:** `src/indicators/zscore.py`
+
+**Purpose:** Calculate rolling z-scores for price returns and volume
+
+**Implementation:**
+
+```python
+"""
+Z-Score indicator for spike detection.
+Calculates z-scores for price returns and volume to identify unusual market activity.
+"""
+import pandas as pd
+import numpy as np
+from .base import BaseIndicator
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+class ZScoreIndicator(BaseIndicator):
+    """
+    Calculates z-scores for price returns and volume.
+
+    Z-score formula: (value - rolling_mean) / rolling_std
+
+    Usage:
+        zscore = ZScoreIndicator(window=20)
+        df = zscore.calculate(df)
+        # Now df has: price_return, price_zscore, volume_zscore columns
+    """
+
+    def __init__(self, window: int = 20):
+        """
+        Initialize Z-Score indicator.
+
+        Args:
+            window: Lookback period for rolling statistics (default 20)
+        """
+        self.window = window
+
+    def calculate(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Calculate z-scores and add to DataFrame.
+
+        Args:
+            df: DataFrame with columns [close, volume]
+
+        Returns:
+            DataFrame with added columns:
+            - price_return: % price change from previous candle
+            - price_zscore: Z-score of price return
+            - volume_zscore: Z-score of volume
+
+        Note:
+            First (window-1) rows will have NaN for z-score values
+        """
+        # Validate input
+        if 'close' not in df.columns or 'volume' not in df.columns:
+            raise ValueError("DataFrame must have 'close' and 'volume' columns")
+
+        if len(df) < self.window:
+            logger.warning(
+                f"Not enough data: need at least {self.window} rows, got {len(df)}"
+            )
+
+        # Calculate price returns (percentage change)
+        df['price_return'] = df['close'].pct_change()
+
+        # Rolling statistics for price returns
+        price_mean = df['price_return'].rolling(window=self.window).mean()
+        price_std = df['price_return'].rolling(window=self.window).std()
+
+        # Rolling statistics for volume
+        volume_mean = df['volume'].rolling(window=self.window).mean()
+        volume_std = df['volume'].rolling(window=self.window).std()
+
+        # Calculate z-scores (handle division by zero with replace)
+        df['price_zscore'] = (df['price_return'] - price_mean) / price_std.replace(0, np.nan)
+        df['volume_zscore'] = (df['volume'] - volume_mean) / volume_std.replace(0, np.nan)
+
+        return df
+
+    def __repr__(self) -> str:
+        return f"ZScoreIndicator(window={self.window})"
+```
+
+**Output Columns:**
+- `price_return` (float): Percentage price change from previous candle
+- `price_zscore` (float): Standard deviations from mean price return
+- `volume_zscore` (float): Standard deviations from mean volume
+
+#### 2. New Strategy: SpikeDetectionStrategy
+
+**Location:** `src/strategies/spike_detection.py`
+
+**Purpose:** Detect price spikes confirmed by volume using dual z-score thresholds
+
+**Implementation:**
+
+```python
+"""
+Spike Detection Strategy using Price + Volume Z-Scores.
+
+Strategy Logic:
+- SPIKE_UP: Price z-score > threshold AND volume z-score > threshold (upward spike)
+- SPIKE_DOWN: Price z-score < -threshold AND volume z-score > threshold (downward spike)
+- Volume z-score always uses absolute value (direction doesn't matter for volume)
+"""
+import pandas as pd
+import numpy as np
+from typing import Optional, Dict, Any
+from datetime import datetime
+from .base import BaseStrategy
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+class SpikeDetectionStrategy(BaseStrategy):
+    """
+    Detects price spikes using separate Price and Volume Z-scores.
+
+    Signal Conditions:
+    - SPIKE_UP: price_zscore > price_threshold AND volume_zscore > volume_threshold
+    - SPIKE_DOWN: price_zscore < -price_threshold AND volume_zscore > volume_threshold
+
+    Example:
+        strategy = SpikeDetectionStrategy(price_threshold=2.5, volume_threshold=1.5)
+        signal = strategy.generate_signal(df)
+        # Returns signal dict or None
+    """
+
+    def __init__(self,
+                 price_threshold: float = 2.5,
+                 volume_threshold: float = 1.5):
+        """
+        Initialize spike detection strategy.
+
+        Args:
+            price_threshold: Z-score threshold for price moves (default 2.5)
+            volume_threshold: Z-score threshold for volume spikes (default 1.5)
+        """
+        self.price_threshold = price_threshold
+        self.volume_threshold = volume_threshold
+
+    def generate_signal(self, df: pd.DataFrame) -> Optional[Dict[str, Any]]:
+        """
+        Detect spike on most recent completed candle (t-1).
+
+        Args:
+            df: DataFrame with columns [close, volume, price_zscore, volume_zscore, price_return, timestamp]
+
+        Returns:
+            Signal dict with structure:
+            {
+                'signal': 'SPIKE_UP' | 'SPIKE_DOWN',
+                'price': float,
+                'price_zscore': float,
+                'volume_zscore': float,
+                'price_return_pct': float,
+                'volume': float,
+                'volume_ratio': float,
+                'timestamp': datetime,
+                'metadata': dict
+            }
+
+            Returns None if no signal generated
+        """
+        # Validate input
+        required_cols = ['close', 'volume', 'price_zscore', 'volume_zscore', 'price_return', 'timestamp']
+        if not all(col in df.columns for col in required_cols):
+            missing = [c for c in required_cols if c not in df.columns]
+            logger.warning(f"Missing columns for spike detection: {missing}")
+            return None
+
+        # Need at least 2 candles (current + 1 previous)
+        if len(df) < 2:
+            logger.warning("Insufficient data for spike detection (need 2+ candles)")
+            return None
+
+        # Use t-1 (most recent completed candle)
+        latest = df.iloc[-1]
+
+        # Extract z-scores
+        price_z = latest['price_zscore']
+        volume_z = latest['volume_zscore']
+
+        # Skip if NaN (insufficient rolling window data)
+        if pd.isna(price_z) or pd.isna(volume_z):
+            logger.debug("NaN z-scores, skipping signal generation")
+            return None
+
+        # Detect SPIKE_UP: Strong positive price move + high volume
+        if (price_z > self.price_threshold and
+            volume_z > self.volume_threshold):
+            return self._create_signal(
+                signal_type='SPIKE_UP',
+                df=df,
+                latest=latest,
+                price_z=price_z,
+                volume_z=volume_z
+            )
+
+        # Detect SPIKE_DOWN: Strong negative price move + high volume
+        if (price_z < -self.price_threshold and
+            volume_z > self.volume_threshold):
+            return self._create_signal(
+                signal_type='SPIKE_DOWN',
+                df=df,
+                latest=latest,
+                price_z=price_z,
+                volume_z=volume_z
+            )
+
+        # No spike detected
+        logger.debug(
+            f"No spike: price_z={price_z:.2f}, volume_z={volume_z:.2f}"
+        )
+        return None
+
+    def _create_signal(self, signal_type: str, df: pd.DataFrame,
+                      latest: pd.Series, price_z: float,
+                      volume_z: float) -> Dict[str, Any]:
+        """Helper to construct signal dictionary."""
+
+        # Calculate volume ratio (current vs rolling average)
+        window = 20  # Match indicator window
+        avg_volume = df['volume'].tail(window).mean()
+        volume_ratio = latest['volume'] / avg_volume if avg_volume > 0 else 0
+
+        # Calculate price return percentage
+        price_return_pct = latest['price_return'] * 100
+
+        # Determine signal strength
+        confirmation = 'STRONG' if (abs(price_z) > 3.0 and volume_z > 2.0) else 'MODERATE'
+
+        signal_data = {
+            'signal': signal_type,
+            'price': float(latest['close']),
+            'price_zscore': float(price_z),
+            'volume_zscore': float(volume_z),
+            'price_return_pct': float(price_return_pct),
+            'volume': float(latest['volume']),
+            'volume_ratio': float(volume_ratio),
+            'timestamp': latest['timestamp'],
+            'metadata': {
+                'price_threshold': self.price_threshold,
+                'volume_threshold': self.volume_threshold,
+                'avg_volume': float(avg_volume),
+                'combined_score': float(abs(price_z) + volume_z),
+                'confirmation': confirmation
+            }
+        }
+
+        logger.info(
+            f"{signal_type} detected: price_z={price_z:.2f}, "
+            f"volume_z={volume_z:.2f}, strength={confirmation}"
+        )
+
+        return signal_data
+
+    def format_signal_message(self, symbol: str, signal_data: Dict[str, Any]) -> str:
+        """
+        Format spike signal for Discord notification.
+
+        Args:
+            symbol: Trading pair (e.g., 'BTCUSDT')
+            signal_data: Signal dict from generate_signal()
+
+        Returns:
+            Formatted message string for Discord
+        """
+        signal_type = signal_data['signal']
+        emoji = "🔺" if signal_type == 'SPIKE_UP' else "🔻"
+
+        # Clean symbol for display
+        display_symbol = symbol.replace(':USDT', '').replace('USDT', '')
+
+        message = f"{emoji} **{signal_type} DETECTED** {emoji}\n\n"
+        message += f"**Symbol:** {display_symbol}\n"
+        message += f"**Price:** ${signal_data['price']:,.2f}\n"
+        message += f"**Price Change:** {signal_data['price_return_pct']:+.2f}%\n\n"
+
+        message += f"**Z-Scores:**\n"
+        message += f"• Price Z-Score: {signal_data['price_zscore']:.2f} "
+        message += f"({'above' if signal_data['price_zscore'] > 0 else 'below'} threshold: {signal_data['metadata']['price_threshold']})\n"
+        message += f"• Volume Z-Score: {signal_data['volume_zscore']:.2f} "
+        message += f"(threshold: {signal_data['metadata']['volume_threshold']})\n\n"
+
+        message += f"**Volume Analysis:**\n"
+        message += f"• Current Volume: {signal_data['volume']:,.0f}\n"
+        message += f"• Average Volume: {signal_data['metadata']['avg_volume']:,.0f}\n"
+        message += f"• Volume Ratio: {signal_data['volume_ratio']:.2f}x average\n\n"
+
+        message += f"**Signal Strength:** {signal_data['metadata']['confirmation']}\n"
+        message += f"**Combined Score:** {signal_data['metadata']['combined_score']:.2f}\n\n"
+
+        message += f"**Timestamp:** {signal_data['timestamp'].strftime('%Y-%m-%d %H:%M:%S UTC')}\n"
+
+        return message
+
+    def __repr__(self) -> str:
+        return f"SpikeDetectionStrategy(price_threshold={self.price_threshold}, volume_threshold={self.volume_threshold})"
+```
+
+**Signal Types:**
+- `SPIKE_UP`: Unusual upward price move confirmed by volume
+- `SPIKE_DOWN`: Unusual downward price move confirmed by volume
+
+#### 3. Scheduler Updates
+
+**File:** `src/scheduler.py`
+
+**Required Changes:**
+
+```python
+# Add imports
+from src.indicators.zscore import ZScoreIndicator
+from src.strategies.spike_detection import SpikeDetectionStrategy
+
+# Update strategy_map in __init__
+self.strategy_map = {
+    "BBTrendlineStrategy": BBTrendlineStrategy,
+    "SpikeDetectionStrategy": SpikeDetectionStrategy  # NEW
+}
+
+# Update indicator_map in __init__
+self.indicator_map = {
+    "BollingerBands": BollingerBands,
+    "ZScoreIndicator": ZScoreIndicator  # NEW
+}
+
+# Update run_strategy method to support strategy_params
+def run_strategy(self, asset_config: Dict[str, Any]):
+    """Execute strategy for a single asset."""
+    symbol = asset_config['symbol']
+    timeframe = asset_config['timeframe']
+    strategy_name = asset_config['strategy']
+    indicator_name = asset_config['indicator']
+    indicator_params = asset_config.get('indicator_params', {})
+    strategy_params = asset_config.get('strategy_params', {})  # NEW
+
+    logger.info(f"Running strategy for {symbol}...")
+
+    try:
+        # Step 1: Fetch data
+        df = self.fetcher.get_ohlcv(symbol, timeframe, limit=100)
+
+        if df is None or df.empty:
+            logger.warning(f"No data fetched for {symbol}, skipping")
+            return
+
+        # Step 2: Initialize and calculate indicator
+        indicator_class = self.indicator_map.get(indicator_name)
+        if not indicator_class:
+            logger.error(f"Unknown indicator: {indicator_name}")
+            return
+
+        indicator = indicator_class(**indicator_params)
+        df = indicator.calculate(df)
+
+        logger.info(f"Calculated {indicator_name} for {symbol}")
+
+        # Step 3: Initialize and run strategy
+        strategy_class = self.strategy_map.get(strategy_name)
+        if not strategy_class:
+            logger.error(f"Unknown strategy: {strategy_name}")
+            return
+
+        strategy = strategy_class(**strategy_params)  # UPDATED to support strategy_params
+        signal_data = strategy.generate_signal(df)
+
+        # Step 4: Process signal if generated
+        if signal_data:
+            logger.info(
+                f"Signal generated for {symbol}: "
+                f"{signal_data['signal']} at {signal_data['price']:.2f}"
+            )
+
+            # Format message using strategy's format method
+            message = strategy.format_signal_message(symbol, signal_data)
+
+            # Send Discord notification
+            success = self.notifier.send(message)
+            if success:
+                logger.info(f"Discord notification sent for {symbol}")
+            else:
+                logger.warning(f"Failed to send Discord notification for {symbol}")
+
+            # Log to CSV
+            self._log_signal_to_csv(symbol, signal_data)
+
+        else:
+            logger.info(f"No signal for {symbol}")
+
+    except Exception as e:
+        logger.error(f"Error running strategy for {symbol}: {e}", exc_info=True)
+        error_msg = f"Error processing {symbol}: {str(e)}"
+        self.notifier.send_error(error_msg)
+```
+
+**Update CSV logging to support spike signals:**
+
+```python
+def _log_signal_to_csv(self, symbol: str, signal_data: Dict[str, Any]):
+    """
+    Append signal to CSV file.
+    Supports both BBTrendline and Spike signals.
+    """
+    try:
+        metadata = signal_data.get('metadata', {})
+
+        # Create row with all possible fields
+        row = [
+            signal_data['timestamp'].strftime('%Y-%m-%d %H:%M:%S'),
+            symbol,
+            signal_data['signal'],
+            f"{signal_data['price']:.2f}",
+            f"{signal_data.get('threshold', 0):.2f}",
+            f"{signal_data.get('bb_upper', 0):.2f}",
+            f"{signal_data.get('bb_lower', 0):.2f}",
+            f"{signal_data.get('bb_middle', 0):.2f}",
+            f"{metadata.get('slope', 0):.2f}",
+            f"{metadata.get('distance_to_threshold', 0):.2f}",
+            f"{metadata.get('bb_width', 0):.2f}",
+            # Spike-specific fields
+            f"{signal_data.get('price_zscore', 0):.2f}",
+            f"{signal_data.get('volume_zscore', 0):.2f}",
+            f"{signal_data.get('price_return_pct', 0):.2f}",
+            f"{signal_data.get('volume_ratio', 0):.2f}",
+            metadata.get('confirmation', '')
+        ]
+
+        with open(self.signals_csv_path, 'a') as f:
+            f.write(','.join(row) + '\n')
+
+        logger.info(f"Signal logged to CSV: {symbol} {signal_data['signal']}")
+
+    except Exception as e:
+        logger.error(f"Error logging signal to CSV: {e}")
+
+def _setup_signals_csv(self):
+    """Create signals.csv with headers if it doesn't exist."""
+    self.signals_csv_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if not self.signals_csv_path.exists():
+        headers = [
+            'timestamp',
+            'symbol',
+            'signal',
+            'price',
+            'threshold',
+            'bb_upper',
+            'bb_lower',
+            'bb_middle',
+            'slope',
+            'distance',
+            'bb_width',
+            # Spike-specific columns
+            'price_zscore',
+            'volume_zscore',
+            'price_return_pct',
+            'volume_ratio',
+            'confirmation'
+        ]
+
+        with open(self.signals_csv_path, 'w') as f:
+            f.write(','.join(headers) + '\n')
+
+        logger.info(f"Created signals CSV at {self.signals_csv_path}")
+```
+
+#### 4. Configuration Integration
+
+**Update `config/assets.yaml`** to include spike detection:
+
+```yaml
+assets:
+  # Existing BBTrendline strategy
+  - symbol: BTCUSDT
+    timeframe: 1h
+    strategy: BBTrendlineStrategy
+    indicator: BollingerBands
+    indicator_params:
+      period: 20
+      std_dev: 2.0
+
+  # NEW: Spike detection strategy (moderate sensitivity)
+  - symbol: BTCUSDT
+    timeframe: 1h
+    strategy: SpikeDetectionStrategy
+    indicator: ZScoreIndicator
+    indicator_params:
+      window: 20                    # Rolling window for z-score calculation
+    strategy_params:                # Strategy-specific parameters
+      price_threshold: 2.5          # Price z-score threshold
+      volume_threshold: 1.5         # Volume z-score threshold
+
+  # Example: Conservative spike detection for ETH
+  # - symbol: ETHUSDT
+  #   timeframe: 1h
+  #   strategy: SpikeDetectionStrategy
+  #   indicator: ZScoreIndicator
+  #   indicator_params:
+  #     window: 20
+  #   strategy_params:
+  #     price_threshold: 3.0        # More conservative
+  #     volume_threshold: 2.0
+```
+
+**Multiple Sensitivity Profiles:**
+
+```yaml
+# Conservative (fewer signals, higher confidence)
+- symbol: BTCUSDT
+  timeframe: 1h
+  strategy: SpikeDetectionStrategy
+  indicator: ZScoreIndicator
+  indicator_params:
+    window: 20
+  strategy_params:
+    price_threshold: 3.0
+    volume_threshold: 2.0
+
+# Aggressive (more signals, lower confidence)
+- symbol: ETHUSDT
+  timeframe: 1h
+  strategy: SpikeDetectionStrategy
+  indicator: ZScoreIndicator
+  indicator_params:
+    window: 20
+  strategy_params:
+    price_threshold: 2.0
+    volume_threshold: 1.0
+```
+
+### Testing Plan
+
+#### Unit Tests
+
+**File: `tests/test_zscore_indicator.py`**
+
+```python
+import pytest
+import pandas as pd
+import numpy as np
+from src.indicators.zscore import ZScoreIndicator
+
+
+def test_zscore_calculation():
+    """Test z-score calculation correctness."""
+    indicator = ZScoreIndicator(window=5)
+
+    # Create test data with known spike
+    df = pd.DataFrame({
+        'timestamp': pd.date_range('2024-01-01', periods=10, freq='1h'),
+        'close': [100, 102, 101, 103, 105, 110, 108, 107, 106, 120],  # Spike at end
+        'volume': [1000, 1050, 1000, 1100, 1000, 5000, 1000, 1050, 1000, 6000]  # Volume spikes
+    })
+
+    result = indicator.calculate(df)
+
+    # Verify columns added
+    assert 'price_return' in result.columns
+    assert 'price_zscore' in result.columns
+    assert 'volume_zscore' in result.columns
+
+    # Verify z-score at spike (last candle should be high)
+    assert result['price_zscore'].iloc[-1] > 2.0
+    assert result['volume_zscore'].iloc[-1] > 2.0
+
+
+def test_insufficient_data():
+    """Test behavior with insufficient data for window."""
+    indicator = ZScoreIndicator(window=20)
+
+    df = pd.DataFrame({
+        'timestamp': pd.date_range('2024-01-01', periods=10, freq='1h'),
+        'close': [100] * 10,
+        'volume': [1000] * 10
+    })
+
+    result = indicator.calculate(df)
+
+    # First window-1 rows should have NaN z-scores
+    assert pd.isna(result['price_zscore'].iloc[:19]).all() or len(result) < 20
+
+
+def test_zero_volatility():
+    """Test handling of zero std dev."""
+    indicator = ZScoreIndicator(window=5)
+
+    df = pd.DataFrame({
+        'timestamp': pd.date_range('2024-01-01', periods=10, freq='1h'),
+        'close': [100] * 10,
+        'volume': [1000] * 10
+    })
+
+    result = indicator.calculate(df)
+
+    # Should handle gracefully (NaN, not crash)
+    assert result is not None
+```
+
+**File: `tests/test_spike_detection_strategy.py`**
+
+```python
+import pytest
+import pandas as pd
+from src.strategies.spike_detection import SpikeDetectionStrategy
+
+
+@pytest.fixture
+def spike_up_data():
+    """DataFrame with clear upward spike."""
+    return pd.DataFrame({
+        'timestamp': pd.date_range('2024-01-01', periods=25, freq='1h'),
+        'close': [100.0] * 23 + [110.0, 115.0],
+        'volume': [1000.0] * 23 + [5000.0, 6000.0],
+        'price_return': [0.0] * 23 + [0.10, 0.045],
+        'price_zscore': [0.0] * 23 + [3.5, 2.8],
+        'volume_zscore': [0.0] * 23 + [2.5, 2.8]
+    })
+
+
+@pytest.fixture
+def spike_down_data():
+    """DataFrame with clear downward spike."""
+    return pd.DataFrame({
+        'timestamp': pd.date_range('2024-01-01', periods=25, freq='1h'),
+        'close': [100.0] * 23 + [90.0, 85.0],
+        'volume': [1000.0] * 23 + [5000.0, 6000.0],
+        'price_return': [0.0] * 23 + [-0.10, -0.056],
+        'price_zscore': [0.0] * 23 + [-3.5, -2.8],
+        'volume_zscore': [0.0] * 23 + [2.5, 2.8]
+    })
+
+
+@pytest.fixture
+def no_spike_data():
+    """DataFrame with normal price action."""
+    return pd.DataFrame({
+        'timestamp': pd.date_range('2024-01-01', periods=25, freq='1h'),
+        'close': [100.0] * 25,
+        'volume': [1000.0] * 25,
+        'price_return': [0.0] * 25,
+        'price_zscore': [0.0] * 25,
+        'volume_zscore': [0.5] * 25
+    })
+
+
+def test_spike_up_detection(spike_up_data):
+    """Test detection of upward spike."""
+    strategy = SpikeDetectionStrategy(price_threshold=2.5, volume_threshold=1.5)
+    signal = strategy.generate_signal(spike_up_data)
+
+    assert signal is not None
+    assert signal['signal'] == 'SPIKE_UP'
+    assert signal['price_zscore'] > 2.5
+    assert signal['volume_zscore'] > 1.5
+
+
+def test_spike_down_detection(spike_down_data):
+    """Test detection of downward spike."""
+    strategy = SpikeDetectionStrategy(price_threshold=2.5, volume_threshold=1.5)
+    signal = strategy.generate_signal(spike_down_data)
+
+    assert signal is not None
+    assert signal['signal'] == 'SPIKE_DOWN'
+    assert signal['price_zscore'] < -2.5
+    assert signal['volume_zscore'] > 1.5
+
+
+def test_no_spike_detection(no_spike_data):
+    """Test no signal when no spike present."""
+    strategy = SpikeDetectionStrategy(price_threshold=2.5, volume_threshold=1.5)
+    signal = strategy.generate_signal(no_spike_data)
+
+    assert signal is None
+
+
+def test_custom_thresholds():
+    """Test strategy with custom thresholds."""
+    conservative_strategy = SpikeDetectionStrategy(price_threshold=3.0, volume_threshold=2.0)
+    moderate_strategy = SpikeDetectionStrategy(price_threshold=2.5, volume_threshold=1.5)
+
+    df = pd.DataFrame({
+        'timestamp': pd.date_range('2024-01-01', periods=25, freq='1h'),
+        'close': [100.0] * 24 + [110.0],
+        'volume': [1000.0] * 24 + [4000.0],
+        'price_return': [0.0] * 24 + [0.10],
+        'price_zscore': [0.0] * 24 + [2.7],
+        'volume_zscore': [0.0] * 24 + [1.8]
+    })
+
+    # Moderate detects, conservative doesn't
+    assert moderate_strategy.generate_signal(df) is not None
+    assert conservative_strategy.generate_signal(df) is None
+```
+
+### Implementation Checklist
+
+**Code Implementation:**
+- [ ] Create `src/indicators/zscore.py` with `ZScoreIndicator` class
+- [ ] Create `src/strategies/spike_detection.py` with `SpikeDetectionStrategy` class
+- [ ] Update `src/scheduler.py`:
+  - [ ] Add imports for new indicator and strategy
+  - [ ] Add `ZScoreIndicator` to `indicator_map`
+  - [ ] Add `SpikeDetectionStrategy` to `strategy_map`
+  - [ ] Support `strategy_params` in `run_strategy()` method
+  - [ ] Update CSV logging to include spike-specific columns
+  - [ ] Update `_setup_signals_csv()` to add new headers
+
+**Testing:**
+- [ ] Create `tests/test_zscore_indicator.py` with 3+ test cases
+- [ ] Create `tests/test_spike_detection_strategy.py` with 5+ test cases
+- [ ] Run `pytest tests/test_zscore_indicator.py` - all pass
+- [ ] Run `pytest tests/test_spike_detection_strategy.py` - all pass
+- [ ] Run full test suite `pytest` - all pass
+
+**Configuration:**
+- [ ] Update `config/assets.yaml` with spike detection example
+- [ ] Choose initial thresholds (default: price=2.5, volume=1.5)
+- [ ] Document threshold tuning guidelines
+
+**Deployment:**
+- [ ] Test with real Bybit data (dry run)
+- [ ] Verify Discord notification formatting
+- [ ] Enable spike detection in production config
+- [ ] Monitor first signals
+- [ ] Adjust thresholds based on initial results
+
+### Expected Signal Output
+
+**Discord Notification Example:**
+
+```
+🔺 **SPIKE_UP DETECTED** 🔺
+
+**Symbol:** BTC
+**Price:** $45,250.00
+**Price Change:** +5.25%
+
+**Z-Scores:**
+• Price Z-Score: 3.20 (above threshold: 2.5)
+• Volume Z-Score: 2.10 (threshold: 1.5)
+
+**Volume Analysis:**
+• Current Volume: 50,000
+• Average Volume: 14,286
+• Volume Ratio: 3.50x average
+
+**Signal Strength:** STRONG
+**Combined Score:** 5.30
+
+**Timestamp:** 2024-01-15 14:00:00 UTC
+```
+
+**CSV Log Entry:**
+
+```csv
+2024-01-15 14:00:00,BTCUSDT,SPIKE_UP,45250.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3.20,2.10,5.25,3.50,STRONG
+```
+
+### Threshold Tuning Guidelines
+
+| Market Condition | Price Threshold | Volume Threshold | Use Case |
+|------------------|----------------|------------------|----------|
+| **Low Volatility (BTC)** | 3.0 | 2.0 | Conservative, institutional moves |
+| **Medium Volatility (ETH)** | 2.5 | 1.5 | Balanced, default setting |
+| **High Volatility (Altcoins)** | 2.0 | 1.0 | Aggressive, catch more signals |
+| **News Trading** | 2.0 | 2.0 | Price spike + strong volume |
+| **Whale Watching** | 1.5 | 2.5 | Emphasize volume over price |
+
+### Window Size Guidelines
+
+| Timeframe | Recommended Window | Rationale |
+|-----------|-------------------|-----------|
+| **1h** | 20 | 20 hours ≈ 1 day |
+| **4h** | 15 | 60 hours ≈ 2.5 days |
+| **15m** | 40 | 600 minutes ≈ 10 hours |
+| **1d** | 14 | 14 days ≈ 2 weeks |
+
+### Data Flow Diagram
+
+```
+Hourly Scheduler Trigger (1:00, 2:00, etc.)
+    ↓
+BybitFetcher.get_ohlcv('BTCUSDT', '1h', limit=100)
+    ↓ [timestamp, open, high, low, close, volume]
+    ↓
+ZScoreIndicator(window=20).calculate(df)
+    ↓ Adds: [price_return, price_zscore, volume_zscore]
+    ↓
+SpikeDetectionStrategy(price_threshold=2.5, volume_threshold=1.5).generate_signal(df)
+    ↓
+    ├─ Extract t-1 (most recent completed candle)
+    ├─ Check: price_zscore > 2.5 AND volume_zscore > 1.5
+    │   └─ YES → Return {signal: 'SPIKE_UP', ...}
+    └─ Check: price_zscore < -2.5 AND volume_zscore > 1.5
+        └─ YES → Return {signal: 'SPIKE_DOWN', ...}
+    ↓
+IF signal exists:
+    ├─ SpikeDetectionStrategy.format_signal_message(symbol, signal)
+    ├─ DiscordNotifier.send(message)
+    └─ Scheduler._log_signal_to_csv(symbol, signal)
+```
+
+### Integration with Existing System
+
+**Benefits:**
+- ✅ No changes to existing BBTrendline strategy
+- ✅ Both strategies can run on same asset simultaneously
+- ✅ Reuses existing infrastructure (fetcher, notifier, scheduler)
+- ✅ Configuration-driven (easy to enable/disable)
+- ✅ Separate signal types don't conflict
+- ✅ Independent CSV logging (all signals in one file)
+
+**Usage Pattern:**
+```yaml
+# Run BOTH strategies on BTC
+assets:
+  # BBTrendline for trend reversals
+  - symbol: BTCUSDT
+    timeframe: 1h
+    strategy: BBTrendlineStrategy
+    indicator: BollingerBands
+    indicator_params:
+      period: 20
+      std_dev: 2.0
+
+  # Spike detection for volatility events
+  - symbol: BTCUSDT
+    timeframe: 1h
+    strategy: SpikeDetectionStrategy
+    indicator: ZScoreIndicator
+    indicator_params:
+      window: 20
+    strategy_params:
+      price_threshold: 2.5
+      volume_threshold: 1.5
+```
+
+### Success Metrics (After 1 Week)
+
+**Quantitative:**
+- [ ] 5-15 spike signals detected across all assets
+- [ ] 80%+ signals have `confirmation: STRONG`
+- [ ] Zero exceptions/errors in logs
+- [ ] Test coverage >80% for new code
+
+**Qualitative:**
+- [ ] Signals align with visual chart spikes
+- [ ] Discord notifications clearly formatted
+- [ ] Easy to tune via configuration
+- [ ] No interference with BBTrendline strategy
+
+---
+
+**END OF SPIKE SIGNALS APPENDIX**

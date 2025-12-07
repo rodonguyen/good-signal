@@ -63,7 +63,6 @@ class BBTrendlineStrategy(BaseStrategy):
                 'bb_upper': float,
                 'bb_lower': float,
                 'bb_middle': float,
-                'open_timestamp': datetime,
                 'metadata': {
                     'slope': float,
                     'distance_to_threshold': float,
@@ -124,7 +123,6 @@ class BBTrendlineStrategy(BaseStrategy):
                 "bb_upper": float(t_minus_1["bb_upper"]),
                 "bb_lower": float(t_minus_1["bb_lower"]),
                 "bb_middle": float(t_minus_1["bb_middle"]),
-                "open_timestamp": t_minus_1["timestamp"],
                 "metadata": {
                     "bb_t_minus_1": float(t_minus_2["bb_upper"]),
                     "bb_t_minus_2": float(t_minus_3["bb_upper"]),
@@ -158,7 +156,6 @@ class BBTrendlineStrategy(BaseStrategy):
                 "bb_upper": float(t_minus_1["bb_upper"]),
                 "bb_lower": float(t_minus_1["bb_lower"]),
                 "bb_middle": float(t_minus_1["bb_middle"]),
-                "open_timestamp": t_minus_1["timestamp"],
                 "metadata": {
                     "bb_t_minus_3": float(t_minus_3["bb_lower"]),
                     "bb_t_minus_2": float(t_minus_2["bb_lower"]),
@@ -200,10 +197,6 @@ class BBTrendlineStrategy(BaseStrategy):
         bb_upper = signal_data["bb_upper"]
         bb_lower = signal_data["bb_lower"]
         bb_middle = signal_data["bb_middle"]
-        open_timestamp = signal_data["open_timestamp"]
-
-        # Convert open_timestamp to local timezone
-        local_open_timestamp = to_local_timezone(open_timestamp)
 
         # Get current timestamp
         current_timestamp = to_local_timezone(datetime.utcnow())
@@ -224,23 +217,13 @@ class BBTrendlineStrategy(BaseStrategy):
         message = f"""
 {emoji} **{signal_type} SIGNAL** {emoji}
 
-**Symbol:** {display_symbol}
-**Price:** ${price:,.2f}
+**Symbol:** {display_symbol} = ${price:,.2f}
 **Threshold:** ${threshold:,.2f} 
 **Distance:** ${distance:,.2f} ({abs(distance/price)*100:.2f}%)
 
-**Bollinger Bands:**
-• Upper: ${bb_upper:,.2f}
-• Middle: ${bb_middle:,.2f}
-• Lower: ${bb_lower:,.2f}
+**Bollinger Bands:** ${bb_upper:,.2f} / ${bb_lower:,.2f} / ${bb_middle:,.2f}
+**Trendline:** t-3: ${bb_t_minus_3:,.2f} / t-2: ${bb_t_minus_2:,.2f} / slope: {slope:+.2f} / penetration: {penetration_pct:.2f}%
 
-**Trendline:**
-• {band_label} (t-3): ${bb_t_minus_3:,.2f}
-• {band_label} (t-2): ${bb_t_minus_2:,.2f}
-• Slope: {slope:+.2f}
-• Penetration: {penetration_pct:.2f}%
-
-**Open Time:** {local_open_timestamp.strftime('%Y-%m-%d %H:%M:%S')}
 **Timestamp:** {current_timestamp.strftime('%Y-%m-%d %H:%M:%S')}
 """
 

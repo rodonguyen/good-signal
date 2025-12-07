@@ -2,7 +2,7 @@
 # Define which assets to monitor and which strategies to apply
 
 assets:
-  # Bitcoin - Bollinger Band Trendline Strategy
+  # Bitcoin - Bollinger Band Trendline Strategy (1h)
   - symbol: BTCUSDT               # Bybit perpetual futures format
     timeframe: 1h                  # Candle interval
     strategy: BBTrendlineStrategy  # Strategy class name
@@ -11,7 +11,18 @@ assets:
       period: 20                   # BB period (SMA length)
       std_dev: 2.0                 # Standard deviation multiplier
 
-  # Ethereum - Example (uncomment to enable)
+  # Bitcoin - Spike Detection Strategy (5m) - AGGRESSIVE
+  - symbol: BTCUSDT
+    timeframe: 5m                  # 5-minute candles for fast spike detection
+    strategy: SpikeDetectionStrategy
+    indicator: ZScoreIndicator
+    indicator_params:
+      window: 20                   # 20 periods = 100 minutes of data
+    strategy_params:
+      price_threshold: 2.0         # Aggressive: catch more price spikes
+      volume_threshold: 1.0        # Aggressive: lower volume confirmation
+
+  # Ethereum - Bollinger Band Trendline Strategy (1h)
   - symbol: ETHUSDT
     timeframe: 1h
     strategy: BBTrendlineStrategy
@@ -19,6 +30,16 @@ assets:
     indicator_params:
       period: 20
       std_dev: 2.0
+  
+  - symbol: ETHUSDT
+    timeframe: 5m
+    strategy: SpikeDetectionStrategy
+    indicator: ZScoreIndicator
+    indicator_params:
+      window: 20
+    strategy_params:
+      price_threshold: 2.0
+      volume_threshold: 1.0
 
   # S&P 500 - Example (uncomment to enable)
   # Note: Check Bybit for correct SPX futures symbol
@@ -32,8 +53,14 @@ assets:
 
 # Notes:
 # - Symbol format: {BASE}{QUOTE} for Bybit perpetuals (e.g., BTCUSDT)
-# - Timeframe options: 1m, 5m, 15m, 1h, 4h, 1d (1h only currently)
-# - Each asset runs independently
+# - Timeframe options: 1m, 5m, 15m, 1h, 4h, 1d (multi-timeframe supported)
+# - Each asset+timeframe+strategy combination runs independently
+# - You can run MULTIPLE strategies on the SAME asset with different timeframes
 # - Easy to add new assets: just add new entry
-# - Easy to test different parameters: adjust indicator_params
+# - Easy to test different parameters: adjust indicator_params or strategy_params
+#
+# Spike Detection Threshold Guidelines:
+# - Conservative: price_threshold: 3.0, volume_threshold: 2.0 (fewer signals, higher confidence)
+# - Moderate:     price_threshold: 2.5, volume_threshold: 1.5 (balanced)
+# - Aggressive:   price_threshold: 2.0, volume_threshold: 1.0 (more signals, lower confidence)
 

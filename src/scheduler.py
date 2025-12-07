@@ -14,7 +14,9 @@ from typing import Dict, List, Any
 
 from src.data.bybit_fetcher import BybitFetcher
 from src.indicators.bollinger_bands import BollingerBands
+from src.indicators.zscore import ZScoreIndicator
 from src.strategies.bb_trendline import BBTrendlineStrategy
+from src.strategies.spike_detection import SpikeDetectionStrategy
 from src.notifiers.discord_notifier import DiscordNotifier
 from src.utils.datetime_utils import to_local_timezone
 
@@ -63,9 +65,9 @@ class TradingScheduler:
         self._setup_signals_csv()
 
         # Strategy/Indicator factory mapping
-        self.strategy_map = {"BBTrendlineStrategy": BBTrendlineStrategy}
+        self.strategy_map = {"BBTrendlineStrategy": BBTrendlineStrategy, "SpikeDetectionStrategy": SpikeDetectionStrategy}
 
-        self.indicator_map = {"BollingerBands": BollingerBands}
+        self.indicator_map = {"BollingerBands": BollingerBands, "ZScoreIndicator": ZScoreIndicator}
 
         # Test components during initialization
         self.test_components()
@@ -103,6 +105,12 @@ class TradingScheduler:
                 "slope",
                 "distance",
                 "bb_width",
+                # Spike-specific columns
+                "price_zscore",
+                "volume_zscore",
+                "price_return_pct",
+                "volume_ratio",
+                "confirmation",
             ]
 
             with open(self.signals_csv_path, "w") as f:
@@ -113,6 +121,7 @@ class TradingScheduler:
     def _log_signal_to_csv(self, symbol: str, signal_data: Dict[str, Any]):
         """
         Append signal to CSV file.
+        Supports both BBTrendline and Spike signals.
 
         Args:
             symbol: Trading pair
@@ -121,21 +130,28 @@ class TradingScheduler:
         try:
             metadata = signal_data.get("metadata", {})
 
-            # Convert open_timestamp to local timezone
-            local_timestamp = to_local_timezone(signal_data["open_timestamp"])
+            # Convert timestamp to local timezone (handle both open_timestamp and timestamp)
+            timestamp_key = "open_timestamp" if "open_timestamp" in signal_data else "timestamp"
+            local_timestamp = to_local_timezone(signal_data[timestamp_key])
 
             row = [
                 local_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
                 symbol,
                 signal_data["signal"],
                 f"{signal_data['price']:.2f}",
-                f"{signal_data['threshold']:.2f}",
-                f"{signal_data['bb_upper']:.2f}",
-                f"{signal_data['bb_lower']:.2f}",
-                f"{signal_data['bb_middle']:.2f}",
+                f"{signal_data.get('threshold', 0):.2f}",
+                f"{signal_data.get('bb_upper', 0):.2f}",
+                f"{signal_data.get('bb_lower', 0):.2f}",
+                f"{signal_data.get('bb_middle', 0):.2f}",
                 f"{metadata.get('slope', 0):.2f}",
                 f"{metadata.get('distance_to_threshold', 0):.2f}",
                 f"{metadata.get('bb_width', 0):.2f}",
+                # Spike-specific fields
+                f"{signal_data.get('price_zscore', 0):.2f}",
+                f"{signal_data.get('volume_zscore', 0):.2f}",
+                f"{signal_data.get('price_return_pct', 0):.2f}",
+                f"{signal_data.get('volume_ratio', 0):.2f}",
+                metadata.get("confirmation", ""),
             ]
 
             with open(self.signals_csv_path, "a") as f:
@@ -155,8 +171,8 @@ class TradingScheduler:
 
         Process:
         1. Fetch OHLCV data from Bybit
-        2. Calculate indicators (Bollinger Bands)
-        3. Run strategy (BBTrendlineStrategy)
+        2. Calculate indicators
+        3. Run strategy
         4. If signal: notify + log to CSV
         5. Handle errors gracefully
         """
@@ -165,12 +181,13 @@ class TradingScheduler:
         strategy_name = asset_config["strategy"]
         indicator_name = asset_config["indicator"]
         indicator_params = asset_config.get("indicator_params", {})
+        strategy_params = asset_config.get("strategy_params", {})  # NEW: Support strategy params
 
-        logger.info(f"Running strategy for {symbol}...")
+        logger.info(f"Running {strategy_name} for {symbol} ({timeframe})...")
 
         try:
             # Step 1: Fetch data
-            df = self.fetcher.get_ohlcv(symbol, timeframe, limit=100)
+            df = self.fetcher.get_ohlcv(symbol, timeframe, limit=200)
 
             if df is None or df.empty:
                 logger.warning(f"No data fetched for {symbol}, skipping")
@@ -193,7 +210,7 @@ class TradingScheduler:
                 logger.error(f"Unknown strategy: {strategy_name}")
                 return
 
-            strategy = strategy_class()
+            strategy = strategy_class(**strategy_params)  # UPDATED: Pass strategy params
             signal_data = strategy.generate_signal(df)
 
             # Step 4: Process signal if generated
@@ -207,7 +224,7 @@ class TradingScheduler:
             formatted_message = strategy.format_signal_message(symbol, signal_data)
 
             # Send Discord notification
-            success = self.notifier.send_signal(formatted_message)
+            success = self.notifier.send(formatted_message)  # UPDATED: Use send() instead of send_signal()
             if success:
                 logger.info(f"Discord notification sent for {symbol}")
             else:
@@ -221,24 +238,29 @@ class TradingScheduler:
             error_msg = f"Error processing {symbol}: {str(e)}"
             self.notifier.send_error(error_msg)
 
-    def run_all_assets(self):
+    def run_assets_by_timeframe(self, timeframe: str):
         """
-        Execute strategies for all configured assets.
-        Called by scheduler every hour.
+        Execute strategies for assets with specific timeframe.
+
+        Args:
+            timeframe: Timeframe to filter assets by (e.g., '1h', '5m')
         """
-        logger.info(f"Running strategies at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"Running {timeframe} strategies at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
         assets = self.assets_config.get("assets", [])
 
-        if not assets:
-            logger.warning("⚠️No assets configured in assets.yaml")
+        # Filter assets by timeframe
+        timeframe_assets = [a for a in assets if a.get("timeframe") == timeframe]
+
+        if not timeframe_assets:
+            logger.debug(f"No assets configured for {timeframe} timeframe")
             return
 
-        for asset_config in assets:
+        for asset_config in timeframe_assets:
             self.run_strategy(asset_config)
             time.sleep(1)  # Small delay between assets to avoid rate limits
 
-        logger.info("Completed strategy run for all assets")
+        logger.info(f"Completed {timeframe} strategy run ({len(timeframe_assets)} assets)")
         logger.info("=" * 60)
 
     def test_components(self) -> bool:
@@ -283,27 +305,78 @@ class TradingScheduler:
 
         return all_pass
 
+    def _get_unique_timeframes(self) -> List[str]:
+        """
+        Get unique timeframes from configured assets.
+
+        Returns:
+            List of unique timeframe strings (e.g., ['1h', '5m'])
+        """
+        assets = self.assets_config.get("assets", [])
+        timeframes = set()
+
+        for asset in assets:
+            tf = asset.get("timeframe")
+            if tf:
+                timeframes.add(tf)
+
+        return sorted(list(timeframes))
+
     def start(self):
         """
-        Start the scheduler with 1h interval.
+        Start the scheduler with multi-timeframe support.
         Runs indefinitely until interrupted.
+
+        Supports multiple timeframes by scheduling each independently:
+        - 5m: Every 5 minutes at :00, :05, :10, etc.
+        - 15m: Every 15 minutes at :00, :15, :30, :45
+        - 1h: Every hour at :00
+        - 4h: Every 4 hours at :00
+        - 1d: Every day at midnight
         """
-        logger.info("Starting TradingScheduler...")
+        logger.info("Starting TradingScheduler with multi-timeframe support...")
 
-        # Schedule runs at sharp hours (1:00, 2:00, etc.)
-        schedule.every().hour.at(":00").do(self.run_all_assets)
+        # Get unique timeframes from config
+        timeframes = self._get_unique_timeframes()
 
-        # Run immediately on start
-        logger.info("Running initial strategy execution...")
-        self.run_all_assets()
+        if not timeframes:
+            logger.error("No timeframes configured in assets.yaml")
+            return
+
+        logger.info(f"Detected timeframes: {', '.join(timeframes)}")
+
+        # Schedule each timeframe independently
+        for tf in timeframes:
+            if tf == "5m":
+                schedule.every(5).minutes.do(self.run_assets_by_timeframe, timeframe="5m")
+                logger.info("Scheduled 5-minute strategy runs")
+            elif tf == "15m":
+                schedule.every(15).minutes.do(self.run_assets_by_timeframe, timeframe="15m")
+                logger.info("Scheduled 15-minute strategy runs")
+            elif tf == "1h":
+                schedule.every().hour.at(":00").do(self.run_assets_by_timeframe, timeframe="1h")
+                logger.info("Scheduled hourly strategy runs")
+            elif tf == "4h":
+                schedule.every(4).hours.do(self.run_assets_by_timeframe, timeframe="4h")
+                logger.info("Scheduled 4-hour strategy runs")
+            elif tf == "1d":
+                schedule.every().day.at("00:00").do(self.run_assets_by_timeframe, timeframe="1d")
+                logger.info("Scheduled daily strategy runs")
+            else:
+                logger.warning(f"Unsupported timeframe: {tf} - skipping")
+
+        # Run immediately on start for all timeframes
+        logger.info("Running initial strategy execution for all timeframes...")
+        for tf in timeframes:
+            self.run_assets_by_timeframe(tf)
 
         # Start scheduler loop
-        logger.info("Scheduler started. Running every 1 hour. Press Ctrl+C to stop.")
+        logger.info(f"Scheduler started for timeframes: {', '.join(timeframes)}. Press Ctrl+C to stop.")
 
         try:
             while True:
                 schedule.run_pending()
-                time.sleep(60)  # Check every minute
+                time.sleep(30)  # Check every 30 seconds (for 5m precision)
         except KeyboardInterrupt:
             logger.info("Scheduler stopped by user")
         except Exception as e:
