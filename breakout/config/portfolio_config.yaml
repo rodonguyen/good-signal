@@ -1,0 +1,38 @@
+# Portfolio Configuration
+
+# Starting capital
+capital:
+  initial: 10000  # Starting capital in USD
+
+# Position sizing method
+position_sizing:
+  method: risk_based  # 'risk_based', 'fixed_dollar', or 'equal_weight'
+  
+  # Risk-based sizing (default)
+  risk_based:
+    risk_per_trade: 0.01  # Risk 1% of capital per trade
+    use_atr_for_risk: true  # Use ATR to calculate position size based on stop distance
+  
+  # Fixed dollar sizing
+  fixed_dollar:
+    amount_per_trade: 1000  # Fixed dollar amount per trade
+  
+  # Equal weight sizing
+  equal_weight:
+    # Automatically calculated based on number of symbols
+
+# Symbol list (for multi-symbol portfolios)
+symbols:
+  - ETHUSDT
+
+# Input paths
+paths:
+  trades_dir: data/trades  # Use raw trades
+  filtered_dir: data/filtered  # Or use filtered trades
+  use_filtered: false  # Set to true to use filtered trades instead of raw
+
+# Output paths
+output:
+  portfolio_dir: data/portfolio
+  portfolio_file: portfolio_trades.csv
+

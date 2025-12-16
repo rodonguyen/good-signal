@@ -1,0 +1,30 @@
+# Crypto Symbols Configuration
+# Easy to add new symbols here
+
+symbols:
+  ETHUSDT:
+    symbol: ETHUSDT
+    category: linear  # linear = USDT-margined perpetual futures
+    description: Ethereum Perpetual Futures
+    
+  BTCUSDT:
+    symbol: BTCUSDT
+    category: linear
+    description: Bitcoin Perpetual Futures
+
+# Default symbol to use if not specified
+default_symbol: ETHUSDT
+
+# API Configuration
+api:
+  base_url: https://api.bybit.com
+  endpoint: /v5/market/kline
+  rate_limit_per_minute: 120  # Public API rate limit
+  request_delay_seconds: 0.5  # Delay between requests to stay under limit
+
+# Data Configuration
+data:
+  interval: 1  # 1-minute klines
+  output_format: csv
+  data_directory: data/raw/crypto
+

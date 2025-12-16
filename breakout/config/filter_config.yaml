@@ -1,0 +1,32 @@
+# Trade Filter Configuration
+
+# Filter enable/disable flags
+filters:
+  narrow_day:
+    enabled: true
+    threshold: 0.5  # Previous day range < 0.5 × average range
+    lookback_period: 20  # Period for calculating average range
+  
+  volatility_contraction:
+    enabled: true
+    short_period: 5  # Short-term ATR period
+    long_period: 14  # Long-term ATR period
+  
+  trend_filter:
+    enabled: false  # Disabled by default
+    ma_period: 20  # Moving average period
+    trend_direction: any  # 'up', 'down', or 'any'
+  
+  volatility_expansion:
+    enabled: false  # Disabled by default
+    period: 5  # Period for detecting expansion
+
+# Filter logic mode
+logic_mode: AND  # 'AND' = all enabled filters must pass, 'OR' = any filter passes
+
+# Input/Output paths
+paths:
+  trades_dir: data/trades
+  filtered_dir: data/filtered
+  raw_data_dir: data/raw/crypto
+
