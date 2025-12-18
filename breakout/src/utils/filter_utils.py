@@ -149,3 +149,5 @@ def calculate_volatility_expansion(
     
     return expansion.fillna(False)
 
+
+

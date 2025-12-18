@@ -14,6 +14,8 @@ from pybit.unified_trading import HTTP
 
 from utils.config import load_config, get_symbol_config, get_default_symbol
 
+NUMBER_OF_ENTRIES = 1000
+
 
 class BybitDownloader:
     """Downloader for Bybit historical kline data."""
@@ -69,7 +71,12 @@ class BybitDownloader:
 
         try:
             response = self.client.get_kline(
-                category=category, symbol=symbol, interval=interval, start=start_time, end=end_time, limit=500  # Max 500 candles per request
+                category=category,
+                symbol=symbol,
+                interval=interval,
+                start=start_time,
+                end=end_time,
+                limit=NUMBER_OF_ENTRIES,  # Max 500 candles per request
             )
 
             if response["retCode"] != 0:
@@ -135,7 +142,8 @@ class BybitDownloader:
         # Bybit returns max 500 candles per request
         # 1-minute candles = 500 minutes per request
         # Calculate request window (500 minutes in ms)
-        request_window_ms = 10000 * 60 * 1000
+
+        request_window_ms = NUMBER_OF_ENTRIES * 60 * 1000
 
         while current_start < end_ts:
             current_end = min(current_start + request_window_ms, end_ts)

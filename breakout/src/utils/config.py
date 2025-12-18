@@ -57,3 +57,5 @@ def get_default_symbol(config: Dict[str, Any] = None) -> str:
     
     return config.get('default_symbol', 'ETHUSDT')
 
+
+

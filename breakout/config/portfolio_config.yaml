@@ -2,7 +2,7 @@
 
 # Starting capital
 capital:
-  initial: 10000  # Starting capital in USD
+  initial: 1000  # Starting capital in USD
 
 # Position sizing method
 position_sizing:
@@ -10,7 +10,7 @@ position_sizing:
   
   # Risk-based sizing (default)
   risk_based:
-    risk_per_trade: 0.01  # Risk 1% of capital per trade
+    risk_per_trade: 0.02  # Risk 1% of capital per trade
     use_atr_for_risk: true  # Use ATR to calculate position size based on stop distance
   
   # Fixed dollar sizing

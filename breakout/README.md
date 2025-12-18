@@ -2,44 +2,6 @@
 
 A modular backtesting system for intraday volatility breakout strategies, supporting both traditional stocks (Alpaca) and cryptocurrency futures (Bybit).
 
-## Project Structure
-
-```
-breakout/
-├── data/
-│   ├── raw/
-│   │   └── crypto/           # Crypto data (CSV files)
-│   │       ├── ETHUSDT/
-│   │       └── BTCUSDT/
-├── src/
-│   ├── bybit_downloader.py   # Block 1: Data downloader
-│   ├── breakout_engine.py   # Block 2: Breakout trade generator
-│   ├── trade_filter.py       # Block 3: Trade filter
-│   ├── portfolio_builder.py   # Block 4: Portfolio builder
-│   ├── portfolio_analysis.py # Block 5: Performance analysis
-│   └── utils/
-│       ├── config.py          # Configuration utilities
-│       ├── crypto_utils.py   # Crypto-specific utilities
-│       ├── filter_utils.py    # Filter calculation functions
-│       ├── fee_calculator.py  # Fee calculation
-│       └── analysis_utils.py  # Statistics calculations
-├── config/
-│   ├── crypto_symbols.yaml   # Symbol configuration
-│   ├── filter_config.yaml    # Filter settings
-│   └── portfolio_config.yaml # Portfolio settings
-├── data/
-│   ├── raw/crypto/           # Raw 1-minute data
-│   ├── trades/               # Generated trades
-│   ├── filtered/             # Filtered trades
-│   └── portfolio/            # Portfolio data
-├── outputs/
-│   └── reports/              # HTML reports
-├── config/
-│   └── crypto_symbols.yaml    # Symbol configuration
-├── requirements.txt
-└── README.md
-```
-
 ## Setup
 
 1. Install dependencies:
@@ -119,12 +81,16 @@ Generate performance report:
 python src/portfolio_analysis.py
 ```
 
-Outputs HTML report with:
-- Performance statistics
-- Equity curve chart
-- Drawdown chart
-- Monthly returns
-- Trade PnL distribution
+Outputs:
+- **Portfolio Report** (`outputs/reports/portfolio_report.html`): Main HTML report with performance statistics
+- **Chart Files** (per symbol): Interactive TradingView charts
+  - `outputs/reports/{SYMBOL}_chart.html` - Interactive chart for each symbol
+  - `outputs/reports/chart_data/{SYMBOL}_chart_data.json` - Chart data files
+
+Each symbol chart displays:
+- Price history (candlestick chart)
+- Trade markers (triangles for entry, circles for exit/SL)
+- Breakout levels and stop loss levels (horizontal lines)
 
 ### Python API
 

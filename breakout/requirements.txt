@@ -7,3 +7,6 @@ pyyaml>=6.0
 matplotlib>=3.7.0
 seaborn>=0.12.0
 
+# Optional: For desktop GUI chart examples (examples/simple_chart_example.py)
+# lightweight-charts>=2.1.0  # Optional: Has Windows build issues with pythonnet dependency
+

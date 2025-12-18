@@ -79,3 +79,5 @@ def calculate_pnl_with_fees(
     # Apply fees
     return apply_fees_to_pnl(raw_pnl, entry_price, exit_price, size, direction, fee_rate)
 
+
+
