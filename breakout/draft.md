@@ -5,9 +5,7 @@ Then do step 5 with html + JS, but just show:
 - buy sell markers on chart (arrow up green or arrow down red) based on trades.direction, trades.entryTime, trades.entryPrice.
 - stop loss or take profit markers on chart (red or green cicles) based on trades.exitReason, trades.exitTime, trades.exitPrice.
 - From trades.entryTime to trades.exitTime, show dotted lines of upperlevel, lowerlevel
-
-
- the breakout level, SL level of the day that has trades
+- For each day that has trades, show the upperlevel from trades.upperLevel with dotted green line, lowerlevel from trades.lowerLevel with dotted orange line, the SL level from trades.stopLevel with dotted yellow line
 
 Then do step 6 with html + JS, but just show:
 - price candlestick history
