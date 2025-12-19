@@ -369,11 +369,11 @@
                     backgroundColor: histogramData.values.map((v, i) => {
                         if (histogramData.values[i] === 0) return 'rgba(158, 158, 158, 0.6)';
                         const midPoint = Math.floor(histogramData.labels.length / 2);
-                        return i < midPoint ? 'rgba(76, 175, 80, 0.6)' : 'rgba(239, 83, 80, 0.6)';
+                        return i < midPoint ? 'rgba(239, 83, 80, 0.6)' : 'rgba(76, 175, 80, 0.6)';
                     }),
                     borderColor: histogramData.values.map((v, i) => {
                         const midPoint = Math.floor(histogramData.labels.length / 2);
-                        return i < midPoint ? '#4caf50' : '#ef5350';
+                        return i < midPoint ? '#ef5350' : '#4caf50';
                     }),
                     borderWidth: 1
                 }]
