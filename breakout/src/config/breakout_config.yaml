@@ -1,0 +1,15 @@
+# Breakout Engine Configuration
+
+# Strategy Parameters
+strategy:
+  atr_period: 14  # Number of 24-hour periods for ATR calculation
+  breakout_multiplier: 0.42  # Multiplier for breakout levels (k × ATR)
+  stop_multiplier: 0.25  # Multiplier for stop loss (k × ATR)
+  day_start_hour: 13  # Hour when trading day starts (13 = 13:00 UTC)
+  fee_rate: 0.0015  # Total fee rate per trade (0.0015 = 0.15%)
+
+# Paths
+paths:
+  data_dir: data/raw/crypto  # Input data directory
+  output_dir: data/trades  # Output trades directory
+

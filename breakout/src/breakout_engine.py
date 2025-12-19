@@ -28,40 +28,56 @@ class CryptoBreakoutEngine:
 
     def __init__(
         self,
-        atr_period: int = 14,
-        breakout_multiplier: float = 0.33,
-        stop_multiplier: float = 0.33,
-        day_start_hour: int = 13,
-        fee_rate: float = 0.0015,
+        atr_period: int = None,
+        breakout_multiplier: float = None,
+        stop_multiplier: float = None,
+        day_start_hour: int = None,
+        fee_rate: float = None,
         config_path: str = "src/config/crypto_symbols.yaml",
+        breakout_config_path: str = "src/config/breakout_config.yaml",
     ):
         """Initialize breakout engine.
 
         Args:
-            atr_period: Number of 24-hour periods for ATR calculation
-            breakout_multiplier: Multiplier for breakout levels (k × ATR)
-            stop_multiplier: Multiplier for stop loss (k × ATR)
-            day_start_hour: Hour when trading day starts (13 = 13:00 UTC)
-            fee_rate: Total fee rate per trade (0.0015 = 0.15%)
-            config_path: Path to configuration file
+            atr_period: Number of 24-hour periods for ATR calculation (overrides config)
+            breakout_multiplier: Multiplier for breakout levels (k × ATR) (overrides config)
+            stop_multiplier: Multiplier for stop loss (k × ATR) (overrides config)
+            day_start_hour: Hour when trading day starts (13 = 13:00 UTC) (overrides config)
+            fee_rate: Total fee rate per trade (0.0015 = 0.15%) (overrides config)
+            config_path: Path to crypto symbols configuration file
+            breakout_config_path: Path to breakout engine configuration file
         """
-        self.atr_period = atr_period
-        self.breakout_multiplier = breakout_multiplier
-        self.stop_multiplier = stop_multiplier
-        self.day_start_hour = day_start_hour
-        self.fee_rate = fee_rate
+        # Load breakout config
+        breakout_config = load_config(breakout_config_path)
+        strategy = breakout_config.get("strategy", {})
+        paths = breakout_config.get("paths", {})
+
+        # Use provided values or fall back to config defaults
+        self.atr_period = atr_period if atr_period is not None else strategy.get("atr_period", 14)
+        self.breakout_multiplier = breakout_multiplier if breakout_multiplier is not None else strategy.get("breakout_multiplier", 0.33)
+        self.stop_multiplier = stop_multiplier if stop_multiplier is not None else strategy.get("stop_multiplier", 0.33)
+        self.day_start_hour = day_start_hour if day_start_hour is not None else strategy.get("day_start_hour", 13)
+        self.fee_rate = fee_rate if fee_rate is not None else strategy.get("fee_rate", 0.0015)
+
+        # Store paths for default use
+        self.default_data_dir = paths.get("data_dir", "data/raw/crypto")
+        self.default_output_dir = paths.get("output_dir", "data/trades")
+
+        # Load crypto symbols config
         self.config = load_config(config_path)
 
-    def load_data(self, symbol: str, data_dir: str = "data/raw/crypto") -> pd.DataFrame:
+    def load_data(self, symbol: str, data_dir: str = None) -> pd.DataFrame:
         """Load 1-minute data from CSV.
 
         Args:
             symbol: Symbol name (e.g., 'ETHUSDT')
-            data_dir: Directory containing data files
+            data_dir: Directory containing data files (defaults to config)
 
         Returns:
             DataFrame with 1-minute bars
         """
+        if data_dir is None:
+            data_dir = self.default_data_dir
         filepath = Path(data_dir) / symbol / f"{symbol}_1min.csv"
 
         if not filepath.exists():
@@ -210,17 +226,22 @@ class CryptoBreakoutEngine:
             "net_pnl": net_pnl,
         }
 
-    def process_symbol(self, symbol: str, data_dir: str = "data/raw/crypto", output_dir: str = "data/trades") -> pd.DataFrame:
+    def process_symbol(self, symbol: str, data_dir: str = None, output_dir: str = None) -> pd.DataFrame:
         """Process a symbol and generate all trades.
 
         Args:
             symbol: Symbol name (e.g., 'ETHUSDT')
-            data_dir: Directory containing input data
-            output_dir: Directory for output trades
+            data_dir: Directory containing input data (defaults to config)
+            output_dir: Directory for output trades (defaults to config)
 
         Returns:
             DataFrame with all trades
         """
+        if data_dir is None:
+            data_dir = self.default_data_dir
+        if output_dir is None:
+            output_dir = self.default_output_dir
+
         print(f"Processing {symbol}...")
 
         # Load data
@@ -308,32 +329,23 @@ class CryptoBreakoutEngine:
 
 
 def main():
-    """Main function for command-line usage."""
-    import argparse
+    """Main function - loads all configuration from config files."""
+    # Config file paths
+    crypto_config_path = "src/config/crypto_symbols.yaml"
+    breakout_config_path = "src/config/breakout_config.yaml"
 
-    parser = argparse.ArgumentParser(description="Crypto breakout engine")
-    parser.add_argument("--symbol", type=str, default=None, help="Symbol to process (e.g., ETHUSDT). Defaults to config default.")
-    parser.add_argument("--atr-period", type=int, default=14, help="ATR period (default: 14)")
-    parser.add_argument("--breakout-multiplier", type=float, default=0.33, help="Breakout multiplier (default: 0.33)")
-    parser.add_argument("--stop-multiplier", type=float, default=0.33, help="Stop loss multiplier (default: 0.33)")
-    parser.add_argument("--data-dir", type=str, default="data/raw/crypto", help="Input data directory")
-    parser.add_argument("--output-dir", type=str, default="data/trades", help="Output trades directory")
-    parser.add_argument("--config", type=str, default="src/config/crypto_symbols.yaml", help="Path to config file")
+    # Get default symbol from crypto config
+    crypto_config = load_config(crypto_config_path)
+    symbol = get_default_symbol(crypto_config)
 
-    args = parser.parse_args()
-
-    # Use default symbol if not provided
-    if args.symbol is None:
-        config = load_config(args.config)
-        args.symbol = get_default_symbol(config)
-
-    # Create engine
+    # Create engine (loads all parameters from breakout_config.yaml)
     engine = CryptoBreakoutEngine(
-        atr_period=args.atr_period, breakout_multiplier=args.breakout_multiplier, stop_multiplier=args.stop_multiplier, config_path=args.config
+        config_path=crypto_config_path,
+        breakout_config_path=breakout_config_path,
     )
 
-    # Process symbol
-    trades_df = engine.process_symbol(symbol=args.symbol, data_dir=args.data_dir, output_dir=args.output_dir)
+    # Process symbol (uses config defaults for paths)
+    trades_df = engine.process_symbol(symbol=symbol)
 
     if not trades_df.empty:
         print(f"\n✓ Processing complete: {len(trades_df)} trades generated")
