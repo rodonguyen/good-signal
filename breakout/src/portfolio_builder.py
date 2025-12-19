@@ -18,7 +18,7 @@ from utils.config import load_config
 class PortfolioBuilder:
     """Build portfolio from trades with position sizing."""
 
-    def __init__(self, config_path: str = "config/portfolio_config.yaml"):
+    def __init__(self, config_path: str = "src/config/portfolio_config.yaml"):
         """Initialize portfolio builder with configuration.
 
         Args:
@@ -413,7 +413,7 @@ class PortfolioBuilder:
 def main():
     """Main function for command-line usage."""
     parser = argparse.ArgumentParser(description="Build portfolio from trades")
-    parser.add_argument("--config", type=str, default="config/portfolio_config.yaml", help="Path to portfolio config file")
+    parser.add_argument("--config", type=str, default="src/config/portfolio_config.yaml", help="Path to portfolio config file")
 
     args = parser.parse_args()
 

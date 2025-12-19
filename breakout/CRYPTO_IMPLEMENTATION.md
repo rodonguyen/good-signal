@@ -224,9 +224,10 @@ breakout/
 │       │   └── close_all_trades_at_13utc()
 │       ├── fee_calculator.py      # Fee calculation (0.15%)
 │       └── config.py
-├── config/
-│   ├── crypto_symbols.yaml        # ETHUSDT config
-│   └── crypto_strategy_params.yaml
+├── src/
+│   └── config/
+│       ├── crypto_symbols.yaml        # ETHUSDT config
+│       └── crypto_strategy_params.yaml
 │       ├── atr_period: 14
 │       ├── day_start_utc: 13:00
 │       ├── fee_rate: 0.0015

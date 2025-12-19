@@ -20,7 +20,7 @@ NUMBER_OF_ENTRIES = 1000
 class BybitDownloader:
     """Downloader for Bybit historical kline data."""
 
-    def __init__(self, config_path: str = "config/crypto_symbols.yaml"):
+    def __init__(self, config_path: str = "src/config/crypto_symbols.yaml"):
         """Initialize downloader with configuration.
 
         Args:
@@ -250,7 +250,7 @@ def main():
     parser.add_argument("--symbol", type=str, default=None, help="Symbol to download (e.g., ETHUSDT). Defaults to config default.")
     parser.add_argument("--start-date", type=str, default=None, help="Start date (YYYY-MM-DD). Defaults to 1 year ago.")
     parser.add_argument("--end-date", type=str, default=None, help="End date (YYYY-MM-DD). Defaults to now.")
-    parser.add_argument("--config", type=str, default="config/crypto_symbols.yaml", help="Path to config file")
+    parser.add_argument("--config", type=str, default="src/config/crypto_symbols.yaml", help="Path to config file")
 
     args = parser.parse_args()
 

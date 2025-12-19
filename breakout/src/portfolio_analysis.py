@@ -18,7 +18,7 @@ class PortfolioAnalysis:
     """Analyze portfolio performance and generate reports."""
 
     def __init__(
-        self, portfolio_file: str = "data/portfolio/portfolio_trades.csv", output_dir: str = "outputs/reports", raw_data_dir: str = "data/raw/crypto"
+        self, portfolio_file: str = "data/portfolio/portfolio_trades.csv", output_dir: str = "src/reports", raw_data_dir: str = "data/raw/crypto"
     ):
         """Initialize analysis engine.
 

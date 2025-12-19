@@ -19,8 +19,8 @@ default_symbol: ETHUSDT
 api:
   base_url: https://api.bybit.com
   endpoint: /v5/market/kline
-  rate_limit_per_minute: 120  # Public API rate limit
-  request_delay_seconds: 0.5  # Delay between requests to stay under limit
+  rate_limit_per_minute: 500  # Public API rate limit
+  request_delay_seconds: 0.3  # Delay between requests to stay under limit
 
 # Data Configuration
 data:

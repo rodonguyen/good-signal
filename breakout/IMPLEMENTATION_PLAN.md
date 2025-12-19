@@ -292,9 +292,9 @@ breakout/
 │       ├── data_utils.py
 │       ├── calculation_utils.py
 │       └── config.py
-├── config/
-│   ├── symbols.yaml      # Symbol list and settings
-│   └── strategy_params.yaml  # Strategy parameters
+│   └── config/
+│       ├── symbols.yaml      # Symbol list and settings
+│       └── strategy_params.yaml  # Strategy parameters
 ├── outputs/
 │   ├── reports/
 │   └── charts/

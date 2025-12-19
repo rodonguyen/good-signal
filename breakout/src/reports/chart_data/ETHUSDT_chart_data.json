@@ -2,8 +2,22 @@
   "symbol": "ETHUSDT",
   "candlestickData": [
     {
+      "time": 1748700900,
+      "open": 2540.19,
+      "high": 2540.2,
+      "low": 2536.17,
+      "close": 2537.65
+    },
+    {
+      "time": 1748701800,
+      "open": 2537.65,
+      "high": 2540.89,
+      "low": 2535.18,
+      "close": 2539.45
+    },
+    {
       "time": 1748702700,
-      "open": 2538.51,
+      "open": 2539.45,
       "high": 2542.63,
       "low": 2536.95,
       "close": 2540.91
@@ -133718,2614 +133732,2918 @@
   ],
   "trades": [
     {
-      "entryTime": 1748789160,
+      "entryTime": 1748788080,
       "exitTime": 1748843100,
-      "entryPrice": 2517.124,
+      "entryPrice": 2511.1663,
       "exitPrice": 2483.08,
       "direction": "long",
-      "portfolioPnl": -24.40624250969336,
+      "portfolioPnl": -25.334536375385877,
       "stopLevel": 2483.08,
-      "upperLevel": 2517.124,
-      "lowerLevel": 2449.036,
+      "upperLevel": 2511.1663,
+      "lowerLevel": 2454.9937,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1748874300,
+      "entryTime": 1748874120,
       "exitTime": 1748955600,
-      "entryPrice": 2528.68,
+      "entryPrice": 2523.12375,
       "exitPrice": 2612.03,
       "direction": "long",
-      "portfolioPnl": 46.4836994073798,
+      "portfolioPnl": 60.43141272981842,
       "stopLevel": 2496.93,
-      "upperLevel": 2528.68,
-      "lowerLevel": 2465.18,
+      "upperLevel": 2523.12375,
+      "lowerLevel": 2470.73625,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1748962500,
+      "entryTime": 1748962380,
       "exitTime": 1748968020,
-      "entryPrice": 2651.717333333333,
+      "entryPrice": 2644.2068000000004,
       "exitPrice": 2608.8,
       "direction": "long",
-      "portfolioPnl": -24.199930025410165,
+      "portfolioPnl": -25.30899402201214,
       "stopLevel": 2608.8,
-      "upperLevel": 2651.717333333333,
-      "lowerLevel": 2565.882666666667,
+      "upperLevel": 2644.2068000000004,
+      "lowerLevel": 2573.3932,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1749050220,
+      "entryTime": 1749050160,
       "exitTime": 1749067980,
-      "entryPrice": 2656.3740000000003,
+      "entryPrice": 2649.3418,
       "exitPrice": 2616.19,
       "direction": "long",
-      "portfolioPnl": -23.885511759271957,
+      "portfolioPnl": -25.00732462552377,
       "stopLevel": 2616.19,
-      "upperLevel": 2656.3740000000003,
-      "lowerLevel": 2576.006,
+      "upperLevel": 2649.3418,
+      "lowerLevel": 2583.0382,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1749131460,
+      "entryTime": 1749131220,
       "exitTime": 1749214800,
-      "entryPrice": 2591.024,
+      "entryPrice": 2598.0548,
       "exitPrice": 2475.59,
       "direction": "short",
-      "portfolioPnl": 52.2847132133935,
+      "portfolioPnl": 68.24898562074598,
       "stopLevel": 2631.2,
-      "upperLevel": 2671.376,
-      "lowerLevel": 2591.024,
+      "upperLevel": 2664.3452,
+      "lowerLevel": 2598.0548,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1749222840,
+      "entryTime": 1749217560,
       "exitTime": 1749251220,
-      "entryPrice": 2524.718666666666,
+      "entryPrice": 2515.88665,
       "exitPrice": 2474.25,
       "direction": "long",
-      "portfolioPnl": -23.575144679343754,
+      "portfolioPnl": -24.84674656185402,
       "stopLevel": 2474.25,
-      "upperLevel": 2524.718666666666,
-      "lowerLevel": 2423.7813333333334,
+      "upperLevel": 2515.88665,
+      "lowerLevel": 2432.61335,
       "exitReason": "stop_loss"
     },
     {
       "entryTime": 1749335520,
       "exitTime": 1749374820,
-      "entryPrice": 2543.773714285714,
+      "entryPrice": 2535.451814285714,
       "exitPrice": 2496.22,
       "direction": "long",
-      "portfolioPnl": -23.24217991002021,
+      "portfolioPnl": -24.519739914055236,
       "stopLevel": 2496.22,
-      "upperLevel": 2543.773714285714,
-      "lowerLevel": 2448.6662857142856,
+      "upperLevel": 2535.451814285714,
+      "lowerLevel": 2456.988185714285,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1749497040,
-      "exitTime": 1749560400,
-      "entryPrice": 2587.1877777777777,
-      "exitPrice": 2764.28,
+      "entryTime": 1749419520,
+      "exitTime": 1749422220,
+      "entryPrice": 2543.3457125,
+      "exitPrice": 2506.58,
       "direction": "long",
-      "portfolioPnl": 77.38360860040532,
-      "stopLevel": 2544.39,
-      "upperLevel": 2587.1877777777777,
-      "lowerLevel": 2501.592222222222,
-      "exitReason": "end_of_day"
+      "portfolioPnl": -24.208981785028563,
+      "stopLevel": 2506.58,
+      "upperLevel": 2543.3457125,
+      "lowerLevel": 2469.8142875,
+      "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1749569520,
+      "entryTime": 1749477300,
+      "exitTime": 1749485700,
+      "entryPrice": 2509.081833333333,
+      "exitPrice": 2544.39,
+      "direction": "short",
+      "portfolioPnl": -23.794604512869512,
+      "stopLevel": 2544.39,
+      "upperLevel": 2579.6981666666666,
+      "lowerLevel": 2509.081833333333,
+      "exitReason": "stop_loss"
+    },
+    {
+      "entryTime": 1749562980,
       "exitTime": 1749581460,
-      "entryPrice": 2714.672,
+      "entryPrice": 2723.4514,
       "exitPrice": 2764.84,
       "direction": "short",
-      "portfolioPnl": -24.59981509937544,
+      "portfolioPnl": -22.914915722357456,
       "stopLevel": 2764.84,
-      "upperLevel": 2815.0080000000003,
-      "lowerLevel": 2714.672,
+      "upperLevel": 2806.2286000000004,
+      "lowerLevel": 2723.4514,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1749652440,
+      "entryTime": 1749652260,
       "exitTime": 1749665700,
-      "entryPrice": 2855.586909090909,
+      "entryPrice": 2846.6607,
       "exitPrice": 2804.58,
       "direction": "long",
-      "portfolioPnl": -24.08126240015155,
+      "portfolioPnl": -22.412787703126387,
       "stopLevel": 2804.58,
-      "upperLevel": 2855.586909090909,
-      "lowerLevel": 2753.5730909090908,
+      "upperLevel": 2846.6607,
+      "lowerLevel": 2762.4993,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1749759240,
+      "entryTime": 1749757920,
       "exitTime": 1749819600,
-      "entryPrice": 2683.182333333333,
+      "entryPrice": 2692.351925,
       "exitPrice": 2538.46,
       "direction": "short",
-      "portfolioPnl": 52.676832695177104,
+      "portfolioPnl": 61.51097250443456,
       "stopLevel": 2735.58,
-      "upperLevel": 2787.9776666666667,
-      "lowerLevel": 2683.182333333333,
+      "upperLevel": 2778.808075,
+      "lowerLevel": 2692.351925,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1750051560,
+      "entryTime": 1749920520,
+      "exitTime": 1749937560,
+      "entryPrice": 2488.396321428572,
+      "exitPrice": 2535.34,
+      "direction": "short",
+      "portfolioPnl": -22.556943685379427,
+      "stopLevel": 2535.34,
+      "upperLevel": 2582.283678571429,
+      "lowerLevel": 2488.396321428572,
+      "exitReason": "stop_loss"
+    },
+    {
+      "entryTime": 1750039560,
       "exitTime": 1750078800,
-      "entryPrice": 2580.660857142857,
+      "entryPrice": 2570.799457142857,
       "exitPrice": 2615.37,
       "direction": "long",
-      "portfolioPnl": 10.133857521451317,
+      "portfolioPnl": 15.025104570726894,
       "stopLevel": 2524.31,
-      "upperLevel": 2580.660857142857,
-      "lowerLevel": 2467.959142857143,
+      "upperLevel": 2570.799457142857,
+      "lowerLevel": 2477.8205428571428,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1750106700,
+      "entryTime": 1750101900,
       "exitTime": 1750113420,
-      "entryPrice": 2672.462857142857,
+      "entryPrice": 2662.233607142857,
       "exitPrice": 2614.01,
       "direction": "long",
-      "portfolioPnl": -24.325213480023244,
+      "portfolioPnl": -22.451434919013572,
       "stopLevel": 2614.01,
-      "upperLevel": 2672.462857142857,
-      "lowerLevel": 2555.557142857143,
+      "upperLevel": 2662.233607142857,
+      "lowerLevel": 2565.786392857144,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1750174200,
+      "entryTime": 1750173960,
       "exitTime": 1750234320,
-      "entryPrice": 2488.206571428572,
+      "entryPrice": 2498.404421428572,
       "exitPrice": 2546.48,
       "direction": "short",
-      "portfolioPnl": -23.645784148609543,
+      "portfolioPnl": -21.802253250703405,
       "stopLevel": 2546.48,
-      "upperLevel": 2604.7534285714287,
-      "lowerLevel": 2488.206571428572,
+      "upperLevel": 2594.5555785714287,
+      "lowerLevel": 2498.404421428572,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1750431060,
+      "entryTime": 1750293120,
+      "exitTime": 1750338000,
+      "entryPrice": 2541.4888285714287,
+      "exitPrice": 2523.48,
+      "direction": "long",
+      "portfolioPnl": -9.63394338110255,
+      "stopLevel": 2492.58,
+      "upperLevel": 2541.4888285714287,
+      "lowerLevel": 2443.671171428571,
+      "exitReason": "end_of_day"
+    },
+    {
+      "entryTime": 1750430520,
       "exitTime": 1750510800,
-      "entryPrice": 2496.562,
+      "entryPrice": 2505.9994,
       "exitPrice": 2435.94,
       "direction": "short",
-      "portfolioPnl": 20.192652535933476,
+      "portfolioPnl": 25.63904421810865,
       "stopLevel": 2550.49,
-      "upperLevel": 2604.418,
-      "lowerLevel": 2496.562,
+      "upperLevel": 2594.9806,
+      "lowerLevel": 2505.9994,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1750536240,
+      "entryTime": 1750532160,
       "exitTime": 1750597200,
-      "entryPrice": 2377.2114285714288,
+      "entryPrice": 2387.245678571429,
       "exitPrice": 2279.81,
       "direction": "short",
-      "portfolioPnl": 32.899789311775066,
+      "portfolioPnl": 39.74838008946101,
       "stopLevel": 2434.55,
-      "upperLevel": 2491.888571428572,
-      "lowerLevel": 2377.2114285714288,
+      "upperLevel": 2481.8543214285714,
+      "lowerLevel": 2387.245678571429,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1750598700,
+      "entryTime": 1750598460,
       "exitTime": 1750683600,
-      "entryPrice": 2216.5820000000003,
+      "entryPrice": 2227.46315,
       "exitPrice": 2263.58,
       "direction": "short",
-      "portfolioPnl": -18.59367708967758,
+      "portfolioPnl": -16.303855044509795,
       "stopLevel": 2278.76,
-      "upperLevel": 2340.938,
-      "lowerLevel": 2216.5820000000003,
+      "upperLevel": 2330.0568500000004,
+      "lowerLevel": 2227.46315,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1750696320,
+      "entryTime": 1750695720,
       "exitTime": 1750699560,
-      "entryPrice": 2200.228857142857,
+      "entryPrice": 2211.621557142857,
       "exitPrice": 2265.33,
       "direction": "short",
-      "portfolioPnl": -23.32615869241809,
+      "portfolioPnl": -21.589572721965563,
       "stopLevel": 2265.33,
-      "upperLevel": 2330.4311428571427,
-      "lowerLevel": 2200.228857142857,
+      "upperLevel": 2319.038442857143,
+      "lowerLevel": 2211.621557142857,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1750784040,
+      "entryTime": 1750783380,
       "exitTime": 1750844400,
-      "entryPrice": 2477.4554285714285,
+      "entryPrice": 2466.208978571429,
       "exitPrice": 2413.19,
       "direction": "long",
-      "portfolioPnl": -23.0445268038995,
+      "portfolioPnl": -21.347874194324632,
       "stopLevel": 2413.19,
-      "upperLevel": 2477.4554285714285,
-      "lowerLevel": 2348.924571428572,
+      "upperLevel": 2466.208978571429,
+      "lowerLevel": 2360.171021428572,
       "exitReason": "stop_loss"
     },
     {
       "entryTime": 1750906380,
       "exitTime": 1750942800,
-      "entryPrice": 2489.9697142857144,
+      "entryPrice": 2479.0742642857144,
       "exitPrice": 2439.07,
       "direction": "long",
-      "portfolioPnl": -18.934253577375756,
+      "portfolioPnl": -16.909972531416223,
       "stopLevel": 2427.71,
-      "upperLevel": 2489.9697142857144,
-      "lowerLevel": 2365.4502857142857,
+      "upperLevel": 2479.0742642857144,
+      "lowerLevel": 2376.3457357142856,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1751237280,
+      "entryTime": 1750986540,
+      "exitTime": 1750993260,
+      "entryPrice": 2388.5836642857143,
+      "exitPrice": 2439.13,
+      "direction": "short",
+      "portfolioPnl": -20.57100020388024,
+      "stopLevel": 2439.13,
+      "upperLevel": 2489.676335714286,
+      "lowerLevel": 2388.5836642857143,
+      "exitReason": "stop_loss"
+    },
+    {
+      "entryTime": 1751237220,
       "exitTime": 1751277480,
-      "entryPrice": 2506.329714285714,
+      "entryPrice": 2497.0915142857143,
       "exitPrice": 2453.54,
       "direction": "long",
-      "portfolioPnl": -22.64056760362,
+      "portfolioPnl": -20.57962704554196,
       "stopLevel": 2453.54,
-      "upperLevel": 2506.329714285714,
-      "lowerLevel": 2400.750285714286,
+      "upperLevel": 2497.0915142857143,
+      "lowerLevel": 2409.9884857142856,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1751311500,
+      "entryTime": 1751311140,
       "exitTime": 1751345940,
-      "entryPrice": 2510.574857142857,
+      "entryPrice": 2501.4985071428573,
       "exitPrice": 2458.71,
       "direction": "long",
-      "portfolioPnl": -22.17795263047648,
+      "portfolioPnl": -20.155825175945463,
       "stopLevel": 2458.71,
-      "upperLevel": 2510.574857142857,
-      "lowerLevel": 2406.845142857143,
+      "upperLevel": 2501.4985071428573,
+      "lowerLevel": 2415.9214928571428,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1751411460,
+      "entryTime": 1751400060,
       "exitTime": 1751431380,
-      "entryPrice": 2386.193714285714,
+      "entryPrice": 2394.934314285714,
       "exitPrice": 2436.14,
       "direction": "short",
-      "portfolioPnl": -21.69162722679883,
+      "portfolioPnl": -19.71578745424753,
       "stopLevel": 2436.14,
-      "upperLevel": 2486.0862857142856,
-      "lowerLevel": 2386.193714285714,
+      "upperLevel": 2477.345685714285,
+      "lowerLevel": 2394.934314285714,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1751469060,
+      "entryTime": 1751469000,
       "exitTime": 1751547600,
-      "entryPrice": 2486.864571428572,
+      "entryPrice": 2478.257271428571,
       "exitPrice": 2589.31,
       "direction": "long",
-      "portfolioPnl": 35.69567244170538,
+      "portfolioPnl": 41.74215810139168,
       "stopLevel": 2437.68,
-      "upperLevel": 2486.864571428572,
-      "lowerLevel": 2388.4954285714284,
+      "upperLevel": 2478.257271428571,
+      "lowerLevel": 2397.1027285714285,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1751615400,
-      "exitTime": 1751634000,
-      "entryPrice": 2535.7188571428574,
-      "exitPrice": 2547.93,
-      "direction": "short",
-      "portfolioPnl": -7.323397446076189,
+      "entryTime": 1751549880,
+      "exitTime": 1751553180,
+      "entryPrice": 2630.766942857143,
+      "exitPrice": 2587.8,
+      "direction": "long",
+      "portfolioPnl": -20.34251806252691,
       "stopLevel": 2587.8,
-      "upperLevel": 2639.881142857143,
-      "lowerLevel": 2535.7188571428574,
-      "exitReason": "end_of_day"
+      "upperLevel": 2630.766942857143,
+      "lowerLevel": 2544.8330571428573,
+      "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1751644860,
+      "entryTime": 1751638800,
       "exitTime": 1751720400,
-      "entryPrice": 2494.1,
+      "entryPrice": 2503.3365,
       "exitPrice": 2518.13,
       "direction": "short",
-      "portfolioPnl": -11.405433006461992,
+      "portfolioPnl": -8.614103045755371,
       "stopLevel": 2546.88,
-      "upperLevel": 2599.6600000000003,
-      "lowerLevel": 2494.1,
+      "upperLevel": 2590.4235000000003,
+      "lowerLevel": 2503.3365,
       "exitReason": "end_of_day"
     },
     {
       "entryTime": 1751809860,
       "exitTime": 1751893200,
-      "entryPrice": 2563.444285714286,
+      "entryPrice": 2555.715535714286,
       "exitPrice": 2548.87,
       "direction": "long",
-      "portfolioPnl": -9.49508520335212,
+      "portfolioPnl": -6.618613512000644,
       "stopLevel": 2519.28,
-      "upperLevel": 2563.444285714286,
-      "lowerLevel": 2475.1157142857146,
+      "upperLevel": 2555.715535714286,
+      "lowerLevel": 2482.8444642857144,
       "exitReason": "end_of_day"
+    },
+    {
+      "entryTime": 1751905260,
+      "exitTime": 1751915880,
+      "entryPrice": 2513.094364285714,
+      "exitPrice": 2547.54,
+      "direction": "short",
+      "portfolioPnl": -20.131403531325933,
+      "stopLevel": 2547.54,
+      "upperLevel": 2581.9856357142858,
+      "lowerLevel": 2513.094364285714,
+      "exitReason": "stop_loss"
     },
     {
       "entryTime": 1751994780,
       "exitTime": 1752066000,
-      "entryPrice": 2618.760285714286,
+      "entryPrice": 2612.372735714286,
       "exitPrice": 2659.88,
       "direction": "long",
-      "portfolioPnl": 16.976552643751173,
+      "portfolioPnl": 21.163232801835,
       "stopLevel": 2582.26,
-      "upperLevel": 2618.760285714286,
-      "lowerLevel": 2545.7597142857144,
+      "upperLevel": 2612.372735714286,
+      "lowerLevel": 2552.1472642857143,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1752084480,
-      "exitTime": 1752152400,
-      "entryPrice": 2696.693142857143,
-      "exitPrice": 2779.33,
-      "direction": "long",
-      "portfolioPnl": 37.77013355327637,
+      "entryTime": 1752072540,
+      "exitTime": 1752077520,
+      "entryPrice": 2628.359407142857,
+      "exitPrice": 2659.25,
+      "direction": "short",
+      "portfolioPnl": -20.75752216299142,
       "stopLevel": 2659.25,
-      "upperLevel": 2696.693142857143,
-      "lowerLevel": 2621.806857142857,
-      "exitReason": "end_of_day"
+      "upperLevel": 2690.140592857143,
+      "lowerLevel": 2628.359407142857,
+      "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1752167160,
+      "entryTime": 1752164880,
       "exitTime": 1752238800,
-      "entryPrice": 2816.638857142857,
+      "entryPrice": 2809.770307142857,
       "exitPrice": 2989.03,
       "direction": "long",
-      "portfolioPnl": 82.39867603281539,
+      "portfolioPnl": 84.81412755798132,
       "stopLevel": 2777.39,
-      "upperLevel": 2816.638857142857,
-      "lowerLevel": 2738.1411428571428,
+      "upperLevel": 2809.770307142857,
+      "lowerLevel": 2745.009692857143,
       "exitReason": "end_of_day"
     },
     {
       "entryTime": 1752249240,
       "exitTime": 1752254340,
-      "entryPrice": 2941.034285714286,
+      "entryPrice": 2948.912035714286,
       "exitPrice": 2986.05,
       "direction": "short",
-      "portfolioPnl": -25.6337539398449,
+      "portfolioPnl": -22.06422224909993,
       "stopLevel": 2986.05,
-      "upperLevel": 3031.0657142857144,
-      "lowerLevel": 2941.034285714286,
+      "upperLevel": 3023.1879642857143,
+      "lowerLevel": 2948.912035714286,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1752411000,
-      "exitTime": 1752411600,
-      "entryPrice": 2988.2965714285715,
-      "exitPrice": 2989.3,
-      "direction": "long",
-      "portfolioPnl": -3.618652346728416,
+      "entryTime": 1752334860,
+      "exitTime": 1752343080,
+      "entryPrice": 2904.389328571429,
+      "exitPrice": 2942.32,
+      "direction": "short",
+      "portfolioPnl": -21.36962990335952,
       "stopLevel": 2942.32,
-      "upperLevel": 2988.2965714285715,
-      "lowerLevel": 2896.343428571429,
-      "exitReason": "end_of_day"
+      "upperLevel": 2980.2506714285714,
+      "lowerLevel": 2904.389328571429,
+      "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1752464520,
-      "exitTime": 1752498000,
-      "entryPrice": 3032.550857142857,
-      "exitPrice": 3050.24,
-      "direction": "long",
-      "portfolioPnl": 3.7701423334322937,
+      "entryTime": 1752442680,
+      "exitTime": 1752452700,
+      "entryPrice": 2946.2267928571428,
+      "exitPrice": 2985.25,
+      "direction": "short",
+      "portfolioPnl": -20.78899231346684,
       "stopLevel": 2985.25,
-      "upperLevel": 3032.550857142857,
-      "lowerLevel": 2937.9491428571428,
-      "exitReason": "end_of_day"
+      "upperLevel": 3024.273207142857,
+      "lowerLevel": 2946.2267928571428,
+      "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1752508320,
+      "entryTime": 1752508080,
       "exitTime": 1752584400,
-      "entryPrice": 3002.868857142857,
+      "entryPrice": 3011.3040571428573,
       "exitPrice": 3001.57,
       "direction": "short",
-      "portfolioPnl": -3.3415249313415427,
+      "portfolioPnl": 0.2968088343317673,
       "stopLevel": 3051.07,
-      "upperLevel": 3099.271142857143,
-      "lowerLevel": 3002.868857142857,
+      "upperLevel": 3090.835942857143,
+      "lowerLevel": 3011.3040571428573,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1752587100,
+      "entryTime": 1752586980,
       "exitTime": 1752591060,
-      "entryPrice": 3050.194285714286,
-      "exitPrice": 3000.61,
+      "entryPrice": 3041.517035714286,
+      "exitPrice": 3000.6100000000006,
       "direction": "long",
-      "portfolioPnl": -24.642343214618663,
-      "stopLevel": 3000.61,
-      "upperLevel": 3050.194285714286,
-      "lowerLevel": 2951.0257142857145,
+      "portfolioPnl": -20.179283218567395,
+      "stopLevel": 3000.6100000000006,
+      "upperLevel": 3041.517035714286,
+      "lowerLevel": 2959.702964285714,
       "exitReason": "stop_loss"
     },
     {
       "entryTime": 1752676200,
       "exitTime": 1752757200,
-      "entryPrice": 3218.6602857142857,
+      "entryPrice": 3209.3379857142854,
       "exitPrice": 3425.91,
       "direction": "long",
-      "portfolioPnl": 75.31567292994743,
+      "portfolioPnl": 75.76732412212472,
       "stopLevel": 3165.39,
-      "upperLevel": 3218.6602857142857,
-      "lowerLevel": 3112.119714285714,
+      "upperLevel": 3209.3379857142854,
+      "lowerLevel": 3121.4420142857143,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1752759960,
+      "entryTime": 1752759900,
       "exitTime": 1752762780,
-      "entryPrice": 3368.780285714286,
+      "entryPrice": 3378.8059857142857,
       "exitPrice": 3426.07,
       "direction": "short",
-      "portfolioPnl": -25.7290819550853,
+      "portfolioPnl": -21.43876742181484,
       "stopLevel": 3426.07,
-      "upperLevel": 3483.3597142857143,
-      "lowerLevel": 3368.780285714286,
+      "upperLevel": 3473.3340142857146,
+      "lowerLevel": 3378.8059857142857,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1752849120,
+      "entryTime": 1752848760,
       "exitTime": 1752930000,
-      "entryPrice": 3576.502,
+      "entryPrice": 3587.54415,
       "exitPrice": 3559.1,
       "direction": "short",
-      "portfolioPnl": 2.2642673708889647,
+      "portfolioPnl": 5.857113105290047,
       "stopLevel": 3639.6,
-      "upperLevel": 3702.698,
-      "lowerLevel": 3576.502,
+      "upperLevel": 3691.65585,
+      "lowerLevel": 3587.54415,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1752981900,
+      "entryTime": 1752973740,
       "exitTime": 1753016400,
-      "entryPrice": 3628.5922857142855,
+      "entryPrice": 3616.9736357142856,
       "exitPrice": 3743.98,
       "direction": "long",
-      "portfolioPnl": 33.58670560120598,
+      "portfolioPnl": 36.66818437314335,
       "stopLevel": 3562.2,
-      "upperLevel": 3628.5922857142855,
-      "lowerLevel": 3495.807714285714,
+      "upperLevel": 3616.9736357142856,
+      "lowerLevel": 3507.426364285714,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1753030200,
+      "entryTime": 1753029600,
       "exitTime": 1753033260,
-      "entryPrice": 3819.698571428571,
+      "entryPrice": 3807.0410714285713,
       "exitPrice": 3747.37,
       "direction": "long",
-      "portfolioPnl": -25.505098283550645,
+      "portfolioPnl": -21.48107648679076,
       "stopLevel": 3747.37,
-      "upperLevel": 3819.698571428571,
-      "lowerLevel": 3675.0414285714287,
+      "upperLevel": 3807.0410714285713,
+      "lowerLevel": 3687.698928571429,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1753119840,
+      "entryTime": 1753114860,
       "exitTime": 1753189200,
-      "entryPrice": 3738.202571428571,
+      "entryPrice": 3751.218621428571,
       "exitPrice": 3704.73,
       "direction": "short",
-      "portfolioPnl": 6.459148625993128,
+      "portfolioPnl": 10.13963137932066,
       "stopLevel": 3812.58,
-      "upperLevel": 3886.957428571429,
-      "lowerLevel": 3738.202571428571,
+      "upperLevel": 3873.9413785714287,
+      "lowerLevel": 3751.218621428571,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1753290480,
+      "entryTime": 1753192440,
+      "exitTime": 1753196280,
+      "entryPrice": 3637.806364285714,
+      "exitPrice": 3703.14,
+      "direction": "short",
+      "portfolioPnl": -20.83040949853713,
+      "stopLevel": 3703.14,
+      "upperLevel": 3768.4736357142856,
+      "lowerLevel": 3637.806364285714,
+      "exitReason": "stop_loss"
+    },
+    {
+      "entryTime": 1753289160,
       "exitTime": 1753316520,
-      "entryPrice": 3560.1240000000003,
+      "entryPrice": 3574.12505,
       "exitPrice": 3640.13,
       "direction": "short",
-      "portfolioPnl": -24.589157318135,
+      "portfolioPnl": -20.26361890157322,
       "stopLevel": 3640.13,
-      "upperLevel": 3720.136,
-      "lowerLevel": 3560.1240000000003,
+      "upperLevel": 3706.13495,
+      "lowerLevel": 3574.12505,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1753368780,
+      "entryTime": 1753368540,
       "exitTime": 1753404120,
-      "entryPrice": 3722.072,
+      "entryPrice": 3708.2519,
       "exitPrice": 3643.1,
       "direction": "long",
-      "portfolioPnl": -24.13473232101472,
+      "portfolioPnl": -19.882075879301663,
       "stopLevel": 3643.1,
-      "upperLevel": 3722.072,
-      "lowerLevel": 3564.128,
+      "upperLevel": 3708.2519,
+      "lowerLevel": 3577.9481,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1753455420,
+      "entryTime": 1753454340,
       "exitTime": 1753477860,
-      "entryPrice": 3628.952285714286,
+      "entryPrice": 3642.3603857142857,
       "exitPrice": 3705.57,
       "direction": "short",
-      "portfolioPnl": -23.66103536680189,
+      "portfolioPnl": -19.50214994474714,
       "stopLevel": 3705.57,
-      "upperLevel": 3782.187714285714,
-      "lowerLevel": 3628.952285714286,
+      "upperLevel": 3768.7796142857146,
+      "lowerLevel": 3642.3603857142857,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1753612920,
+      "entryTime": 1753593840,
       "exitTime": 1753621200,
-      "entryPrice": 3822.195142857143,
+      "entryPrice": 3808.342992857143,
       "exitPrice": 3826.21,
       "direction": "long",
-      "portfolioPnl": -1.9047694321307809,
+      "portfolioPnl": 1.5930550579162075,
       "stopLevel": 3743.04,
-      "upperLevel": 3822.195142857143,
-      "lowerLevel": 3663.884857142857,
+      "upperLevel": 3808.342992857143,
+      "lowerLevel": 3677.737007142857,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1753669980,
+      "entryTime": 1753669860,
       "exitTime": 1753707600,
-      "entryPrice": 3907.380571428572,
+      "entryPrice": 3893.315721428572,
       "exitPrice": 3869.47,
       "direction": "long",
-      "portfolioPnl": -12.447085008963056,
+      "portfolioPnl": -8.696838281671244,
       "stopLevel": 3827.01,
-      "upperLevel": 3907.380571428572,
-      "lowerLevel": 3746.6394285714287,
+      "upperLevel": 3893.315721428572,
+      "lowerLevel": 3760.704278571429,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1753712700,
+      "entryTime": 1753712460,
       "exitTime": 1753774800,
-      "entryPrice": 3790.7542857142857,
+      "entryPrice": 3804.846285714286,
       "exitPrice": 3871.28,
       "direction": "short",
-      "portfolioPnl": -22.77431113842662,
+      "portfolioPnl": -18.86033378641348,
       "stopLevel": 3871.28,
-      "upperLevel": 3951.805714285714,
-      "lowerLevel": 3790.7542857142857,
+      "upperLevel": 3937.7137142857146,
+      "lowerLevel": 3804.846285714286,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1753800840,
+      "entryTime": 1753800660,
       "exitTime": 1753880400,
-      "entryPrice": 3770.730857142857,
+      "entryPrice": 3784.933707142857,
       "exitPrice": 3773.83,
       "direction": "short",
-      "portfolioPnl": -3.4591509197398715,
+      "portfolioPnl": -0.0549614339435911,
       "stopLevel": 3851.89,
-      "upperLevel": 3933.049142857143,
-      "lowerLevel": 3770.730857142857,
+      "upperLevel": 3918.846292857143,
+      "lowerLevel": 3784.933707142857,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1753902300,
+      "entryTime": 1753902240,
       "exitTime": 1753905720,
-      "entryPrice": 3692.443142857143,
+      "entryPrice": 3706.3673428571433,
       "exitPrice": 3772.01,
       "direction": "short",
-      "portfolioPnl": -22.13585418155084,
+      "portfolioPnl": -18.378317430420974,
       "stopLevel": 3772.01,
-      "upperLevel": 3851.5768571428575,
-      "lowerLevel": 3692.443142857143,
+      "upperLevel": 3837.652657142857,
+      "lowerLevel": 3706.3673428571433,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1753985340,
+      "entryTime": 1753971720,
       "exitTime": 1754053200,
-      "entryPrice": 3757.4262857142858,
+      "entryPrice": 3770.7794357142857,
       "exitPrice": 3662.38,
       "direction": "short",
-      "portfolioPnl": 20.854328531676884,
+      "portfolioPnl": 23.68032759120314,
       "stopLevel": 3833.73,
-      "upperLevel": 3910.033714285714,
-      "lowerLevel": 3757.4262857142858,
+      "upperLevel": 3896.6805642857134,
+      "lowerLevel": 3770.7794357142857,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1754056260,
+      "entryTime": 1754056140,
       "exitTime": 1754139600,
-      "entryPrice": 3586.7520000000004,
+      "entryPrice": 3599.7979,
       "exitPrice": 3509.3,
       "direction": "short",
-      "portfolioPnl": 17.367409551149272,
+      "portfolioPnl": 20.51227098956828,
       "stopLevel": 3661.3,
-      "upperLevel": 3735.848,
-      "lowerLevel": 3586.7520000000004,
+      "upperLevel": 3722.8021,
+      "lowerLevel": 3599.7979,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1754152440,
+      "entryTime": 1754151360,
       "exitTime": 1754219520,
-      "entryPrice": 3431.6237142857144,
+      "entryPrice": 3444.9055642857143,
       "exitPrice": 3507.52,
       "direction": "short",
-      "portfolioPnl": -22.432291774265934,
+      "portfolioPnl": -18.912548169478796,
       "stopLevel": 3507.52,
-      "upperLevel": 3583.4162857142856,
-      "lowerLevel": 3431.6237142857144,
+      "upperLevel": 3570.1344357142857,
+      "lowerLevel": 3444.9055642857143,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1754275920,
+      "entryTime": 1754268780,
       "exitTime": 1754312400,
-      "entryPrice": 3561.374,
+      "entryPrice": 3548.4968,
       "exitPrice": 3577.18,
       "direction": "long",
-      "portfolioPnl": 1.335666039253326,
+      "portfolioPnl": 4.693531673965111,
       "stopLevel": 3487.79,
-      "upperLevel": 3561.374,
-      "lowerLevel": 3414.206,
+      "upperLevel": 3548.4968,
+      "lowerLevel": 3427.0832,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1754316180,
+      "entryTime": 1754316120,
       "exitTime": 1754398800,
-      "entryPrice": 3641.566857142857,
+      "entryPrice": 3628.8729071428575,
       "exitPrice": 3628.05,
       "direction": "long",
-      "portfolioPnl": -6.499473139862668,
+      "portfolioPnl": -3.1163107615271533,
       "stopLevel": 3569.03,
-      "upperLevel": 3641.566857142857,
-      "lowerLevel": 3496.493142857143,
+      "upperLevel": 3628.8729071428575,
+      "lowerLevel": 3509.187092857143,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1754405400,
+      "entryTime": 1754403720,
       "exitTime": 1754457360,
-      "entryPrice": 3556.0894285714285,
+      "entryPrice": 3568.4392785714285,
       "exitPrice": 3626.66,
       "direction": "short",
-      "portfolioPnl": -22.102419720292744,
+      "portfolioPnl": -18.80671047969937,
       "stopLevel": 3626.66,
-      "upperLevel": 3697.2305714285712,
-      "lowerLevel": 3556.0894285714285,
+      "upperLevel": 3684.880721428571,
+      "lowerLevel": 3568.4392785714285,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1754495580,
+      "entryTime": 1754494440,
       "exitTime": 1754571600,
-      "entryPrice": 3652.843428571429,
+      "entryPrice": 3640.596328571429,
       "exitPrice": 3846.73,
       "direction": "long",
-      "portfolioPnl": 48.88764093318798,
+      "portfolioPnl": 52.28845279398686,
       "stopLevel": 3582.86,
-      "upperLevel": 3652.843428571429,
-      "lowerLevel": 3512.8765714285714,
+      "upperLevel": 3640.596328571429,
+      "lowerLevel": 3525.1236714285715,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1754607180,
-      "exitTime": 1754658000,
-      "entryPrice": 3921.519714285714,
-      "exitPrice": 3892.37,
-      "direction": "long",
-      "portfolioPnl": -10.985795211901358,
+      "entryTime": 1754585160,
+      "exitTime": 1754595720,
+      "entryPrice": 3787.692985714286,
+      "exitPrice": 3848.19,
+      "direction": "short",
+      "portfolioPnl": -19.66585999339244,
       "stopLevel": 3848.19,
-      "upperLevel": 3921.519714285714,
-      "lowerLevel": 3774.860285714286,
-      "exitReason": "end_of_day"
+      "upperLevel": 3908.687014285714,
+      "lowerLevel": 3787.692985714286,
+      "exitReason": "stop_loss"
     },
     {
       "entryTime": 1754660760,
       "exitTime": 1754744400,
-      "entryPrice": 3963.441714285714,
+      "entryPrice": 3950.657664285714,
       "exitPrice": 4193.29,
       "direction": "long",
-      "portfolioPnl": 58.06140344187392,
+      "portfolioPnl": 61.71416430763795,
       "stopLevel": 3890.39,
-      "upperLevel": 3963.441714285714,
-      "lowerLevel": 3817.3382857142856,
+      "upperLevel": 3950.657664285714,
+      "lowerLevel": 3830.122335714286,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1754770140,
+      "entryTime": 1754768520,
       "exitTime": 1754811420,
-      "entryPrice": 4272.660285714285,
+      "entryPrice": 4259.003235714285,
       "exitPrice": 4194.62,
       "direction": "long",
-      "portfolioPnl": -24.01326953798108,
+      "portfolioPnl": -20.79851585285876,
       "stopLevel": 4194.62,
-      "upperLevel": 4272.660285714285,
-      "lowerLevel": 4116.5797142857145,
+      "upperLevel": 4259.003235714285,
+      "lowerLevel": 4130.236764285714,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1754872260,
+      "entryTime": 1754871840,
       "exitTime": 1754911680,
-      "entryPrice": 4279.366571428572,
+      "entryPrice": 4265.477421428572,
       "exitPrice": 4200.0,
       "direction": "long",
-      "portfolioPnl": -23.404588726884874,
+      "portfolioPnl": -20.249404522290423,
       "stopLevel": 4200.0,
-      "upperLevel": 4279.366571428572,
-      "lowerLevel": 4120.633428571428,
+      "upperLevel": 4265.477421428572,
+      "lowerLevel": 4134.522578571428,
       "exitReason": "stop_loss"
     },
     {
       "entryTime": 1754919720,
       "exitTime": 1755003600,
-      "entryPrice": 4263.205142857143,
+      "entryPrice": 4249.130742857143,
       "exitPrice": 4399.66,
       "direction": "long",
-      "portfolioPnl": 30.247297366904423,
-      "stopLevel": 4182.780000000001,
-      "upperLevel": 4263.205142857143,
-      "lowerLevel": 4102.354857142856,
+      "portfolioPnl": 34.32180942329638,
+      "stopLevel": 4182.78,
+      "upperLevel": 4249.130742857143,
+      "lowerLevel": 4116.429257142857,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1755018600,
+      "entryTime": 1755014100,
       "exitTime": 1755090000,
-      "entryPrice": 4488.269142857143,
+      "entryPrice": 4473.697042857143,
       "exitPrice": 4682.28,
       "direction": "long",
-      "portfolioPnl": 43.96292640668326,
+      "portfolioPnl": 48.90353989185439,
       "stopLevel": 4405.0,
-      "upperLevel": 4488.269142857143,
-      "lowerLevel": 4321.7308571428575,
+      "upperLevel": 4473.697042857143,
+      "lowerLevel": 4336.302957142857,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1755120000,
-      "exitTime": 1755168180,
-      "entryPrice": 4774.504857142857,
+      "entryTime": 1755098160,
+      "exitTime": 1755101220,
+      "entryPrice": 4611.523492857143,
       "exitPrice": 4685.2,
-      "direction": "long",
-      "portfolioPnl": -24.554554576598456,
+      "direction": "short",
+      "portfolioPnl": -21.6683134801493,
       "stopLevel": 4685.2,
-      "upperLevel": 4774.504857142857,
-      "lowerLevel": 4595.895142857143,
+      "upperLevel": 4758.876507142857,
+      "lowerLevel": 4611.523492857143,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1755176700,
+      "entryTime": 1755176640,
       "exitTime": 1755177120,
-      "entryPrice": 4478.721714285714,
+      "entryPrice": 4494.719914285714,
       "exitPrice": 4570.14,
       "direction": "short",
-      "portfolioPnl": -23.76988881422908,
+      "portfolioPnl": -20.99307319933736,
       "stopLevel": 4570.14,
-      "upperLevel": 4661.558285714286,
-      "lowerLevel": 4478.721714285714,
+      "upperLevel": 4645.560085714286,
+      "lowerLevel": 4494.719914285714,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1755266040,
+      "entryTime": 1755265560,
       "exitTime": 1755349200,
-      "entryPrice": 4535.573714285714,
+      "entryPrice": 4551.580314285714,
       "exitPrice": 4407.86,
       "direction": "short",
-      "portfolioPnl": 25.269323398156576,
+      "portfolioPnl": 29.98334443939213,
       "stopLevel": 4627.04,
-      "upperLevel": 4718.506285714286,
-      "lowerLevel": 4535.573714285714,
+      "upperLevel": 4702.499685714286,
+      "lowerLevel": 4551.580314285714,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1755420660,
+      "entryTime": 1755406440,
       "exitTime": 1755435600,
-      "entryPrice": 4500.551428571429,
+      "entryPrice": 4484.435428571429,
       "exitPrice": 4541.58,
       "direction": "long",
-      "portfolioPnl": 6.181599782782094,
+      "portfolioPnl": 10.311578505946205,
       "stopLevel": 4408.46,
-      "upperLevel": 4500.551428571429,
-      "lowerLevel": 4316.368571428571,
+      "upperLevel": 4484.435428571429,
+      "lowerLevel": 4332.484571428571,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1755456900,
+      "entryTime": 1755456840,
       "exitTime": 1755522000,
-      "entryPrice": 4446.331142857142,
+      "entryPrice": 4462.583192857142,
       "exitPrice": 4338.58,
       "direction": "short",
-      "portfolioPnl": 21.233324063010095,
+      "portfolioPnl": 26.28056844069636,
       "stopLevel": 4539.2,
-      "upperLevel": 4632.068857142857,
-      "lowerLevel": 4446.331142857142,
+      "upperLevel": 4615.816807142857,
+      "lowerLevel": 4462.583192857142,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1755574620,
+      "entryTime": 1755572760,
       "exitTime": 1755608400,
-      "entryPrice": 4241.939142857143,
+      "entryPrice": 4259.274792857143,
       "exitPrice": 4303.34,
       "direction": "short",
-      "portfolioPnl": -15.939898082977008,
+      "portfolioPnl": -13.020341668270673,
       "stopLevel": 4341.0,
-      "upperLevel": 4440.0608571428575,
-      "lowerLevel": 4241.939142857143,
+      "upperLevel": 4422.7252071428575,
+      "lowerLevel": 4259.274792857143,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1755613800,
+      "entryTime": 1755613680,
       "exitTime": 1755694800,
-      "entryPrice": 4204.384857142857,
+      "entryPrice": 4221.8157571428565,
       "exitPrice": 4200.12,
       "direction": "short",
-      "portfolioPnl": -1.7550929910178044,
+      "portfolioPnl": 2.0334561392760704,
       "stopLevel": 4303.99,
-      "upperLevel": 4403.595142857143,
-      "lowerLevel": 4204.384857142857,
+      "upperLevel": 4386.164242857143,
+      "lowerLevel": 4221.8157571428565,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1755706620,
-      "exitTime": 1755781200,
-      "entryPrice": 4307.650571428571,
-      "exitPrice": 4243.41,
-      "direction": "long",
-      "portfolioPnl": -15.470515142335522,
+      "entryTime": 1755698880,
+      "exitTime": 1755700680,
+      "entryPrice": 4117.448028571429,
+      "exitPrice": 4203.43,
+      "direction": "short",
+      "portfolioPnl": -21.16066904056808,
       "stopLevel": 4203.43,
-      "upperLevel": 4307.650571428571,
-      "lowerLevel": 4099.209428571429,
-      "exitReason": "end_of_day"
+      "upperLevel": 4289.411971428572,
+      "lowerLevel": 4117.448028571429,
+      "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1755851400,
+      "entryTime": 1755847440,
       "exitTime": 1755864480,
-      "entryPrice": 4352.108285714286,
+      "entryPrice": 4333.884085714286,
       "exitPrice": 4247.97,
       "direction": "long",
-      "portfolioPnl": -23.16519531397785,
+      "portfolioPnl": -20.760359450437573,
       "stopLevel": 4247.97,
-      "upperLevel": 4352.108285714286,
-      "lowerLevel": 4143.831714285715,
+      "upperLevel": 4333.884085714286,
+      "lowerLevel": 4162.055914285715,
       "exitReason": "stop_loss"
     },
     {
       "entryTime": 1755871200,
       "exitTime": 1755954000,
-      "entryPrice": 4346.224,
+      "entryPrice": 4328.207050000001,
       "exitPrice": 4709.19,
       "direction": "long",
-      "portfolioPnl": 68.37591655001538,
+      "portfolioPnl": 76.30795209999957,
       "stopLevel": 4243.27,
-      "upperLevel": 4346.224,
-      "lowerLevel": 4140.316000000001,
+      "upperLevel": 4328.207050000001,
+      "lowerLevel": 4158.33295,
+      "exitReason": "end_of_day"
+    },
+    {
+      "entryTime": 1755995520,
+      "exitTime": 1756040400,
+      "entryPrice": 4805.885071428571,
+      "exitPrice": 4756.0,
+      "direction": "long",
+      "portfolioPnl": -13.388380436584864,
+      "stopLevel": 4713.94,
+      "upperLevel": 4805.885071428571,
+      "lowerLevel": 4621.994928571428,
       "exitReason": "end_of_day"
     },
     {
       "entryTime": 1756055580,
       "exitTime": 1756064220,
-      "entryPrice": 4863.073714285714,
+      "entryPrice": 4843.917564285714,
       "exitPrice": 4753.61,
       "direction": "long",
-      "portfolioPnl": -24.35148650650555,
+      "portfolioPnl": -21.910941957692597,
       "stopLevel": 4753.61,
-      "upperLevel": 4863.073714285714,
-      "lowerLevel": 4644.146285714285,
+      "upperLevel": 4843.917564285714,
+      "lowerLevel": 4663.302435714285,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1756149360,
+      "entryTime": 1756149300,
       "exitTime": 1756213200,
-      "entryPrice": 4528.121142857143,
+      "entryPrice": 4548.532942857143,
       "exitPrice": 4483.72,
       "direction": "short",
-      "portfolioPnl": 5.568034687482285,
+      "portfolioPnl": 9.834525790917931,
       "stopLevel": 4644.76,
-      "upperLevel": 4761.398857142857,
-      "lowerLevel": 4528.121142857143,
+      "upperLevel": 4740.987057142857,
+      "lowerLevel": 4548.532942857143,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1756249620,
+      "entryTime": 1756238220,
       "exitTime": 1756299600,
-      "entryPrice": 4613.719142857143,
+      "entryPrice": 4592.735042857144,
       "exitPrice": 4609.54,
       "direction": "long",
-      "portfolioPnl": -3.175943226987176,
+      "portfolioPnl": 0.5660760858055371,
       "stopLevel": 4493.81,
-      "upperLevel": 4613.719142857143,
-      "lowerLevel": 4373.900857142858,
+      "upperLevel": 4592.735042857144,
+      "lowerLevel": 4394.884957142857,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1756332240,
-      "exitTime": 1756368300,
-      "entryPrice": 4497.245142857143,
+      "entryTime": 1756325100,
+      "exitTime": 1756326000,
+      "entryPrice": 4517.416492857143,
       "exitPrice": 4612.51,
       "direction": "short",
-      "portfolioPnl": -23.575591943275068,
+      "portfolioPnl": -21.35656655721025,
       "stopLevel": 4612.51,
-      "upperLevel": 4727.774857142857,
-      "lowerLevel": 4497.245142857143,
+      "upperLevel": 4707.603507142858,
+      "lowerLevel": 4517.416492857143,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1756396140,
+      "entryTime": 1756396020,
       "exitTime": 1756472400,
-      "entryPrice": 4484.791142857142,
+      "entryPrice": 4504.536192857143,
       "exitPrice": 4402.9,
       "direction": "short",
-      "portfolioPnl": 12.520724509462996,
+      "portfolioPnl": 17.298612455095938,
       "stopLevel": 4597.62,
-      "upperLevel": 4710.448857142857,
-      "lowerLevel": 4484.791142857142,
+      "upperLevel": 4690.703807142857,
+      "lowerLevel": 4504.536192857143,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1756476300,
+      "entryTime": 1756476240,
       "exitTime": 1756539780,
-      "entryPrice": 4291.009142857143,
+      "entryPrice": 4310.975042857143,
       "exitPrice": 4405.1,
       "direction": "short",
-      "portfolioPnl": -23.240303373557413,
+      "portfolioPnl": -21.16867837546165,
       "stopLevel": 4405.1,
-      "upperLevel": 4519.190857142858,
-      "lowerLevel": 4291.009142857143,
+      "upperLevel": 4499.224957142857,
+      "lowerLevel": 4310.975042857143,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1756612440,
+      "entryTime": 1756601760,
       "exitTime": 1756645200,
-      "entryPrice": 4476.492857142857,
+      "entryPrice": 4457.063857142857,
       "exitPrice": 4492.41,
       "direction": "long",
-      "portfolioPnl": 0.4525119256953763,
+      "portfolioPnl": 4.347236024025739,
       "stopLevel": 4365.47,
-      "upperLevel": 4476.492857142857,
-      "lowerLevel": 4254.447142857143,
+      "upperLevel": 4457.063857142857,
+      "lowerLevel": 4273.876142857143,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1756683660,
+      "entryTime": 1756683000,
       "exitTime": 1756713720,
-      "entryPrice": 4376.985142857143,
+      "entryPrice": 4396.281492857142,
       "exitPrice": 4487.25,
       "direction": "short",
-      "portfolioPnl": -22.860026922399715,
+      "portfolioPnl": -20.92387371123285,
       "stopLevel": 4487.25,
-      "upperLevel": 4597.514857142857,
-      "lowerLevel": 4376.985142857143,
+      "upperLevel": 4578.218507142858,
+      "lowerLevel": 4396.281492857142,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1756759080,
+      "entryTime": 1756746720,
       "exitTime": 1756794900,
-      "entryPrice": 4296.866857142857,
+      "entryPrice": 4315.161907142857,
       "exitPrice": 4401.41,
       "direction": "short",
-      "portfolioPnl": -22.431824280435062,
+      "portfolioPnl": -20.535278392849364,
       "stopLevel": 4401.41,
-      "upperLevel": 4505.953142857143,
-      "lowerLevel": 4296.866857142857,
+      "upperLevel": 4487.658092857143,
+      "lowerLevel": 4315.161907142857,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1756820760,
+      "entryTime": 1756820700,
       "exitTime": 1756838700,
-      "entryPrice": 4379.672285714286,
+      "entryPrice": 4361.296885714286,
       "exitPrice": 4274.67,
       "direction": "long",
-      "portfolioPnl": -21.904322486323984,
+      "portfolioPnl": -20.02644785379171,
       "stopLevel": 4274.67,
-      "upperLevel": 4379.672285714286,
-      "lowerLevel": 4169.667714285714,
+      "upperLevel": 4361.296885714286,
+      "lowerLevel": 4188.043114285714,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1756909920,
+      "entryTime": 1756907160,
       "exitTime": 1756990800,
-      "entryPrice": 4454.378571428571,
+      "entryPrice": 4436.693321428571,
       "exitPrice": 4411.56,
       "direction": "long",
-      "portfolioPnl": -10.581814254829965,
+      "portfolioPnl": -7.840578957557905,
       "stopLevel": 4353.32,
-      "upperLevel": 4454.378571428571,
-      "lowerLevel": 4252.261428571428,
+      "upperLevel": 4436.693321428571,
+      "lowerLevel": 4269.9466785714285,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1756998660,
+      "entryTime": 1756994700,
       "exitTime": 1757058600,
-      "entryPrice": 4317.173714285714,
+      "entryPrice": 4334.174314285714,
       "exitPrice": 4414.32,
       "direction": "short",
-      "portfolioPnl": -21.385125411346905,
+      "portfolioPnl": -19.625212216524663,
       "stopLevel": 4414.32,
-      "upperLevel": 4511.466285714286,
-      "lowerLevel": 4317.173714285714,
+      "upperLevel": 4494.465685714285,
+      "lowerLevel": 4334.174314285714,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1757081760,
+      "entryTime": 1757081700,
       "exitTime": 1757163600,
-      "entryPrice": 4370.267714285715,
+      "entryPrice": 4387.678864285715,
       "exitPrice": 4296.73,
       "direction": "short",
-      "portfolioPnl": 11.205918376854834,
+      "portfolioPnl": 15.636891329530895,
       "stopLevel": 4469.76,
-      "upperLevel": 4569.252285714286,
-      "lowerLevel": 4370.267714285715,
+      "upperLevel": 4551.841135714286,
+      "lowerLevel": 4387.678864285715,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1757432520,
+      "entryTime": 1757344920,
+      "exitTime": 1757353860,
+      "entryPrice": 4380.900314285715,
+      "exitPrice": 4318.42,
+      "direction": "long",
+      "portfolioPnl": -20.28957730636805,
+      "stopLevel": 4318.42,
+      "upperLevel": 4380.900314285715,
+      "lowerLevel": 4255.939685714286,
+      "exitReason": "stop_loss"
+    },
+    {
+      "entryTime": 1757428440,
       "exitTime": 1757506920,
-      "entryPrice": 4275.208857142857,
+      "entryPrice": 4287.135307142857,
       "exitPrice": 4343.36,
       "direction": "short",
-      "portfolioPnl": -22.176997932097404,
+      "portfolioPnl": -20.149545318014525,
       "stopLevel": 4343.36,
-      "upperLevel": 4411.511142857143,
-      "lowerLevel": 4275.208857142857,
+      "upperLevel": 4399.584692857143,
+      "lowerLevel": 4287.135307142857,
       "exitReason": "stop_loss"
     },
     {
       "entryTime": 1757512080,
       "exitTime": 1757521500,
-      "entryPrice": 4435.414571428571,
+      "entryPrice": 4423.947771428572,
       "exitPrice": 4369.89,
       "direction": "long",
-      "portfolioPnl": -21.865482849255187,
+      "portfolioPnl": -19.873620824179355,
       "stopLevel": 4369.89,
-      "upperLevel": 4435.414571428571,
-      "lowerLevel": 4304.365428571429,
+      "upperLevel": 4423.947771428572,
+      "lowerLevel": 4315.8322285714285,
       "exitReason": "stop_loss"
     },
     {
       "entryTime": 1757637840,
       "exitTime": 1757682000,
-      "entryPrice": 4490.020571428571,
+      "entryPrice": 4478.610471428571,
       "exitPrice": 4524.44,
       "direction": "long",
-      "portfolioPnl": 5.692365237333654,
+      "portfolioPnl": 9.361444329901165,
       "stopLevel": 4424.82,
-      "upperLevel": 4490.020571428571,
-      "lowerLevel": 4359.619428571428,
+      "upperLevel": 4478.610471428571,
+      "lowerLevel": 4371.029528571428,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1757697780,
+      "entryTime": 1757696460,
       "exitTime": 1757768400,
-      "entryPrice": 4587.242571428572,
+      "entryPrice": 4576.423621428572,
       "exitPrice": 4718.0,
       "direction": "long",
-      "portfolioPnl": 33.76868233902379,
+      "portfolioPnl": 39.45179809388807,
       "stopLevel": 4525.42,
-      "upperLevel": 4587.242571428572,
-      "lowerLevel": 4463.597428571428,
+      "upperLevel": 4576.423621428572,
+      "lowerLevel": 4474.416378571428,
       "exitReason": "end_of_day"
     },
     {
       "entryTime": 1757771460,
       "exitTime": 1757854800,
-      "entryPrice": 4653.763142857142,
+      "entryPrice": 4665.090342857143,
       "exitPrice": 4634.56,
       "direction": "short",
-      "portfolioPnl": 1.510455188416204,
+      "portfolioPnl": 5.1401686312637,
       "stopLevel": 4718.49,
-      "upperLevel": 4783.216857142857,
-      "lowerLevel": 4653.763142857142,
+      "upperLevel": 4771.889657142857,
+      "lowerLevel": 4665.090342857143,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1757923320,
-      "exitTime": 1757941200,
-      "entryPrice": 4569.061428571428,
-      "exitPrice": 4514.14,
+      "entryTime": 1757860800,
+      "exitTime": 1757872080,
+      "entryPrice": 4580.1474285714285,
+      "exitPrice": 4632.41,
       "direction": "short",
-      "portfolioPnl": 12.111891627375153,
+      "portfolioPnl": -21.06132914371579,
       "stopLevel": 4632.41,
-      "upperLevel": 4695.758571428572,
-      "lowerLevel": 4569.061428571428,
-      "exitReason": "end_of_day"
+      "upperLevel": 4684.672571428571,
+      "lowerLevel": 4580.1474285714285,
+      "exitReason": "stop_loss"
     },
     {
       "entryTime": 1758030300,
       "exitTime": 1758042960,
-      "entryPrice": 4437.597142857143,
+      "entryPrice": 4448.167642857143,
       "exitPrice": 4498.0,
       "direction": "short",
-      "portfolioPnl": -22.99829267797124,
+      "portfolioPnl": -20.60789425573228,
       "stopLevel": 4498.0,
-      "upperLevel": 4558.402857142857,
-      "lowerLevel": 4437.597142857143,
+      "upperLevel": 4547.832357142857,
+      "lowerLevel": 4448.167642857143,
       "exitReason": "stop_loss"
     },
     {
       "entryTime": 1758131940,
       "exitTime": 1758132000,
-      "entryPrice": 4439.518857142857,
+      "entryPrice": 4450.040057142857,
       "exitPrice": 4499.64,
       "direction": "short",
-      "portfolioPnl": -22.45698418367748,
+      "portfolioPnl": -20.10639468521625,
       "stopLevel": 4499.64,
-      "upperLevel": 4559.761142857144,
-      "lowerLevel": 4439.518857142857,
+      "upperLevel": 4549.239942857143,
+      "lowerLevel": 4450.040057142857,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1758213900,
+      "entryTime": 1758204780,
       "exitTime": 1758252600,
-      "entryPrice": 4631.193714285715,
+      "entryPrice": 4620.152314285715,
       "exitPrice": 4568.1,
       "direction": "long",
-      "portfolioPnl": -21.83023365685692,
+      "portfolioPnl": -19.504802481247747,
       "stopLevel": 4568.1,
-      "upperLevel": 4631.193714285715,
-      "lowerLevel": 4505.006285714286,
+      "upperLevel": 4620.152314285715,
+      "lowerLevel": 4516.047685714286,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1758294720,
+      "entryTime": 1758294420,
       "exitTime": 1758373200,
-      "entryPrice": 4456.219428571429,
+      "entryPrice": 4466.745778571429,
       "exitPrice": 4464.08,
       "direction": "short",
-      "portfolioPnl": -6.171327041090933,
+      "portfolioPnl": -3.25030680454511,
       "stopLevel": 4516.37,
-      "upperLevel": 4576.520571428571,
-      "lowerLevel": 4456.219428571429,
+      "upperLevel": 4565.994221428571,
+      "lowerLevel": 4466.745778571429,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1758501120,
+      "entryTime": 1758501000,
       "exitTime": 1758546000,
-      "entryPrice": 4409.229714285714,
+      "entryPrice": 4419.119014285714,
       "exitPrice": 4187.58,
       "direction": "short",
-      "portfolioPnl": 64.10223090130157,
+      "portfolioPnl": 70.18490354167636,
       "stopLevel": 4465.74,
-      "upperLevel": 4522.250285714285,
-      "lowerLevel": 4409.229714285714,
+      "upperLevel": 4512.360985714286,
+      "lowerLevel": 4419.119014285714,
       "exitReason": "end_of_day"
     },
     {
       "entryTime": 1758569760,
       "exitTime": 1758576180,
-      "entryPrice": 4122.567142857143,
+      "entryPrice": 4134.369642857143,
       "exitPrice": 4190.01,
       "direction": "short",
-      "portfolioPnl": -22.07983772675593,
+      "portfolioPnl": -20.04380968061257,
       "stopLevel": 4190.01,
-      "upperLevel": 4257.452857142857,
-      "lowerLevel": 4122.567142857143,
+      "upperLevel": 4245.6503571428575,
+      "lowerLevel": 4134.369642857143,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1758686640,
+      "entryTime": 1758649440,
       "exitTime": 1758712320,
-      "entryPrice": 4125.819714285714,
+      "entryPrice": 4137.667264285715,
       "exitPrice": 4193.52,
       "direction": "short",
-      "portfolioPnl": -21.54653454293469,
+      "portfolioPnl": -19.54226309875658,
       "stopLevel": 4193.52,
-      "upperLevel": 4261.220285714287,
-      "lowerLevel": 4125.819714285714,
+      "upperLevel": 4249.372735714286,
+      "lowerLevel": 4137.667264285715,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1758763380,
+      "entryTime": 1758761820,
       "exitTime": 1758805200,
-      "entryPrice": 4110.361142857143,
+      "entryPrice": 4122.309942857143,
       "exitPrice": 3976.0,
       "direction": "short",
-      "portfolioPnl": 31.79744526648148,
+      "portfolioPnl": 37.10335521915663,
       "stopLevel": 4178.64,
-      "upperLevel": 4246.918857142858,
-      "lowerLevel": 4110.361142857143,
+      "upperLevel": 4234.9700571428575,
+      "lowerLevel": 4122.309942857143,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1758820440,
+      "entryTime": 1758820080,
       "exitTime": 1758891600,
-      "entryPrice": 3905.260285714286,
+      "entryPrice": 3917.695735714286,
       "exitPrice": 3933.6,
       "direction": "short",
-      "portfolioPnl": -10.38177737953558,
+      "portfolioPnl": -7.706189686385914,
       "stopLevel": 3976.32,
-      "upperLevel": 4047.379714285714,
-      "lowerLevel": 3905.260285714286,
+      "upperLevel": 4034.9442642857134,
+      "lowerLevel": 3917.695735714286,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1758907440,
+      "entryTime": 1758903900,
       "exitTime": 1758978000,
-      "entryPrice": 4006.986857142857,
+      "entryPrice": 3994.450407142857,
       "exitPrice": 4024.9,
       "direction": "long",
-      "portfolioPnl": 1.4893537037041682,
+      "portfolioPnl": 5.03876145414947,
       "stopLevel": 3935.35,
-      "upperLevel": 4006.986857142857,
-      "lowerLevel": 3863.713142857143,
+      "upperLevel": 3994.450407142857,
+      "lowerLevel": 3876.249592857143,
+      "exitReason": "end_of_day"
+    },
+    {
+      "entryTime": 1759063440,
+      "exitTime": 1759064400,
+      "entryPrice": 3969.911307142858,
+      "exitPrice": 3976.15,
+      "direction": "short",
+      "portfolioPnl": -5.198544135674857,
+      "stopLevel": 4026.73,
+      "upperLevel": 4083.548692857143,
+      "lowerLevel": 3969.911307142858,
       "exitReason": "end_of_day"
     },
     {
       "entryTime": 1759075620,
       "exitTime": 1759150800,
-      "entryPrice": 4043.399142857143,
+      "entryPrice": 4031.583292857143,
       "exitPrice": 4097.86,
       "direction": "long",
-      "portfolioPnl": 11.401000974461416,
+      "portfolioPnl": 15.692843485772697,
       "stopLevel": 3975.88,
-      "upperLevel": 4043.399142857143,
-      "lowerLevel": 3908.360857142857,
+      "upperLevel": 4031.583292857143,
+      "lowerLevel": 3920.176707142857,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1759153860,
+      "entryTime": 1759153620,
       "exitTime": 1759237200,
-      "entryPrice": 4163.095428571429,
+      "entryPrice": 4151.297728571429,
       "exitPrice": 4156.0,
       "direction": "long",
-      "portfolioPnl": -5.356449202474344,
+      "portfolioPnl": -2.2985400012542976,
       "stopLevel": 4095.68,
-      "upperLevel": 4163.095428571429,
-      "lowerLevel": 4028.2645714285713,
+      "upperLevel": 4151.297728571429,
+      "lowerLevel": 4040.0622714285714,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1759308000,
-      "exitTime": 1759323600,
-      "entryPrice": 4226.108571428571,
-      "exitPrice": 4282.64,
-      "direction": "long",
-      "portfolioPnl": 11.48299362714394,
+      "entryTime": 1759245960,
+      "exitTime": 1759261860,
+      "entryPrice": 4098.525428571428,
+      "exitPrice": 4156.2,
+      "direction": "short",
+      "portfolioPnl": -19.95856988762266,
       "stopLevel": 4156.2,
-      "upperLevel": 4226.108571428571,
-      "lowerLevel": 4086.291428571428,
-      "exitReason": "end_of_day"
+      "upperLevel": 4213.874571428572,
+      "lowerLevel": 4098.525428571428,
+      "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1759363260,
+      "entryTime": 1759362720,
       "exitTime": 1759410000,
-      "entryPrice": 4355.891142857143,
+      "entryPrice": 4343.119442857143,
       "exitPrice": 4405.0,
       "direction": "long",
-      "portfolioPnl": 9.152293635664195,
+      "portfolioPnl": 12.982791592598725,
       "stopLevel": 4282.91,
-      "upperLevel": 4355.891142857143,
-      "lowerLevel": 4209.928857142857,
+      "upperLevel": 4343.119442857143,
+      "lowerLevel": 4222.700557142857,
       "exitReason": "end_of_day"
     },
     {
       "entryTime": 1759417440,
       "exitTime": 1759418520,
-      "entryPrice": 4334.190571428572,
+      "entryPrice": 4346.475471428572,
       "exitPrice": 4404.39,
       "direction": "short",
-      "portfolioPnl": -22.2556006631193,
+      "portfolioPnl": -19.9839583831394,
       "stopLevel": 4404.39,
-      "upperLevel": 4474.5894285714285,
-      "lowerLevel": 4334.190571428572,
+      "upperLevel": 4462.304528571429,
+      "lowerLevel": 4346.475471428572,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1759507320,
+      "entryTime": 1759507140,
       "exitTime": 1759510860,
-      "entryPrice": 4553.484,
+      "entryPrice": 4540.70305,
       "exitPrice": 4480.45,
       "direction": "long",
-      "portfolioPnl": -21.70575393885547,
+      "portfolioPnl": -19.46083049002233,
       "stopLevel": 4480.45,
-      "upperLevel": 4553.484,
-      "lowerLevel": 4407.416,
+      "upperLevel": 4540.70305,
+      "lowerLevel": 4420.19695,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1759633200,
+      "entryTime": 1759631640,
       "exitTime": 1759669200,
-      "entryPrice": 4553.331428571428,
+      "entryPrice": 4540.3129285714285,
       "exitPrice": 4529.17,
       "direction": "long",
-      "portfolioPnl": -9.078934164122424,
+      "portfolioPnl": -6.251050616071979,
       "stopLevel": 4478.94,
-      "upperLevel": 4553.331428571428,
-      "lowerLevel": 4404.548571428571,
+      "upperLevel": 4540.3129285714285,
+      "lowerLevel": 4417.567071428571,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1759759440,
+      "entryTime": 1759752960,
+      "exitTime": 1759755600,
+      "entryPrice": 4594.352157142857,
+      "exitPrice": 4580.0,
+      "direction": "long",
+      "portfolioPnl": -6.750561125454813,
+      "stopLevel": 4530.31,
+      "upperLevel": 4594.352157142857,
+      "lowerLevel": 4466.267842857144,
+      "exitReason": "end_of_day"
+    },
+    {
+      "entryTime": 1759759140,
       "exitTime": 1759842000,
-      "entryPrice": 4647.552000000001,
+      "entryPrice": 4635.602650000001,
       "exitPrice": 4743.68,
       "direction": "long",
-      "portfolioPnl": 21.258246901192493,
+      "portfolioPnl": 25.43693697818176,
       "stopLevel": 4579.27,
-      "upperLevel": 4647.552000000001,
-      "lowerLevel": 4510.988,
+      "upperLevel": 4635.602650000001,
+      "lowerLevel": 4522.93735,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1759844580,
+      "entryTime": 1759844520,
       "exitTime": 1759928400,
-      "entryPrice": 4677.066571428572,
+      "entryPrice": 4689.290921428572,
       "exitPrice": 4480.22,
       "direction": "short",
-      "portfolioPnl": 47.494192478598976,
+      "portfolioPnl": 53.3843872436611,
       "stopLevel": 4746.92,
-      "upperLevel": 4816.773428571429,
-      "lowerLevel": 4677.066571428572,
+      "upperLevel": 4804.549078571428,
+      "lowerLevel": 4689.290921428572,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1759944660,
+      "entryTime": 1759944180,
       "exitTime": 1759972740,
-      "entryPrice": 4552.352285714285,
+      "entryPrice": 4539.092135714285,
       "exitPrice": 4476.58,
       "direction": "long",
-      "portfolioPnl": -22.476258349196,
+      "portfolioPnl": -20.457520071531764,
       "stopLevel": 4476.58,
-      "upperLevel": 4552.352285714285,
-      "lowerLevel": 4400.807714285715,
+      "upperLevel": 4539.092135714285,
+      "lowerLevel": 4414.067864285715,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1760020200,
+      "entryTime": 1760018400,
       "exitTime": 1760101200,
-      "entryPrice": 4327.167142857144,
+      "entryPrice": 4340.199892857143,
       "exitPrice": 4351.53,
       "direction": "short",
-      "portfolioPnl": -9.345390235967033,
+      "portfolioPnl": -6.508293546497432,
       "stopLevel": 4401.64,
-      "upperLevel": 4476.112857142857,
-      "lowerLevel": 4327.167142857144,
+      "upperLevel": 4463.080107142858,
+      "lowerLevel": 4340.199892857143,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1760108400,
+      "entryTime": 1760108280,
       "exitTime": 1760187600,
-      "entryPrice": 4273.984285714286,
+      "entryPrice": 4286.732285714285,
       "exitPrice": 3818.88,
       "direction": "short",
-      "portfolioPnl": 112.08028844650804,
+      "portfolioPnl": 123.44147829829608,
       "stopLevel": 4346.83,
-      "upperLevel": 4419.675714285714,
-      "lowerLevel": 4273.984285714286,
+      "upperLevel": 4406.9277142857145,
+      "lowerLevel": 4286.732285714285,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1760214120,
+      "entryTime": 1760211240,
       "exitTime": 1760242980,
-      "entryPrice": 3722.088857142857,
+      "entryPrice": 3739.4070571428574,
       "exitPrice": 3821.05,
       "direction": "short",
-      "portfolioPnl": -23.03691199837069,
+      "portfolioPnl": -21.352788851733056,
       "stopLevel": 3821.05,
-      "upperLevel": 3920.011142857143,
-      "lowerLevel": 3722.088857142857,
+      "upperLevel": 3902.692942857143,
+      "lowerLevel": 3739.4070571428574,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1760280420,
+      "entryTime": 1760280360,
       "exitTime": 1760360400,
-      "entryPrice": 3933.4522857142856,
+      "entryPrice": 3915.3446357142857,
       "exitPrice": 4099.5,
       "direction": "long",
-      "portfolioPnl": 30.082360757399343,
+      "portfolioPnl": 36.94420642172246,
       "stopLevel": 3829.98,
-      "upperLevel": 3933.4522857142856,
-      "lowerLevel": 3726.5077142857135,
+      "upperLevel": 3915.3446357142857,
+      "lowerLevel": 3744.6153642857134,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1760378220,
+      "entryTime": 1760375160,
       "exitTime": 1760417400,
-      "entryPrice": 4205.827714285714,
+      "entryPrice": 4186.4241142857145,
       "exitPrice": 4094.95,
       "direction": "long",
-      "portfolioPnl": -23.15150270095961,
+      "portfolioPnl": -21.648706951215555,
       "stopLevel": 4094.95,
-      "upperLevel": 4205.827714285714,
-      "lowerLevel": 3984.0722857142855,
+      "upperLevel": 4186.4241142857145,
+      "lowerLevel": 4003.4758857142856,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1760457060,
+      "entryTime": 1760456760,
       "exitTime": 1760533200,
-      "entryPrice": 4056.123714285714,
+      "entryPrice": 4035.523814285714,
       "exitPrice": 4090.4,
       "direction": "long",
-      "portfolioPnl": 3.813272400681865,
+      "portfolioPnl": 8.18783511817367,
       "stopLevel": 3938.41,
-      "upperLevel": 4056.123714285714,
-      "lowerLevel": 3820.6962857142858,
+      "upperLevel": 4035.523814285714,
+      "lowerLevel": 3841.2961857142855,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1760542980,
+      "entryTime": 1760540160,
       "exitTime": 1760619600,
-      "entryPrice": 3972.818,
+      "entryPrice": 3993.83585,
       "exitPrice": 4054.09,
       "direction": "short",
-      "portfolioPnl": -15.87090545520887,
+      "portfolioPnl": -13.716496181076138,
       "stopLevel": 4092.92,
-      "upperLevel": 4213.022,
-      "lowerLevel": 3972.818,
+      "upperLevel": 4192.00415,
+      "lowerLevel": 3993.83585,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1760629560,
+      "entryTime": 1760629200,
       "exitTime": 1760706000,
-      "entryPrice": 3931.8274285714288,
+      "entryPrice": 3953.025628571429,
       "exitPrice": 3778.67,
       "direction": "short",
-      "portfolioPnl": 23.506509651511166,
+      "portfolioPnl": 30.15736685997724,
       "stopLevel": 4052.96,
-      "upperLevel": 4174.092571428571,
-      "lowerLevel": 3931.8274285714288,
+      "upperLevel": 4152.894371428572,
+      "lowerLevel": 3953.025628571429,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1760770980,
+      "entryTime": 1760735160,
       "exitTime": 1760792400,
-      "entryPrice": 3899.4765714285713,
+      "entryPrice": 3877.441171428572,
       "exitPrice": 3876.8,
       "direction": "long",
-      "portfolioPnl": -5.612770446151709,
+      "portfolioPnl": -2.2588316890151114,
       "stopLevel": 3773.56,
-      "upperLevel": 3899.4765714285713,
-      "lowerLevel": 3647.643428571429,
+      "upperLevel": 3877.441171428572,
+      "lowerLevel": 3669.678828571428,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1760936220,
-      "exitTime": 1760965200,
-      "entryPrice": 4048.062571428571,
-      "exitPrice": 4035.7,
+      "entryTime": 1760893920,
+      "exitTime": 1760920020,
+      "entryPrice": 4025.9893714285713,
+      "exitPrice": 3921.93,
       "direction": "long",
-      "portfolioPnl": -3.973762627486237,
+      "portfolioPnl": -21.260120295252623,
       "stopLevel": 3921.93,
-      "upperLevel": 4048.062571428571,
-      "lowerLevel": 3795.797428571429,
-      "exitReason": "end_of_day"
+      "upperLevel": 4025.9893714285713,
+      "lowerLevel": 3817.870628571429,
+      "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1761019200,
+      "entryTime": 1760978700,
       "exitTime": 1761051600,
-      "entryPrice": 3908.232285714286,
+      "entryPrice": 3930.577635714286,
       "exitPrice": 3882.9,
       "direction": "short",
-      "portfolioPnl": 2.1788409861767897,
+      "portfolioPnl": 6.365815305474189,
       "stopLevel": 4035.92,
-      "upperLevel": 4163.607714285714,
-      "lowerLevel": 3908.232285714286,
+      "upperLevel": 4141.262364285714,
+      "lowerLevel": 3930.577635714286,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1761058620,
+      "entryTime": 1761058500,
       "exitTime": 1761089640,
-      "entryPrice": 4007.4942857142855,
+      "entryPrice": 3984.955285714285,
       "exitPrice": 3878.7,
       "direction": "long",
-      "portfolioPnl": -22.308543000049696,
+      "portfolioPnl": -20.861311725438927,
       "stopLevel": 3878.7,
-      "upperLevel": 4007.4942857142855,
-      "lowerLevel": 3749.905714285714,
+      "upperLevel": 3984.955285714285,
+      "lowerLevel": 3772.4447142857134,
       "exitReason": "stop_loss"
     },
     {
       "entryTime": 1761167460,
       "exitTime": 1761194580,
-      "entryPrice": 3716.114571428572,
+      "entryPrice": 3738.645021428572,
       "exitPrice": 3844.86,
       "direction": "short",
-      "portfolioPnl": -21.74636141685617,
+      "portfolioPnl": -20.32590481131764,
       "stopLevel": 3844.86,
-      "upperLevel": 3973.605428571429,
-      "lowerLevel": 3716.114571428572,
+      "upperLevel": 3951.074978571429,
+      "lowerLevel": 3738.645021428572,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1761281760,
+      "entryTime": 1761280440,
       "exitTime": 1761310800,
-      "entryPrice": 3979.270285714286,
+      "entryPrice": 3956.9279857142856,
       "exitPrice": 3961.89,
       "direction": "long",
-      "portfolioPnl": -4.485647120710856,
+      "portfolioPnl": -1.1788669069286468,
       "stopLevel": 3851.6,
-      "upperLevel": 3979.270285714286,
-      "lowerLevel": 3723.929714285714,
+      "upperLevel": 3956.9279857142856,
+      "lowerLevel": 3746.272014285714,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1761479100,
+      "entryTime": 1761478920,
       "exitTime": 1761483600,
-      "entryPrice": 4054.4662857142857,
+      "entryPrice": 4036.5311857142856,
       "exitPrice": 4076.13,
       "direction": "long",
-      "portfolioPnl": 1.7978453111187584,
+      "portfolioPnl": 5.8166480719547975,
       "stopLevel": 3951.98,
-      "upperLevel": 4054.4662857142857,
-      "lowerLevel": 3849.4937142857134,
+      "upperLevel": 4036.5311857142856,
+      "lowerLevel": 3867.4288142857145,
       "exitReason": "end_of_day"
     },
     {
       "entryTime": 1761516180,
       "exitTime": 1761570000,
-      "entryPrice": 4172.550571428572,
+      "entryPrice": 4154.936721428571,
       "exitPrice": 4144.35,
       "direction": "long",
-      "portfolioPnl": -7.8793597066409715,
-      "stopLevel": 4071.900000000001,
-      "upperLevel": 4172.550571428572,
-      "lowerLevel": 3971.249428571429,
+      "portfolioPnl": -5.006204031231229,
+      "stopLevel": 4071.9,
+      "upperLevel": 4154.936721428571,
+      "lowerLevel": 3988.863278571429,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1761680940,
+      "entryTime": 1761587220,
+      "exitTime": 1761595920,
+      "entryPrice": 4221.68835,
+      "exitPrice": 4143.81,
+      "direction": "long",
+      "portfolioPnl": -20.837296913383238,
+      "stopLevel": 4143.81,
+      "upperLevel": 4221.68835,
+      "lowerLevel": 4065.93165,
+      "exitReason": "stop_loss"
+    },
+    {
+      "entryTime": 1761679800,
       "exitTime": 1761742800,
-      "entryPrice": 4032.5042857142857,
+      "entryPrice": 4047.844035714285,
       "exitPrice": 4013.0,
       "direction": "short",
-      "portfolioPnl": 1.640612928840287,
+      "portfolioPnl": 5.515154157797825,
       "stopLevel": 4120.16,
-      "upperLevel": 4207.815714285714,
-      "lowerLevel": 4032.5042857142857,
+      "upperLevel": 4192.475964285714,
+      "lowerLevel": 4047.844035714285,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1761754020,
+      "entryTime": 1761752880,
       "exitTime": 1761760740,
-      "entryPrice": 3928.613428571429,
+      "entryPrice": 3943.561328571429,
       "exitPrice": 4014.03,
       "direction": "short",
-      "portfolioPnl": -22.07437787701341,
+      "portfolioPnl": -20.627169355393725,
       "stopLevel": 4014.03,
-      "upperLevel": 4099.446571428572,
-      "lowerLevel": 3928.613428571429,
+      "upperLevel": 4084.498671428572,
+      "lowerLevel": 3943.561328571429,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1761845400,
+      "entryTime": 1761844740,
       "exitTime": 1761870720,
-      "entryPrice": 3728.6725714285712,
+      "entryPrice": 3743.9023714285713,
       "exitPrice": 3815.7,
       "direction": "short",
-      "portfolioPnl": -21.39248448702318,
+      "portfolioPnl": -19.94749874259026,
       "stopLevel": 3815.7,
-      "upperLevel": 3902.727428571429,
-      "lowerLevel": 3728.6725714285712,
+      "upperLevel": 3887.497628571428,
+      "lowerLevel": 3743.9023714285713,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1762137120,
+      "entryTime": 1761939240,
+      "exitTime": 1761956520,
+      "entryPrice": 3901.6585,
+      "exitPrice": 3834.19,
+      "direction": "long",
+      "portfolioPnl": -19.72201132983012,
+      "stopLevel": 3834.19,
+      "upperLevel": 3901.6585,
+      "lowerLevel": 3766.7215,
+      "exitReason": "stop_loss"
+    },
+    {
+      "entryTime": 1762136880,
       "exitTime": 1762174800,
-      "entryPrice": 3798.5505714285714,
+      "entryPrice": 3812.007971428571,
       "exitPrice": 3706.98,
       "direction": "short",
-      "portfolioPnl": 19.32415053212748,
+      "portfolioPnl": 24.28392737657784,
       "stopLevel": 3875.45,
-      "upperLevel": 3952.349428571428,
-      "lowerLevel": 3798.5505714285714,
+      "upperLevel": 3938.892028571429,
+      "lowerLevel": 3812.007971428571,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1762183740,
+      "entryTime": 1762183620,
       "exitTime": 1762261200,
-      "entryPrice": 3628.180571428572,
+      "entryPrice": 3642.0334714285714,
       "exitPrice": 3511.37,
       "direction": "short",
-      "portfolioPnl": 25.31846426774046,
+      "portfolioPnl": 31.071326162548367,
       "stopLevel": 3707.34,
-      "upperLevel": 3786.499428571429,
-      "lowerLevel": 3628.180571428572,
+      "upperLevel": 3772.646528571429,
+      "lowerLevel": 3642.0334714285714,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1762275120,
-      "exitTime": 1762347600,
-      "entryPrice": 3428.078571428571,
-      "exitPrice": 3344.02,
-      "direction": "short",
-      "portfolioPnl": 17.61069901105101,
+      "entryTime": 1762268580,
+      "exitTime": 1762271520,
+      "entryPrice": 3576.6179285714284,
+      "exitPrice": 3509.47,
+      "direction": "long",
+      "portfolioPnl": -20.317051008369937,
       "stopLevel": 3509.47,
-      "upperLevel": 3590.8614285714284,
-      "lowerLevel": 3428.078571428571,
-      "exitReason": "end_of_day"
+      "upperLevel": 3576.6179285714284,
+      "lowerLevel": 3442.3220714285712,
+      "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1762361700,
+      "entryTime": 1762361280,
       "exitTime": 1762433160,
-      "entryPrice": 3429.898857142857,
+      "entryPrice": 3414.702057142857,
       "exitPrice": 3343.06,
       "direction": "long",
-      "portfolioPnl": -22.05840257974323,
+      "portfolioPnl": -19.558463766871743,
       "stopLevel": 3343.06,
-      "upperLevel": 3429.898857142857,
-      "lowerLevel": 3256.2211428571427,
+      "upperLevel": 3414.702057142857,
+      "lowerLevel": 3271.417942857143,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1762447320,
+      "entryTime": 1762444320,
       "exitTime": 1762454880,
-      "entryPrice": 3262.0662857142856,
+      "entryPrice": 3277.0714357142856,
       "exitPrice": 3347.81,
       "direction": "short",
-      "portfolioPnl": -21.53938896776025,
+      "portfolioPnl": -19.095028103675286,
       "stopLevel": 3347.81,
-      "upperLevel": 3433.5537142857142,
-      "lowerLevel": 3262.0662857142856,
+      "upperLevel": 3418.5485642857143,
+      "lowerLevel": 3277.0714357142856,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1762528200,
+      "entryTime": 1762527360,
       "exitTime": 1762606800,
-      "entryPrice": 3306.846285714286,
+      "entryPrice": 3291.914185714286,
       "exitPrice": 3409.09,
       "direction": "long",
-      "portfolioPnl": 20.39002769133305,
+      "portfolioPnl": 24.89792948778033,
       "stopLevel": 3221.52,
-      "upperLevel": 3306.846285714286,
-      "lowerLevel": 3136.193714285714,
+      "upperLevel": 3291.914185714286,
+      "lowerLevel": 3151.125814285714,
       "exitReason": "end_of_day"
     },
     {
       "entryTime": 1762698360,
       "exitTime": 1762779600,
-      "entryPrice": 3529.1605714285715,
+      "entryPrice": 3513.608221428572,
       "exitPrice": 3589.56,
       "direction": "long",
-      "portfolioPnl": 10.788958049203218,
+      "portfolioPnl": 15.014618795555451,
       "stopLevel": 3440.29,
-      "upperLevel": 3529.1605714285715,
-      "lowerLevel": 3351.4194285714284,
+      "upperLevel": 3513.608221428572,
+      "lowerLevel": 3366.9717785714283,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1762882800,
+      "entryTime": 1762789920,
+      "exitTime": 1762822620,
+      "entryPrice": 3516.477414285714,
+      "exitPrice": 3590.0,
+      "direction": "short",
+      "portfolioPnl": -19.6471879005108,
+      "stopLevel": 3590.0,
+      "upperLevel": 3663.522585714286,
+      "lowerLevel": 3516.477414285714,
+      "exitReason": "stop_loss"
+    },
+    {
+      "entryTime": 1762875180,
       "exitTime": 1762943640,
-      "entryPrice": 3451.422857142857,
+      "entryPrice": 3466.885357142857,
       "exitPrice": 3539.78,
       "direction": "short",
-      "portfolioPnl": -21.81401458990974,
+      "portfolioPnl": -19.18377711180016,
       "stopLevel": 3539.78,
-      "upperLevel": 3628.137142857143,
-      "lowerLevel": 3451.422857142857,
+      "upperLevel": 3612.674642857143,
+      "lowerLevel": 3466.885357142857,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1762960800,
+      "entryTime": 1762958940,
       "exitTime": 1763017020,
-      "entryPrice": 3464.464,
+      "entryPrice": 3479.54655,
       "exitPrice": 3550.65,
       "direction": "short",
-      "portfolioPnl": -21.39088417567517,
+      "portfolioPnl": -18.81241936613515,
       "stopLevel": 3550.65,
-      "upperLevel": 3636.836,
-      "lowerLevel": 3464.464,
+      "upperLevel": 3621.75345,
+      "lowerLevel": 3479.54655,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1763044500,
+      "entryTime": 1763041020,
       "exitTime": 1763125200,
-      "entryPrice": 3414.190571428572,
+      "entryPrice": 3429.1792214285715,
       "exitPrice": 3129.81,
       "direction": "short",
-      "portfolioPnl": 59.73964976452282,
+      "portfolioPnl": 65.58607873454139,
       "stopLevel": 3499.84,
-      "upperLevel": 3585.489428571429,
-      "lowerLevel": 3414.190571428572,
+      "upperLevel": 3570.500778571429,
+      "lowerLevel": 3429.1792214285715,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1763131740,
+      "entryTime": 1763131440,
       "exitTime": 1763152980,
-      "entryPrice": 3217.8314285714287,
+      "entryPrice": 3201.7346785714285,
       "exitPrice": 3125.85,
       "direction": "long",
-      "portfolioPnl": -21.881821750765123,
+      "portfolioPnl": -19.48428087783441,
       "stopLevel": 3125.85,
-      "upperLevel": 3217.8314285714287,
-      "lowerLevel": 3033.868571428571,
+      "upperLevel": 3201.7346785714285,
+      "lowerLevel": 3049.965321428572,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1763310300,
+      "entryTime": 1763286660,
+      "exitTime": 1763293200,
+      "entryPrice": 3238.78255,
+      "exitPrice": 3160.99,
+      "direction": "long",
+      "portfolioPnl": -19.01748973436984,
+      "stopLevel": 3160.99,
+      "upperLevel": 3238.78255,
+      "lowerLevel": 3083.19745,
+      "exitReason": "stop_loss"
+    },
+    {
+      "entryTime": 1763308980,
       "exitTime": 1763349300,
-      "entryPrice": 3072.787714285714,
+      "entryPrice": 3089.5146142857143,
       "exitPrice": 3168.37,
       "direction": "short",
-      "portfolioPnl": -21.292131243565706,
+      "portfolioPnl": -18.51801738073839,
       "stopLevel": 3168.37,
-      "upperLevel": 3263.9522857142856,
-      "lowerLevel": 3072.787714285714,
+      "upperLevel": 3247.225385714285,
+      "lowerLevel": 3089.5146142857143,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1763395320,
-      "exitTime": 1763470800,
-      "entryPrice": 3088.042857142857,
-      "exitPrice": 3046.19,
+      "entryTime": 1763387400,
+      "exitTime": 1763390160,
+      "entryPrice": 3104.592107142857,
+      "exitPrice": 3182.61,
       "direction": "short",
-      "portfolioPnl": 6.548757766081376,
+      "portfolioPnl": -18.133361330938712,
       "stopLevel": 3182.61,
-      "upperLevel": 3277.177142857143,
-      "lowerLevel": 3088.042857142857,
-      "exitReason": "end_of_day"
+      "upperLevel": 3260.627892857143,
+      "lowerLevel": 3104.592107142857,
+      "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1763482680,
+      "entryTime": 1763482080,
       "exitTime": 1763528340,
-      "entryPrice": 3142.262857142857,
+      "entryPrice": 3125.829857142857,
       "exitPrice": 3048.36,
       "direction": "long",
-      "portfolioPnl": -20.986420484821878,
+      "portfolioPnl": -17.705772412106995,
       "stopLevel": 3048.36,
-      "upperLevel": 3142.262857142857,
-      "lowerLevel": 2954.457142857143,
+      "upperLevel": 3125.829857142857,
+      "lowerLevel": 2970.890142857143,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1763566260,
-      "exitTime": 1763643600,
-      "entryPrice": 3015.736571428571,
-      "exitPrice": 3026.77,
+      "entryTime": 1763562240,
+      "exitTime": 1763564880,
+      "entryPrice": 3030.3934214285714,
+      "exitPrice": 3099.49,
       "direction": "short",
-      "portfolioPnl": -4.481940479982553,
+      "portfolioPnl": -17.51843568134998,
       "stopLevel": 3099.49,
-      "upperLevel": 3183.2434285714285,
-      "lowerLevel": 3015.736571428571,
-      "exitReason": "end_of_day"
+      "upperLevel": 3168.586578571428,
+      "lowerLevel": 3030.3934214285714,
+      "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1763654580,
+      "entryTime": 1763651160,
       "exitTime": 1763730000,
-      "entryPrice": 2942.037714285714,
+      "entryPrice": 2957.0496142857146,
       "exitPrice": 2729.7,
       "direction": "short",
-      "portfolioPnl": 44.16872277542488,
+      "portfolioPnl": 46.7215517181561,
       "stopLevel": 3027.82,
-      "upperLevel": 3113.6022857142857,
-      "lowerLevel": 2942.037714285714,
+      "upperLevel": 3098.5903857142857,
+      "lowerLevel": 2957.0496142857146,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1763862780,
+      "entryTime": 1763745900,
+      "exitTime": 1763748840,
+      "entryPrice": 2802.3153285714284,
+      "exitPrice": 2726.33,
+      "direction": "long",
+      "portfolioPnl": -17.79621362287371,
+      "stopLevel": 2726.33,
+      "upperLevel": 2802.3153285714284,
+      "lowerLevel": 2650.3446714285715,
+      "exitReason": "stop_loss"
+    },
+    {
+      "entryTime": 1763851980,
       "exitTime": 1763902800,
-      "entryPrice": 2807.4997142857146,
+      "entryPrice": 2792.1925142857144,
       "exitPrice": 2832.36,
       "direction": "long",
-      "portfolioPnl": 3.650957897432231,
+      "portfolioPnl": 6.898691031551948,
       "stopLevel": 2720.03,
-      "upperLevel": 2807.4997142857146,
-      "lowerLevel": 2632.560285714286,
+      "upperLevel": 2792.1925142857144,
+      "lowerLevel": 2647.867485714286,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1764005040,
+      "entryTime": 1764002820,
       "exitTime": 1764075600,
-      "entryPrice": 2888.207428571429,
+      "entryPrice": 2873.210378571429,
       "exitPrice": 2924.64,
       "direction": "long",
-      "portfolioPnl": 6.320530828494453,
+      "portfolioPnl": 9.566254938666328,
       "stopLevel": 2802.51,
-      "upperLevel": 2888.207428571429,
-      "lowerLevel": 2716.812571428572,
+      "upperLevel": 2873.210378571429,
+      "lowerLevel": 2731.8096214285715,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1764178380,
+      "entryTime": 1764082200,
+      "exitTime": 1764088080,
+      "entryPrice": 2854.188328571429,
+      "exitPrice": 2926.34,
+      "direction": "short",
+      "portfolioPnl": -17.94345316875824,
+      "stopLevel": 2926.34,
+      "upperLevel": 2998.4916714285714,
+      "lowerLevel": 2854.188328571429,
+      "exitReason": "stop_loss"
+    },
+    {
+      "entryTime": 1764178080,
       "exitTime": 1764248400,
-      "entryPrice": 2986.35,
+      "entryPrice": 2971.23875,
       "exitPrice": 2993.86,
       "direction": "long",
-      "portfolioPnl": -0.3326726877936565,
+      "portfolioPnl": 3.005706830265841,
       "stopLevel": 2900.0,
-      "upperLevel": 2986.35,
-      "lowerLevel": 2813.65,
+      "upperLevel": 2971.23875,
+      "lowerLevel": 2828.76125,
       "exitReason": "end_of_day"
     },
     {
       "entryTime": 1764319860,
       "exitTime": 1764334800,
-      "entryPrice": 3074.904857142857,
+      "entryPrice": 3060.029007142857,
       "exitPrice": 3034.85,
       "direction": "long",
-      "portfolioPnl": -11.386215213172038,
+      "portfolioPnl": -7.69325847430603,
       "stopLevel": 2989.9,
-      "upperLevel": 3074.904857142857,
-      "lowerLevel": 2904.895142857143,
+      "upperLevel": 3060.029007142857,
+      "lowerLevel": 2919.770992857143,
       "exitReason": "end_of_day"
+    },
+    {
+      "entryTime": 1764340200,
+      "exitTime": 1764346920,
+      "entryPrice": 3096.871385714286,
+      "exitPrice": 3034.78,
+      "direction": "long",
+      "portfolioPnl": -17.871559699776327,
+      "stopLevel": 3034.78,
+      "upperLevel": 3096.871385714286,
+      "lowerLevel": 2972.6886142857143,
+      "exitReason": "stop_loss"
     },
     {
       "entryTime": 1764547620,
       "exitTime": 1764594000,
-      "entryPrice": 2952.595714285714,
+      "entryPrice": 2965.2157142857145,
       "exitPrice": 2820.01,
       "direction": "short",
-      "portfolioPnl": 33.40191190637102,
+      "portfolioPnl": 34.90031970452096,
       "stopLevel": 3024.71,
-      "upperLevel": 3096.824285714286,
-      "lowerLevel": 2952.595714285714,
+      "upperLevel": 3084.2042857142856,
+      "lowerLevel": 2965.2157142857145,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1764603240,
+      "entryTime": 1764603120,
       "exitTime": 1764637560,
-      "entryPrice": 2746.3177142857144,
+      "entryPrice": 2759.1246142857144,
       "exitPrice": 2819.5,
       "direction": "short",
-      "portfolioPnl": -22.39855348327344,
+      "portfolioPnl": -18.11100225604989,
       "stopLevel": 2819.5,
-      "upperLevel": 2892.6822857142856,
-      "lowerLevel": 2746.3177142857144,
+      "upperLevel": 2879.8753857142856,
+      "lowerLevel": 2759.1246142857144,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1764686700,
+      "entryTime": 1764686640,
       "exitTime": 1764766800,
-      "entryPrice": 2895.5774285714288,
+      "entryPrice": 2883.4923785714286,
       "exitPrice": 3079.65,
       "direction": "long",
-      "portfolioPnl": 49.844444566885,
+      "portfolioPnl": 51.078629555312766,
       "stopLevel": 2826.52,
-      "upperLevel": 2895.5774285714288,
-      "lowerLevel": 2757.462571428571,
+      "upperLevel": 2883.4923785714286,
+      "lowerLevel": 2769.547621428572,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1764795120,
-      "exitTime": 1764853200,
-      "entryPrice": 3152.148285714286,
-      "exitPrice": 3178.24,
+      "entryTime": 1764772920,
+      "exitTime": 1764773520,
+      "entryPrice": 3139.643085714286,
+      "exitPrice": 3080.69,
       "direction": "long",
-      "portfolioPnl": 4.7968460873028045,
+      "portfolioPnl": -19.18761204803859,
       "stopLevel": 3080.69,
-      "upperLevel": 3152.148285714286,
-      "lowerLevel": 3009.231714285714,
-      "exitReason": "end_of_day"
-    },
-    {
-      "entryTime": 1764875520,
-      "exitTime": 1764901020,
-      "entryPrice": 3104.091428571429,
-      "exitPrice": 3174.9,
-      "direction": "short",
-      "portfolioPnl": -23.50981209501705,
-      "stopLevel": 3174.9,
-      "upperLevel": 3245.708571428572,
-      "lowerLevel": 3104.091428571429,
+      "upperLevel": 3139.643085714286,
+      "lowerLevel": 3021.736914285714,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1764950880,
+      "entryTime": 1764875400,
+      "exitTime": 1764901020,
+      "entryPrice": 3116.4829285714286,
+      "exitPrice": 3174.9,
+      "direction": "short",
+      "portfolioPnl": -18.796145403349406,
+      "stopLevel": 3174.9,
+      "upperLevel": 3233.317071428572,
+      "lowerLevel": 3116.4829285714286,
+      "exitReason": "stop_loss"
+    },
+    {
+      "entryTime": 1764950820,
       "exitTime": 1765026000,
-      "entryPrice": 3063.462285714286,
+      "entryPrice": 3074.5096357142857,
       "exitPrice": 3029.35,
       "direction": "short",
-      "portfolioPnl": 8.022532742180568,
+      "portfolioPnl": 10.926950440681775,
       "stopLevel": 3126.59,
-      "upperLevel": 3189.7177142857145,
-      "lowerLevel": 3063.462285714286,
+      "upperLevel": 3178.670364285714,
+      "lowerLevel": 3074.5096357142857,
       "exitReason": "end_of_day"
     },
     {
       "entryTime": 1765117440,
       "exitTime": 1765127760,
-      "entryPrice": 2985.895142857143,
+      "entryPrice": 2996.681242857143,
       "exitPrice": 3047.53,
       "direction": "short",
-      "portfolioPnl": -23.44137559883855,
+      "portfolioPnl": -18.881799609642307,
       "stopLevel": 3047.53,
-      "upperLevel": 3109.1648571428573,
-      "lowerLevel": 2985.895142857143,
+      "upperLevel": 3098.378757142857,
+      "lowerLevel": 2996.681242857143,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1765295040,
+      "entryTime": 1765220280,
+      "exitTime": 1765224180,
+      "entryPrice": 3075.849307142857,
+      "exitPrice": 3130.16,
+      "direction": "short",
+      "portfolioPnl": -18.32891861325776,
+      "stopLevel": 3130.16,
+      "upperLevel": 3184.4706928571427,
+      "lowerLevel": 3075.849307142857,
+      "exitReason": "stop_loss"
+    },
+    {
+      "entryTime": 1765294860,
       "exitTime": 1765371600,
-      "entryPrice": 3199.1417142857144,
+      "entryPrice": 3188.1111642857145,
       "exitPrice": 3319.79,
       "direction": "long",
-      "portfolioPnl": 35.128487430743846,
+      "portfolioPnl": 35.824975937081625,
       "stopLevel": 3136.11,
-      "upperLevel": 3199.1417142857144,
-      "lowerLevel": 3073.078285714286,
+      "upperLevel": 3188.1111642857145,
+      "lowerLevel": 3084.1088357142858,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1765391700,
+      "entryTime": 1765387260,
       "exitTime": 1765405080,
-      "entryPrice": 3390.8537142857144,
+      "entryPrice": 3378.9688142857144,
       "exitPrice": 3322.94,
       "direction": "long",
-      "portfolioPnl": -23.73945397938641,
+      "portfolioPnl": -18.86711444370493,
       "stopLevel": 3322.94,
-      "upperLevel": 3390.8537142857144,
-      "lowerLevel": 3255.0262857142857,
+      "upperLevel": 3378.9688142857144,
+      "lowerLevel": 3266.9111857142857,
       "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1765488780,
+      "entryTime": 1765487820,
       "exitTime": 1765501080,
-      "entryPrice": 3268.412,
+      "entryPrice": 3255.97265,
       "exitPrice": 3197.33,
       "direction": "long",
-      "portfolioPnl": -22.95502388786159,
+      "portfolioPnl": -18.197829093741326,
       "stopLevel": 3197.33,
-      "upperLevel": 3268.412,
-      "lowerLevel": 3126.248,
+      "upperLevel": 3255.97265,
+      "lowerLevel": 3138.68735,
       "exitReason": "stop_loss"
     },
     {
       "entryTime": 1765553160,
       "exitTime": 1765630800,
-      "entryPrice": 3174.004857142857,
+      "entryPrice": 3186.628507142857,
       "exitPrice": 3114.69,
       "direction": "short",
-      "portfolioPnl": 13.650252047390952,
+      "portfolioPnl": 16.018244263367773,
       "stopLevel": 3246.14,
-      "upperLevel": 3318.275142857143,
-      "lowerLevel": 3174.004857142857,
+      "upperLevel": 3305.651492857143,
+      "lowerLevel": 3186.628507142857,
       "exitReason": "end_of_day"
     },
     {
-      "entryTime": 1765794420,
-      "exitTime": 1765803600,
-      "entryPrice": 3171.5994285714287,
-      "exitPrice": 3154.53,
-      "direction": "long",
-      "portfolioPnl": -7.095443846090624,
+      "entryTime": 1765712700,
+      "exitTime": 1765717200,
+      "entryPrice": 3051.9406785714286,
+      "exitPrice": 3090.55,
+      "direction": "short",
+      "portfolioPnl": -12.080742162167308,
+      "stopLevel": 3113.6,
+      "upperLevel": 3175.259321428571,
+      "lowerLevel": 3051.9406785714286,
+      "exitReason": "end_of_day"
+    },
+    {
+      "entryTime": 1765755120,
+      "exitTime": 1765762500,
+      "entryPrice": 3034.889721428572,
+      "exitPrice": 3096.69,
+      "direction": "short",
+      "portfolioPnl": -17.616472990662913,
       "stopLevel": 3096.69,
-      "upperLevel": 3171.5994285714287,
-      "lowerLevel": 3021.7805714285714,
-      "exitReason": "end_of_day"
+      "upperLevel": 3158.4902785714285,
+      "lowerLevel": 3034.889721428572,
+      "exitReason": "stop_loss"
     },
     {
-      "entryTime": 1765810260,
+      "entryTime": 1765810140,
       "exitTime": 1765890000,
-      "entryPrice": 3082.500571428571,
+      "entryPrice": 3095.081221428571,
       "exitPrice": 2947.01,
       "direction": "short",
-      "portfolioPnl": 34.95112206786496,
+      "portfolioPnl": 35.11490755740063,
       "stopLevel": 3154.39,
-      "upperLevel": 3226.2794285714285,
-      "lowerLevel": 3082.500571428571,
+      "upperLevel": 3213.6987785714286,
+      "lowerLevel": 3095.081221428571,
       "exitReason": "end_of_day"
     }
   ],
   "equityData": [
     {
       "time": 1748843100,
-      "value": 975.5937574903066
+      "value": 974.6654636246142
     },
     {
       "time": 1748955600,
-      "value": 1022.0774568976864
+      "value": 1035.0968763544329
     },
     {
       "time": 1748968020,
-      "value": 997.8775268722762
+      "value": 1009.7878823324204
     },
     {
       "time": 1749067980,
-      "value": 973.9920151130044
+      "value": 984.7805577068966
     },
     {
       "time": 1749214800,
-      "value": 1026.276728326398
+      "value": 1053.0295433276426
     },
     {
       "time": 1749251220,
-      "value": 1002.701583647054
+      "value": 1028.182796765789
     },
     {
       "time": 1749374820,
-      "value": 979.459403737034
+      "value": 1003.6630568517334
     },
     {
-      "time": 1749560400,
-      "value": 1056.8430123374392
+      "time": 1749422220,
+      "value": 979.4540750667048
+    },
+    {
+      "time": 1749485700,
+      "value": 955.6594705538351
     },
     {
       "time": 1749581460,
-      "value": 1032.2431972380637
+      "value": 932.744554831478
     },
     {
       "time": 1749665700,
-      "value": 1008.1619348379122
+      "value": 910.3317671283514
     },
     {
       "time": 1749819600,
-      "value": 1060.8387675330894
+      "value": 971.842739632786
+    },
+    {
+      "time": 1749937560,
+      "value": 949.2857959474064
     },
     {
       "time": 1750078800,
-      "value": 1070.972625054541
+      "value": 964.3109005181336
     },
     {
       "time": 1750113420,
-      "value": 1046.6474115745173
+      "value": 941.85946559912
     },
     {
       "time": 1750234320,
-      "value": 1023.0016274259078
+      "value": 920.0572123484164
+    },
+    {
+      "time": 1750338000,
+      "value": 910.423268967314
     },
     {
       "time": 1750510800,
-      "value": 1043.1942799618414
+      "value": 936.0623131854226
     },
     {
       "time": 1750597200,
-      "value": 1076.0940692736162
+      "value": 975.8106932748836
     },
     {
       "time": 1750683600,
-      "value": 1057.5003921839389
+      "value": 959.5068382303738
     },
     {
       "time": 1750699560,
-      "value": 1034.174233491521
+      "value": 937.9172655084084
     },
     {
       "time": 1750844400,
-      "value": 1011.1297066876213
+      "value": 916.5693913140836
     },
     {
       "time": 1750942800,
-      "value": 992.1954531102456
+      "value": 899.6594187826674
+    },
+    {
+      "time": 1750993260,
+      "value": 879.0884185787871
     },
     {
       "time": 1751277480,
-      "value": 969.5548855066254
+      "value": 858.5087915332451
     },
     {
       "time": 1751345940,
-      "value": 947.376932876149
+      "value": 838.3529663572997
     },
     {
       "time": 1751431380,
-      "value": 925.68530564935
+      "value": 818.6371789030522
     },
     {
       "time": 1751547600,
-      "value": 961.3809780910556
+      "value": 860.3793370044439
     },
     {
-      "time": 1751634000,
-      "value": 954.0575806449792
+      "time": 1751553180,
+      "value": 840.036818941917
     },
     {
       "time": 1751720400,
-      "value": 942.6521476385174
+      "value": 831.4227158961615
     },
     {
       "time": 1751893200,
-      "value": 933.1570624351652
+      "value": 824.804102384161
+    },
+    {
+      "time": 1751915880,
+      "value": 804.672698852835
     },
     {
       "time": 1752066000,
-      "value": 950.1336150789164
+      "value": 825.83593165467
     },
     {
-      "time": 1752152400,
-      "value": 987.9037486321928
+      "time": 1752077520,
+      "value": 805.0784094916786
     },
     {
       "time": 1752238800,
-      "value": 1070.3024246650082
+      "value": 889.89253704966
     },
     {
       "time": 1752254340,
-      "value": 1044.668670725163
+      "value": 867.82831480056
     },
     {
-      "time": 1752411600,
-      "value": 1041.0500183784347
+      "time": 1752343080,
+      "value": 846.4586848972004
     },
     {
-      "time": 1752498000,
-      "value": 1044.8201607118672
+      "time": 1752452700,
+      "value": 825.6696925837336
     },
     {
       "time": 1752584400,
-      "value": 1041.4786357805256
+      "value": 825.9665014180654
     },
     {
       "time": 1752591060,
-      "value": 1016.8362925659068
+      "value": 805.7872181994979
     },
     {
       "time": 1752757200,
-      "value": 1092.1519654958545
+      "value": 881.5545423216226
     },
     {
       "time": 1752762780,
-      "value": 1066.4228835407691
+      "value": 860.1157748998078
     },
     {
       "time": 1752930000,
-      "value": 1068.687150911658
+      "value": 865.9728880050978
     },
     {
       "time": 1753016400,
-      "value": 1102.273856512864
+      "value": 902.6410723782412
     },
     {
       "time": 1753033260,
-      "value": 1076.768758229313
+      "value": 881.1599958914504
     },
     {
       "time": 1753189200,
-      "value": 1083.2279068553064
+      "value": 891.2996272707711
+    },
+    {
+      "time": 1753196280,
+      "value": 870.4692177722341
     },
     {
       "time": 1753316520,
-      "value": 1058.6387495371714
+      "value": 850.2055988706608
     },
     {
       "time": 1753404120,
-      "value": 1034.5040172161566
+      "value": 830.3235229913591
     },
     {
       "time": 1753477860,
-      "value": 1010.8429818493548
+      "value": 810.821373046612
     },
     {
       "time": 1753621200,
-      "value": 1008.938212417224
+      "value": 812.4144281045283
     },
     {
       "time": 1753707600,
-      "value": 996.491127408261
+      "value": 803.717589822857
     },
     {
       "time": 1753774800,
-      "value": 973.7168162698345
+      "value": 784.8572560364435
     },
     {
       "time": 1753880400,
-      "value": 970.2576653500944
+      "value": 784.8022946024998
     },
     {
       "time": 1753905720,
-      "value": 948.1218111685436
+      "value": 766.4239771720789
     },
     {
       "time": 1754053200,
-      "value": 968.9761397002204
+      "value": 790.104304763282
     },
     {
       "time": 1754139600,
-      "value": 986.3435492513698
+      "value": 810.6165757528504
     },
     {
       "time": 1754219520,
-      "value": 963.9112574771038
+      "value": 791.7040275833715
     },
     {
       "time": 1754312400,
-      "value": 965.2469235163572
+      "value": 796.3975592573366
     },
     {
       "time": 1754398800,
-      "value": 958.7474503764946
+      "value": 793.2812484958095
     },
     {
       "time": 1754457360,
-      "value": 936.6450306562018
+      "value": 774.4745380161102
     },
     {
       "time": 1754571600,
-      "value": 985.5326715893898
+      "value": 826.762990810097
     },
     {
-      "time": 1754658000,
-      "value": 974.5468763774884
+      "time": 1754595720,
+      "value": 807.0971308167045
     },
     {
       "time": 1754744400,
-      "value": 1032.6082798193625
+      "value": 868.8112951243425
     },
     {
       "time": 1754811420,
-      "value": 1008.5950102813812
+      "value": 848.0127792714837
     },
     {
       "time": 1754911680,
-      "value": 985.1904215544964
+      "value": 827.7633747491933
     },
     {
       "time": 1755003600,
-      "value": 1015.4377189214008
+      "value": 862.0851841724897
     },
     {
       "time": 1755090000,
-      "value": 1059.400645328084
+      "value": 910.988724064344
     },
     {
-      "time": 1755168180,
-      "value": 1034.8460907514857
+      "time": 1755101220,
+      "value": 889.3204105841947
     },
     {
       "time": 1755177120,
-      "value": 1011.0762019372564
+      "value": 868.3273373848574
     },
     {
       "time": 1755349200,
-      "value": 1036.3455253354132
+      "value": 898.3106818242495
     },
     {
       "time": 1755435600,
-      "value": 1042.5271251181953
+      "value": 908.6222603301958
     },
     {
       "time": 1755522000,
-      "value": 1063.760449181205
+      "value": 934.902828770892
     },
     {
       "time": 1755608400,
-      "value": 1047.8205510982284
+      "value": 921.8824871026214
     },
     {
       "time": 1755694800,
-      "value": 1046.0654581072106
+      "value": 923.9159432418976
     },
     {
-      "time": 1755781200,
-      "value": 1030.594942964875
+      "time": 1755700680,
+      "value": 902.7552742013294
     },
     {
       "time": 1755864480,
-      "value": 1007.4297476508972
+      "value": 881.9949147508919
     },
     {
       "time": 1755954000,
-      "value": 1075.8056642009126
+      "value": 958.3028668508914
+    },
+    {
+      "time": 1756040400,
+      "value": 944.9144864143066
     },
     {
       "time": 1756064220,
-      "value": 1051.454177694407
+      "value": 923.003544456614
     },
     {
       "time": 1756213200,
-      "value": 1057.0222123818892
+      "value": 932.8380702475318
     },
     {
       "time": 1756299600,
-      "value": 1053.846269154902
+      "value": 933.4041463333374
     },
     {
-      "time": 1756368300,
-      "value": 1030.270677211627
+      "time": 1756326000,
+      "value": 912.0475797761272
     },
     {
       "time": 1756472400,
-      "value": 1042.79140172109
+      "value": 929.3461922312232
     },
     {
       "time": 1756539780,
-      "value": 1019.5510983475326
+      "value": 908.1775138557616
     },
     {
       "time": 1756645200,
-      "value": 1020.003610273228
+      "value": 912.5247498797872
     },
     {
       "time": 1756713720,
-      "value": 997.1435833508284
+      "value": 891.6008761685544
     },
     {
       "time": 1756794900,
-      "value": 974.7117590703932
+      "value": 871.065597775705
     },
     {
       "time": 1756838700,
-      "value": 952.8074365840693
+      "value": 851.0391499219133
     },
     {
       "time": 1756990800,
-      "value": 942.2256223292392
+      "value": 843.1985709643554
     },
     {
       "time": 1757058600,
-      "value": 920.8404969178924
+      "value": 823.5733587478308
     },
     {
       "time": 1757163600,
-      "value": 932.0464152947472
+      "value": 839.2102500773616
+    },
+    {
+      "time": 1757353860,
+      "value": 818.9206727709936
     },
     {
       "time": 1757506920,
-      "value": 909.8694173626498
+      "value": 798.771127452979
     },
     {
       "time": 1757521500,
-      "value": 888.0039345133946
+      "value": 778.8975066287996
     },
     {
       "time": 1757682000,
-      "value": 893.6962997507283
+      "value": 788.2589509587009
     },
     {
       "time": 1757768400,
-      "value": 927.464982089752
+      "value": 827.7107490525889
     },
     {
       "time": 1757854800,
-      "value": 928.9754372781682
+      "value": 832.8509176838527
     },
     {
-      "time": 1757941200,
-      "value": 941.0873289055434
+      "time": 1757872080,
+      "value": 811.7895885401368
     },
     {
       "time": 1758042960,
-      "value": 918.089036227572
+      "value": 791.1816942844046
     },
     {
       "time": 1758132000,
-      "value": 895.6320520438946
+      "value": 771.0752995991883
     },
     {
       "time": 1758252600,
-      "value": 873.8018183870378
+      "value": 751.5704971179406
     },
     {
       "time": 1758373200,
-      "value": 867.6304913459468
+      "value": 748.3201903133954
     },
     {
       "time": 1758546000,
-      "value": 931.7327222472484
+      "value": 818.5050938550718
     },
     {
       "time": 1758576180,
-      "value": 909.6528845204924
+      "value": 798.4612841744593
     },
     {
       "time": 1758712320,
-      "value": 888.1063499775578
+      "value": 778.9190210757026
     },
     {
       "time": 1758805200,
-      "value": 919.9037952440392
+      "value": 816.0223762948593
     },
     {
       "time": 1758891600,
-      "value": 909.5220178645036
+      "value": 808.3161866084733
     },
     {
       "time": 1758978000,
-      "value": 911.0113715682078
+      "value": 813.3549480626228
+    },
+    {
+      "time": 1759064400,
+      "value": 808.156403926948
     },
     {
       "time": 1759150800,
-      "value": 922.4123725426692
+      "value": 823.8492474127206
     },
     {
       "time": 1759237200,
-      "value": 917.0559233401948
+      "value": 821.5507074114664
     },
     {
-      "time": 1759323600,
-      "value": 928.5389169673388
+      "time": 1759261860,
+      "value": 801.5921375238437
     },
     {
       "time": 1759410000,
-      "value": 937.691210603003
+      "value": 814.5749291164424
     },
     {
       "time": 1759418520,
-      "value": 915.4356099398838
+      "value": 794.590970733303
     },
     {
       "time": 1759510860,
-      "value": 893.7298560010282
+      "value": 775.1301402432807
     },
     {
       "time": 1759669200,
-      "value": 884.6509218369058
+      "value": 768.8790896272087
+    },
+    {
+      "time": 1759755600,
+      "value": 762.1285285017539
     },
     {
       "time": 1759842000,
-      "value": 905.9091687380984
+      "value": 787.5654654799356
     },
     {
       "time": 1759928400,
-      "value": 953.4033612166972
+      "value": 840.9498527235967
     },
     {
       "time": 1759972740,
-      "value": 930.9271028675012
+      "value": 820.492332652065
     },
     {
       "time": 1760101200,
-      "value": 921.5817126315344
+      "value": 813.9840391055675
     },
     {
       "time": 1760187600,
-      "value": 1033.6620010780423
+      "value": 937.4255174038636
     },
     {
       "time": 1760242980,
-      "value": 1010.6250890796716
+      "value": 916.0727285521306
     },
     {
       "time": 1760360400,
-      "value": 1040.707449837071
+      "value": 953.016934973853
     },
     {
       "time": 1760417400,
-      "value": 1017.5559471361114
+      "value": 931.3682280226376
     },
     {
       "time": 1760533200,
-      "value": 1021.3692195367933
+      "value": 939.5560631408111
     },
     {
       "time": 1760619600,
-      "value": 1005.4983140815845
+      "value": 925.839566959735
     },
     {
       "time": 1760706000,
-      "value": 1029.0048237330957
+      "value": 955.9969338197122
     },
     {
       "time": 1760792400,
-      "value": 1023.3920532869438
+      "value": 953.7381021306971
     },
     {
-      "time": 1760965200,
-      "value": 1019.4182906594576
+      "time": 1760920020,
+      "value": 932.4779818354444
     },
     {
       "time": 1761051600,
-      "value": 1021.5971316456344
+      "value": 938.8437971409188
     },
     {
       "time": 1761089640,
-      "value": 999.2885886455848
+      "value": 917.9824854154796
     },
     {
       "time": 1761194580,
-      "value": 977.5422272287284
+      "value": 897.6565806041621
     },
     {
       "time": 1761310800,
-      "value": 973.0565801080176
+      "value": 896.4777136972334
     },
     {
       "time": 1761483600,
-      "value": 974.8544254191364
+      "value": 902.2943617691884
     },
     {
       "time": 1761570000,
-      "value": 966.9750657124954
+      "value": 897.288157737957
+    },
+    {
+      "time": 1761595920,
+      "value": 876.4508608245737
     },
     {
       "time": 1761742800,
-      "value": 968.6156786413358
+      "value": 881.9660149823716
     },
     {
       "time": 1761760740,
-      "value": 946.5413007643224
+      "value": 861.3388456269779
     },
     {
       "time": 1761870720,
-      "value": 925.1488162772991
+      "value": 841.3913468843876
+    },
+    {
+      "time": 1761956520,
+      "value": 821.6693355545575
     },
     {
       "time": 1762174800,
-      "value": 944.4729668094266
+      "value": 845.9532629311354
     },
     {
       "time": 1762261200,
-      "value": 969.7914310771672
+      "value": 877.0245890936837
     },
     {
-      "time": 1762347600,
-      "value": 987.402130088218
+      "time": 1762271520,
+      "value": 856.7075380853138
     },
     {
       "time": 1762433160,
-      "value": 965.3437275084748
+      "value": 837.1490743184421
     },
     {
       "time": 1762454880,
-      "value": 943.8043385407144
+      "value": 818.0540462147668
     },
     {
       "time": 1762606800,
-      "value": 964.1943662320476
+      "value": 842.9519757025471
     },
     {
       "time": 1762779600,
-      "value": 974.9833242812508
+      "value": 857.9665944981026
+    },
+    {
+      "time": 1762822620,
+      "value": 838.3194065975918
     },
     {
       "time": 1762943640,
-      "value": 953.1693096913413
+      "value": 819.1356294857917
     },
     {
       "time": 1763017020,
-      "value": 931.778425515666
+      "value": 800.3232101196566
     },
     {
       "time": 1763125200,
-      "value": 991.5180752801888
+      "value": 865.9092888541979
     },
     {
       "time": 1763152980,
-      "value": 969.6362535294236
+      "value": 846.4250079763635
+    },
+    {
+      "time": 1763293200,
+      "value": 827.4075182419937
     },
     {
       "time": 1763349300,
-      "value": 948.344122285858
+      "value": 808.8895008612552
     },
     {
-      "time": 1763470800,
-      "value": 954.8928800519392
+      "time": 1763390160,
+      "value": 790.7561395303165
     },
     {
       "time": 1763528340,
-      "value": 933.9064595671174
+      "value": 773.0503671182096
     },
     {
-      "time": 1763643600,
-      "value": 929.4245190871349
+      "time": 1763564880,
+      "value": 755.5319314368596
     },
     {
       "time": 1763730000,
-      "value": 973.5932418625598
+      "value": 802.2534831550156
+    },
+    {
+      "time": 1763748840,
+      "value": 784.4572695321419
     },
     {
       "time": 1763902800,
-      "value": 977.244199759992
+      "value": 791.3559605636939
     },
     {
       "time": 1764075600,
-      "value": 983.5647305884864
+      "value": 800.9222155023602
+    },
+    {
+      "time": 1764088080,
+      "value": 782.9787623336019
     },
     {
       "time": 1764248400,
-      "value": 983.2320579006928
+      "value": 785.9844691638679
     },
     {
       "time": 1764334800,
-      "value": 971.8458426875208
+      "value": 778.2912106895618
+    },
+    {
+      "time": 1764346920,
+      "value": 760.4196509897855
     },
     {
       "time": 1764594000,
-      "value": 1005.2477545938916
+      "value": 795.3199706943064
     },
     {
       "time": 1764637560,
-      "value": 982.8492011106184
+      "value": 777.2089684382565
     },
     {
       "time": 1764766800,
-      "value": 1032.6936456775034
+      "value": 828.2875979935693
     },
     {
-      "time": 1764853200,
-      "value": 1037.4904917648062
+      "time": 1764773520,
+      "value": 809.0999859455308
     },
     {
       "time": 1764901020,
-      "value": 1013.9806796697892
+      "value": 790.3038405421813
     },
     {
       "time": 1765026000,
-      "value": 1022.0032124119696
+      "value": 801.230790982863
     },
     {
       "time": 1765127760,
-      "value": 998.5618368131312
+      "value": 782.3489913732208
+    },
+    {
+      "time": 1765224180,
+      "value": 764.020072759963
     },
     {
       "time": 1765371600,
-      "value": 1033.690324243875
+      "value": 799.8450486970446
     },
     {
       "time": 1765405080,
-      "value": 1009.9508702644883
+      "value": 780.9779342533398
     },
     {
       "time": 1765501080,
-      "value": 986.9958463766268
+      "value": 762.7801051595984
     },
     {
       "time": 1765630800,
-      "value": 1000.646098424018
+      "value": 778.7983494229661
     },
     {
-      "time": 1765803600,
-      "value": 993.5506545779272
+      "time": 1765717200,
+      "value": 766.7176072607988
+    },
+    {
+      "time": 1765762500,
+      "value": 749.101134270136
     },
     {
       "time": 1765890000,
-      "value": 1028.5017766457922
+      "value": 784.2160418275366
     }
   ]
 }

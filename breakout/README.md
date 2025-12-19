@@ -9,7 +9,7 @@ A modular backtesting system for intraday volatility breakout strategies, suppor
 pip install -r requirements.txt
 ```
 
-2. Configure symbols in `config/crypto_symbols.yaml`
+2. Configure symbols in `src/config/crypto_symbols.yaml`
 
 ## Usage
 
@@ -55,7 +55,7 @@ Filter trades based on market conditions:
 python src/trade_filter.py --symbol ETHUSDT
 ```
 
-Configure filters in `config/filter_config.yaml`:
+Configure filters in `src/config/filter_config.yaml`:
 - Narrow day filter
 - Volatility contraction filter
 - Trend filter
@@ -69,7 +69,7 @@ Build portfolio with position sizing:
 python src/portfolio_builder.py
 ```
 
-Configure in `config/portfolio_config.yaml`:
+Configure in `src/config/portfolio_config.yaml`:
 - Starting capital
 - Position sizing method (risk-based, fixed dollar, equal weight)
 - Symbol list
@@ -137,7 +137,7 @@ report_file = analyzer.analyze()
 
 ## Adding New Symbols
 
-Edit `config/crypto_symbols.yaml`:
+Edit `src/config/crypto_symbols.yaml`:
 
 ```yaml
 symbols:
@@ -154,7 +154,7 @@ python src/bybit_downloader.py --symbol NEWUSDT
 
 ## Configuration
 
-See `config/crypto_symbols.yaml` for:
+See `src/config/crypto_symbols.yaml` for:
 - Symbol definitions
 - API rate limits
 - Data directory paths

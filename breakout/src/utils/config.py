@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Dict, Any
 
 
-def load_config(config_path: str = "config/crypto_symbols.yaml") -> Dict[str, Any]:
+def load_config(config_path: str = "src/config/crypto_symbols.yaml") -> Dict[str, Any]:
     """Load configuration from YAML file.
     
     Args:

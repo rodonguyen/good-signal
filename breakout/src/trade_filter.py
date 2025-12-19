@@ -18,7 +18,7 @@ from utils.config import load_config, get_symbol_config
 class TradeFilter:
     """Filter trades based on market conditions."""
 
-    def __init__(self, config_path: str = "config/filter_config.yaml"):
+    def __init__(self, config_path: str = "src/config/filter_config.yaml"):
         """Initialize filter with configuration.
 
         Args:
@@ -209,13 +209,13 @@ def main():
     """Main function for command-line usage."""
     parser = argparse.ArgumentParser(description="Filter trades based on market conditions")
     parser.add_argument("--symbol", type=str, default=None, help="Symbol to filter (e.g., ETHUSDT). Defaults to config default.")
-    parser.add_argument("--config", type=str, default="config/filter_config.yaml", help="Path to filter config file")
+    parser.add_argument("--config", type=str, default="src/config/filter_config.yaml", help="Path to filter config file")
 
     args = parser.parse_args()
 
     # Use default symbol if not provided
     if args.symbol is None:
-        crypto_config = load_config("config/crypto_symbols.yaml")
+        crypto_config = load_config("src/config/crypto_symbols.yaml")
         from utils.config import get_default_symbol
 
         args.symbol = get_default_symbol(crypto_config)
