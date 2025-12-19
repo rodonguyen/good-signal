@@ -10,7 +10,13 @@ from pathlib import Path
 from typing import Optional, Dict, List
 import argparse
 
-from utils.filter_utils import calculate_narrow_day, calculate_volatility_contraction, calculate_trend_filter, calculate_volatility_expansion
+from utils.filter_utils import (
+    calculate_narrow_day,
+    calculate_volatility_contraction,
+    calculate_trend_filter,
+    calculate_volatility_expansion,
+    calculate_low_volatility_pct,
+)
 from utils.crypto_utils import aggregate_24h_periods, calculate_crypto_atr
 from utils.config import load_config, get_symbol_config
 
@@ -91,12 +97,40 @@ class TradeFilter:
 
         return daily_bars
 
-    def apply_filters(self, trades_df: pd.DataFrame, daily_bars: pd.DataFrame) -> pd.DataFrame:
+    def load_hourly_bars(self, symbol: str) -> pd.DataFrame:
+        """Load and aggregate hourly bars for filter calculations.
+
+        Args:
+            symbol: Symbol name
+
+        Returns:
+            DataFrame with 1-hour bars
+        """
+        # Load 1-minute data
+        data_file = Path(self.paths["raw_data_dir"]) / symbol / f"{symbol}_1min.csv"
+
+        if not data_file.exists():
+            raise FileNotFoundError(f"Data file not found: {data_file}")
+
+        df = pd.read_csv(data_file)
+        df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
+
+        # Resample 1min to 1h
+        df = df.set_index("timestamp")
+        hourly = df.resample("1h").agg({"open": "first", "high": "max", "low": "min", "close": "last", "volume": "sum"}).dropna().reset_index()
+
+        return hourly
+
+    def apply_filters(
+        self, trades_df: pd.DataFrame, daily_bars: pd.DataFrame, hourly_bars: pd.DataFrame = None, day_start_hour: int = 13
+    ) -> pd.DataFrame:
         """Apply all enabled filters to trades.
 
         Args:
             trades_df: DataFrame with trades
             daily_bars: DataFrame with daily bars for filter calculations
+            hourly_bars: DataFrame with 1-hour bars (for low_volatility_pct filter)
+            day_start_hour: Hour when trading day starts (default: 13)
 
         Returns:
             Filtered DataFrame with trades
@@ -153,9 +187,26 @@ class TradeFilter:
                 lambda d: vol_expansion[daily_bars["day"] == d].iloc[0] if len(vol_expansion[daily_bars["day"] == d]) > 0 else False
             )
 
+        # Low volatility percentage filter
+        if self.filter_config.get("low_volatility_pct", {}).get("enabled", False):
+            if hourly_bars is None:
+                raise ValueError("hourly_bars required for low_volatility_pct filter")
+            low_vol = calculate_low_volatility_pct(
+                hourly_bars,
+                daily_bars,
+                atr_period=self.filter_config["low_volatility_pct"]["atr_period"],
+                threshold=self.filter_config["low_volatility_pct"]["threshold"],
+                day_start_hour=day_start_hour,
+            )
+            filter_results["low_volatility_pct"] = trades_with_daily["day"].map(
+                lambda d: low_vol[daily_bars["day"] == d].iloc[0] if len(low_vol[daily_bars["day"] == d]) > 0 else False
+            )
+
         # Combine filter results based on logic mode
         if not filter_results:
-            # No filters enabled, return all trades
+            # No filters enabled, mark all trades as passed (isFiltered = False)
+            trades_df = trades_df.copy()
+            trades_df["isFiltered"] = False
             return trades_df
 
         # Create combined filter result
@@ -168,10 +219,12 @@ class TradeFilter:
             # Any filter passes
             combined_filter = filter_df.any(axis=1)
 
-        # Apply filter
-        filtered_trades = trades_df[combined_filter].copy()
+        # Add isFiltered column to all trades (True = filtered out, False = passed filters)
+        trades_df = trades_df.copy()
+        # Use pandas Series negation (avoids deprecation warning for bool.__invert__)
+        trades_df["isFiltered"] = combined_filter == False  # Inverted: True means filtered out
 
-        return filtered_trades
+        return trades_df
 
     def filter_symbol(self, symbol: str, day_start_hour: int = 13) -> pd.DataFrame:
         """Filter trades for a symbol.
@@ -193,16 +246,24 @@ class TradeFilter:
         daily_bars = self.load_daily_bars(symbol, day_start_hour)
         print(f"  Loaded {len(daily_bars)} daily bars")
 
-        # Apply filters
-        filtered_trades = self.apply_filters(trades_df, daily_bars)
-        print(f"  Filtered to {len(filtered_trades)} trades")
+        # Load hourly bars if low_volatility_pct filter is enabled
+        hourly_bars = None
+        if self.filter_config.get("low_volatility_pct", {}).get("enabled", False):
+            hourly_bars = self.load_hourly_bars(symbol)
+            print(f"  Loaded {len(hourly_bars)} hourly bars")
 
-        # Save filtered trades
+        # Apply filters (returns all trades with isFiltered flag)
+        all_trades_with_flag = self.apply_filters(trades_df, daily_bars, hourly_bars, day_start_hour)
+        filtered_count = len(all_trades_with_flag[~all_trades_with_flag["isFiltered"]])
+        print(f"  Filtered to {filtered_count} trades (out of {len(all_trades_with_flag)} total)")
+
+        # Save all trades with isFiltered flag
         output_file = Path(self.paths["filtered_dir"]) / f"{symbol}_trades.csv"
-        filtered_trades.to_csv(output_file, index=False)
+        all_trades_with_flag.to_csv(output_file, index=False)
         print(f"  Saved to: {output_file}")
 
-        return filtered_trades
+        # Return only filtered trades (for backward compatibility)
+        return all_trades_with_flag[~all_trades_with_flag["isFiltered"]]
 
 
 def main():
@@ -238,5 +299,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-

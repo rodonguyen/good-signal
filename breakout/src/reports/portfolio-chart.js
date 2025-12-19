@@ -68,13 +68,21 @@
                 const processedDays = new Set();
 
                 chartData.trades.forEach(trade => {
+                    // Check if trade is filtered out (faded colors)
+                    const isFiltered = trade.isFiltered === true;
+                    // Faded colors: use lighter/more transparent versions (50% opacity effect)
+                    const longColor = isFiltered ? '#80cc80' : '#00ff00';
+                    const shortColor = isFiltered ? '#cc8080' : '#ff0000';
+                    const profitColor = isFiltered ? '#80cc80' : '#00ff00';
+                    const lossColor = isFiltered ? '#cc8080' : '#ff0000';
+                    
                     // Entry marker: green arrowUp for long, red arrowDown for short
                     if (trade.entryTime && trade.direction) {
                         const isLong = trade.direction === 'long';
                         markers.push({
                             time: trade.entryTime,
                             position: 'aboveBar',
-                            color: isLong ? '#00ff00' : '#ff0000',
+                            color: isLong ? longColor : shortColor,
                             shape: isLong ? 'arrowUp' : 'arrowDown',
                             size: 2
                         });
@@ -89,7 +97,7 @@
                         markers.push({
                             time: trade.exitTime,
                             position: 'belowBar',
-                            color: isProfit ? '#00ff00' : '#ff0000',
+                            color: isProfit ? profitColor : lossColor,
                             shape: 'circle',
                             size: 2
                         });

@@ -133709,7 +133709,8 @@
       "entryPrice": 2518.8262,
       "exitPrice": 2497.5487,
       "direction": "long",
-      "portfolioPnl": -27.072788015509293,
+      "portfolioPnl": -28.802062350000146,
+      "isFiltered": false,
       "stopLevel": 2497.5487,
       "upperLevel": 2518.8262,
       "lowerLevel": 2447.3338,
@@ -133721,7 +133722,8 @@
       "entryPrice": 2530.2675,
       "exitPrice": 2612.03,
       "direction": "long",
-      "portfolioPnl": 72.61161767818831,
+      "portfolioPnl": 74.04905375000027,
+      "isFiltered": false,
       "stopLevel": 2510.42375,
       "upperLevel": 2530.2675,
       "lowerLevel": 2463.5925,
@@ -133733,7 +133735,8 @@
       "entryPrice": 2653.8632,
       "exitPrice": 2627.039866666667,
       "direction": "long",
-      "portfolioPnl": -27.086059668556963,
+      "portfolioPnl": -34.74468793333327,
+      "isFiltered": false,
       "stopLevel": 2627.039866666667,
       "upperLevel": 2653.8632,
       "lowerLevel": 2563.7368,
@@ -133745,7 +133748,8 @@
       "entryPrice": 2658.3832,
       "exitPrice": 2633.2682000000004,
       "direction": "long",
-      "portfolioPnl": -26.80659913013129,
+      "portfolioPnl": -33.052477099999784,
+      "isFiltered": false,
       "stopLevel": 2633.2682000000004,
       "upperLevel": 2658.3832,
       "lowerLevel": 2573.9968,
@@ -133757,7 +133761,8 @@
       "entryPrice": 2589.0152,
       "exitPrice": 2614.1252,
       "direction": "short",
-      "portfolioPnl": -25.997408786608023,
+      "portfolioPnl": -32.91471060000013,
+      "isFiltered": true,
       "stopLevel": 2614.1252,
       "upperLevel": 2673.3848,
       "lowerLevel": 2589.0152,
@@ -133769,7 +133774,8 @@
       "entryPrice": 2527.2421,
       "exitPrice": 2495.699183333333,
       "direction": "long",
-      "portfolioPnl": -23.926115887508196,
+      "portfolioPnl": -39.07732859166677,
+      "isFiltered": true,
       "stopLevel": 2495.699183333333,
       "upperLevel": 2527.2421,
       "lowerLevel": 2421.2579,
@@ -133781,7 +133787,8 @@
       "entryPrice": 2589.3276666666666,
       "exitPrice": 2764.28,
       "direction": "long",
-      "portfolioPnl": 117.53444190654768,
+      "portfolioPnl": 166.9219218333336,
+      "isFiltered": false,
       "stopLevel": 2562.5790555555554,
       "upperLevel": 2589.3276666666666,
       "lowerLevel": 2499.452333333333,
@@ -133793,7 +133800,8 @@
       "entryPrice": 2712.1636000000003,
       "exitPrice": 2743.5186000000003,
       "direction": "short",
-      "portfolioPnl": -26.71437477811548,
+      "portfolioPnl": -39.53852330000002,
+      "isFiltered": true,
       "stopLevel": 2743.5186000000003,
       "upperLevel": 2817.5164,
       "lowerLevel": 2712.1636000000003,
@@ -133805,7 +133813,8 @@
       "entryPrice": 2858.1372545454547,
       "exitPrice": 2826.2579363636364,
       "direction": "long",
-      "portfolioPnl": -26.17422913955489,
+      "portfolioPnl": -40.40591096818187,
+      "isFiltered": true,
       "stopLevel": 2826.2579363636364,
       "upperLevel": 2858.1372545454547,
       "lowerLevel": 2751.022745454545,
@@ -133817,7 +133826,8 @@
       "entryPrice": 2680.56245,
       "exitPrice": 2538.46,
       "direction": "short",
-      "portfolioPnl": 82.52522448917236,
+      "portfolioPnl": 134.27391632499987,
+      "isFiltered": true,
       "stopLevel": 2713.3109916666667,
       "upperLevel": 2790.59755,
       "lowerLevel": 2680.56245,
@@ -133829,7 +133839,8 @@
       "entryPrice": 2583.4784,
       "exitPrice": 2615.37,
       "direction": "long",
-      "portfolioPnl": 14.8981287352428,
+      "portfolioPnl": 24.093327399999925,
+      "isFiltered": false,
       "stopLevel": 2548.259114285714,
       "upperLevel": 2583.4784,
       "lowerLevel": 2465.1416,
@@ -133841,7 +133852,8 @@
       "entryPrice": 2675.3855000000003,
       "exitPrice": 2638.852464285714,
       "direction": "long",
-      "portfolioPnl": -26.89269281187721,
+      "portfolioPnl": -44.50439266071426,
+      "isFiltered": false,
       "stopLevel": 2638.852464285714,
       "upperLevel": 2675.3855000000003,
       "lowerLevel": 2552.6345,
@@ -133853,7 +133865,8 @@
       "entryPrice": 2485.2929,
       "exitPrice": 2521.713792857143,
       "direction": "short",
-      "portfolioPnl": -25.979423615684848,
+      "portfolioPnl": -43.93140289642863,
+      "isFiltered": false,
       "stopLevel": 2521.713792857143,
       "upperLevel": 2607.6671,
       "lowerLevel": 2485.2929,
@@ -133865,7 +133878,8 @@
       "entryPrice": 2493.8656,
       "exitPrice": 2435.94,
       "direction": "short",
-      "portfolioPnl": 31.51099866543256,
+      "portfolioPnl": 50.53089159999958,
+      "isFiltered": false,
       "stopLevel": 2527.5706,
       "upperLevel": 2607.1144,
       "lowerLevel": 2493.8656,
@@ -133877,7 +133891,8 @@
       "entryPrice": 2374.3445,
       "exitPrice": 2279.81,
       "direction": "short",
-      "portfolioPnl": 52.890245318695925,
+      "portfolioPnl": 87.5532682500002,
+      "isFiltered": false,
       "stopLevel": 2410.1811071428574,
       "upperLevel": 2494.7555,
       "lowerLevel": 2374.3445,
@@ -133889,7 +133904,8 @@
       "entryPrice": 2213.4731,
       "exitPrice": 2252.33435,
       "direction": "short",
-      "portfolioPnl": -26.62044019928798,
+      "portfolioPnl": -45.55996117499993,
+      "isFiltered": true,
       "stopLevel": 2252.33435,
       "upperLevel": 2344.0469000000003,
       "lowerLevel": 2213.4731,
@@ -133901,7 +133917,8 @@
       "entryPrice": 2196.9738,
       "exitPrice": 2237.662014285714,
       "direction": "short",
-      "portfolioPnl": -25.799150949809796,
+      "portfolioPnl": -47.340168007142935,
+      "isFiltered": true,
       "stopLevel": 2237.662014285714,
       "upperLevel": 2333.6862,
       "lowerLevel": 2196.9738,
@@ -133913,7 +133930,8 @@
       "entryPrice": 2480.6687,
       "exitPrice": 2440.5028071428574,
       "direction": "long",
-      "portfolioPnl": -25.638377225785177,
+      "portfolioPnl": -47.547650117857096,
+      "isFiltered": true,
       "stopLevel": 2440.5028071428574,
       "upperLevel": 2480.6687,
       "lowerLevel": 2345.7113,
@@ -133925,7 +133943,8 @@
       "entryPrice": 2493.0827,
       "exitPrice": 2454.1703785714285,
       "direction": "long",
-      "portfolioPnl": -25.17782398032263,
+      "portfolioPnl": -46.33320104642857,
+      "isFiltered": false,
       "stopLevel": 2454.1703785714285,
       "upperLevel": 2493.0827,
       "lowerLevel": 2362.3373,
@@ -133937,7 +133956,8 @@
       "entryPrice": 2508.9692,
       "exitPrice": 2475.9756285714284,
       "direction": "long",
-      "portfolioPnl": -25.319785352037453,
+      "portfolioPnl": -40.47098867142876,
+      "isFiltered": false,
       "stopLevel": 2475.9756285714284,
       "upperLevel": 2508.9692,
       "lowerLevel": 2398.1108,
@@ -133949,7 +133969,8 @@
       "entryPrice": 2513.1681,
       "exitPrice": 2480.752564285714,
       "direction": "long",
-      "portfolioPnl": -24.78836038851304,
+      "portfolioPnl": -39.90641671071442,
+      "isFiltered": false,
       "stopLevel": 2480.752564285714,
       "upperLevel": 2513.1681,
       "lowerLevel": 2404.2519,
@@ -133961,7 +133982,8 @@
       "entryPrice": 2383.6964,
       "exitPrice": 2414.912828571428,
       "direction": "short",
-      "portfolioPnl": -24.16804450682192,
+      "portfolioPnl": -38.41434241428557,
+      "isFiltered": false,
       "stopLevel": 2414.912828571428,
       "upperLevel": 2488.5836,
       "lowerLevel": 2383.6964,
@@ -133973,7 +133995,8 @@
       "entryPrice": 2489.3238,
       "exitPrice": 2589.31,
       "direction": "long",
-      "portfolioPnl": 57.56025439327147,
+      "portfolioPnl": 92.36824930000029,
+      "isFiltered": false,
       "stopLevel": 2458.5834428571425,
       "upperLevel": 2489.3238,
       "lowerLevel": 2386.0362,
@@ -133985,7 +134008,8 @@
       "entryPrice": 2533.1148000000003,
       "exitPrice": 2547.93,
       "direction": "short",
-      "portfolioPnl": -13.997605697401845,
+      "portfolioPnl": -22.43676719999955,
+      "isFiltered": true,
       "stopLevel": 2565.6655142857144,
       "upperLevel": 2642.4852,
       "lowerLevel": 2533.1148000000003,
@@ -133997,7 +134021,8 @@
       "entryPrice": 2491.461,
       "exitPrice": 2524.4485000000004,
       "direction": "short",
-      "portfolioPnl": -24.59533513919218,
+      "portfolioPnl": -40.51136425000018,
+      "isFiltered": false,
       "stopLevel": 2524.4485000000004,
       "upperLevel": 2602.299,
       "lowerLevel": 2491.461,
@@ -134009,7 +134034,8 @@
       "entryPrice": 2565.6525,
       "exitPrice": 2538.049821428572,
       "direction": "long",
-      "portfolioPnl": -24.95366905544201,
+      "portfolioPnl": -35.2582320535713,
+      "isFiltered": false,
       "stopLevel": 2538.049821428572,
       "upperLevel": 2565.6525,
       "lowerLevel": 2472.9075000000003,
@@ -134021,7 +134047,8 @@
       "entryPrice": 2620.5853,
       "exitPrice": 2597.772621428572,
       "direction": "long",
-      "portfolioPnl": -25.568282364747947,
+      "portfolioPnl": -30.640215453571336,
+      "isFiltered": false,
       "stopLevel": 2597.772621428572,
       "upperLevel": 2620.5853,
       "lowerLevel": 2543.9347,
@@ -134033,7 +134060,8 @@
       "entryPrice": 2698.5653,
       "exitPrice": 2779.33,
       "direction": "long",
-      "portfolioPnl": 57.42916872776095,
+      "portfolioPnl": 72.54785704999972,
+      "isFiltered": false,
       "stopLevel": 2675.163335714286,
       "upperLevel": 2698.5653,
       "lowerLevel": 2619.9347,
@@ -134045,7 +134073,8 @@
       "entryPrice": 2818.6013,
       "exitPrice": 2989.03,
       "direction": "long",
-      "portfolioPnl": 129.6984276915713,
+      "portfolioPnl": 161.71725305000038,
+      "isFiltered": false,
       "stopLevel": 2794.070764285714,
       "upperLevel": 2818.6013,
       "lowerLevel": 2736.1787,
@@ -134057,7 +134086,8 @@
       "entryPrice": 2938.7835,
       "exitPrice": 2966.918321428572,
       "direction": "short",
-      "portfolioPnl": -29.278845667133638,
+      "portfolioPnl": -36.99337416071414,
+      "isFiltered": true,
       "stopLevel": 2966.918321428572,
       "upperLevel": 3033.3165000000004,
       "lowerLevel": 2938.7835,
@@ -134069,7 +134099,8 @@
       "entryPrice": 2990.5954,
       "exitPrice": 2989.3,
       "direction": "long",
-      "portfolioPnl": -7.745567081582129,
+      "portfolioPnl": -10.265243099999973,
+      "isFiltered": false,
       "stopLevel": 2961.860042857143,
       "upperLevel": 2990.5954,
       "lowerLevel": 2894.0446,
@@ -134081,7 +134112,8 @@
       "entryPrice": 3034.9159,
       "exitPrice": 3050.24,
       "direction": "long",
-      "portfolioPnl": 4.512057163054844,
+      "portfolioPnl": 6.196366149999816,
+      "isFiltered": false,
       "stopLevel": 3005.352864285714,
       "upperLevel": 3034.9159,
       "lowerLevel": 2935.5841,
@@ -134093,7 +134125,8 @@
       "entryPrice": 3000.4588000000003,
       "exitPrice": 3001.57,
       "direction": "short",
-      "portfolioPnl": -7.257705327616061,
+      "portfolioPnl": -10.114243199999828,
+      "isFiltered": true,
       "stopLevel": 3030.5845142857147,
       "upperLevel": 3101.6812,
       "lowerLevel": 3000.4588000000003,
@@ -134105,7 +134138,8 @@
       "entryPrice": 3052.6735000000003,
       "exitPrice": 3021.683321428572,
       "direction": "long",
-      "portfolioPnl": -27.785368353802344,
+      "portfolioPnl": -40.10171380357157,
+      "isFiltered": true,
       "stopLevel": 3021.683321428572,
       "upperLevel": 3052.6735000000003,
       "lowerLevel": 2948.5465,
@@ -134117,7 +134151,8 @@
       "entryPrice": 3221.3238,
       "exitPrice": 3425.91,
       "direction": "long",
-      "portfolioPnl": 122.26486966505172,
+      "portfolioPnl": 194.6153493000002,
+      "isFiltered": false,
       "stopLevel": 3188.029871428571,
       "upperLevel": 3221.3238,
       "lowerLevel": 3109.4562,
@@ -134129,7 +134164,8 @@
       "entryPrice": 3365.9158,
       "exitPrice": 3401.721871428572,
       "direction": "short",
-      "portfolioPnl": -29.9851897436751,
+      "portfolioPnl": -45.95752793571448,
+      "isFiltered": true,
       "stopLevel": 3401.721871428572,
       "upperLevel": 3486.2242,
       "lowerLevel": 3365.9158,
@@ -134141,7 +134177,8 @@
       "entryPrice": 3573.3471,
       "exitPrice": 3612.78335,
       "direction": "short",
-      "portfolioPnl": -28.983744466082573,
+      "portfolioPnl": -50.2154456750002,
+      "isFiltered": true,
       "stopLevel": 3612.78335,
       "upperLevel": 3705.8529,
       "lowerLevel": 3573.3471,
@@ -134153,7 +134190,8 @@
       "entryPrice": 3631.9119,
       "exitPrice": 3743.98,
       "direction": "long",
-      "portfolioPnl": 53.99475228700098,
+      "portfolioPnl": 101.0042621500004,
+      "isFiltered": false,
       "stopLevel": 3590.4167214285712,
       "upperLevel": 3631.9119,
       "lowerLevel": 3492.4881,
@@ -134165,7 +134203,8 @@
       "entryPrice": 3823.315,
       "exitPrice": 3778.109642857143,
       "direction": "long",
-      "portfolioPnl": -29.12979972803405,
+      "portfolioPnl": -56.607494107143054,
+      "isFiltered": false,
       "stopLevel": 3778.109642857143,
       "upperLevel": 3823.315,
       "lowerLevel": 3671.425,
@@ -134177,7 +134216,8 @@
       "entryPrice": 3734.4837,
       "exitPrice": 3780.969592857143,
       "direction": "short",
-      "portfolioPnl": -28.179758090691163,
+      "portfolioPnl": -57.75907279642868,
+      "isFiltered": true,
       "stopLevel": 3780.969592857143,
       "upperLevel": 3890.6763,
       "lowerLevel": 3734.4837,
@@ -134189,7 +134229,8 @@
       "entryPrice": 3556.1237,
       "exitPrice": 3606.12745,
       "direction": "short",
-      "portfolioPnl": -26.867839686381014,
+      "portfolioPnl": -60.74712672499986,
+      "isFiltered": true,
       "stopLevel": 3606.12745,
       "upperLevel": 3724.1363,
       "lowerLevel": 3556.1237,
@@ -134201,7 +134242,8 @@
       "entryPrice": 3726.0206,
       "exitPrice": 3676.6631,
       "direction": "long",
-      "portfolioPnl": -26.43340785026253,
+      "portfolioPnl": -60.46152555000008,
+      "isFiltered": true,
       "stopLevel": 3676.6631,
       "upperLevel": 3726.0206,
       "lowerLevel": 3560.1794,
@@ -134213,7 +134255,8 @@
       "entryPrice": 3625.1214,
       "exitPrice": 3673.007471428572,
       "direction": "short",
-      "portfolioPnl": -25.862379380413387,
+      "portfolioPnl": -58.8332647357144,
+      "isFiltered": true,
       "stopLevel": 3673.007471428572,
       "upperLevel": 3786.0186,
       "lowerLevel": 3625.1214,
@@ -134225,7 +134268,8 @@
       "entryPrice": 3826.1529,
       "exitPrice": 3826.21,
       "direction": "long",
-      "portfolioPnl": -4.740364628699014,
+      "portfolioPnl": -11.421444350000009,
+      "isFiltered": false,
       "stopLevel": 3776.6809357142856,
       "upperLevel": 3826.1529,
       "lowerLevel": 3659.9271,
@@ -134237,7 +134281,8 @@
       "entryPrice": 3911.3991,
       "exitPrice": 3861.167492857143,
       "direction": "long",
-      "portfolioPnl": -25.181787937985906,
+      "portfolioPnl": -61.89045703214295,
+      "isFiltered": false,
       "stopLevel": 3861.167492857143,
       "upperLevel": 3911.3991,
       "lowerLevel": 3742.6209,
@@ -134249,7 +134294,8 @@
       "entryPrice": 3786.728,
       "exitPrice": 3837.056571428572,
       "direction": "short",
-      "portfolioPnl": -24.463947540824893,
+      "portfolioPnl": -61.76424828571451,
+      "isFiltered": false,
       "stopLevel": 3837.056571428572,
       "upperLevel": 3955.832,
       "lowerLevel": 3786.728,
@@ -134261,7 +134307,8 @@
       "entryPrice": 3766.6729,
       "exitPrice": 3817.3973642857145,
       "direction": "short",
-      "portfolioPnl": -23.80617369603832,
+      "portfolioPnl": -62.100569682143046,
+      "isFiltered": false,
       "stopLevel": 3817.3973642857145,
       "upperLevel": 3937.1071,
       "lowerLevel": 3766.6729,
@@ -134273,7 +134320,8 @@
       "entryPrice": 3688.4648,
       "exitPrice": 3738.194085714286,
       "direction": "short",
-      "portfolioPnl": -23.218338289371285,
+      "portfolioPnl": -60.86927404285708,
+      "isFiltered": false,
       "stopLevel": 3738.194085714286,
       "upperLevel": 3855.5552,
       "lowerLevel": 3688.4648,
@@ -134285,7 +134333,8 @@
       "entryPrice": 3753.6111,
       "exitPrice": 3662.38,
       "direction": "short",
-      "portfolioPnl": 31.08326885436125,
+      "portfolioPnl": 80.10711334999996,
+      "isFiltered": false,
       "stopLevel": 3801.300921428572,
       "upperLevel": 3913.8489,
       "lowerLevel": 3753.6111,
@@ -134297,7 +134346,8 @@
       "entryPrice": 3583.0246,
       "exitPrice": 3629.6171,
       "direction": "short",
-      "portfolioPnl": -23.56754360329127,
+      "portfolioPnl": -57.4114625500002,
+      "isFiltered": true,
       "stopLevel": 3629.6171,
       "upperLevel": 3739.5754,
       "lowerLevel": 3583.0246,
@@ -134309,7 +134359,8 @@
       "entryPrice": 3427.8289,
       "exitPrice": 3475.2640785714284,
       "direction": "short",
-      "portfolioPnl": -22.727184336960462,
+      "portfolioPnl": -57.78981803928557,
+      "isFiltered": false,
       "stopLevel": 3475.2640785714284,
       "upperLevel": 3587.2111,
       "lowerLevel": 3427.8289,
@@ -134321,7 +134372,8 @@
       "entryPrice": 3565.0532,
       "exitPrice": 3519.0632,
       "direction": "long",
-      "portfolioPnl": -22.4057235231714,
+      "portfolioPnl": -56.61617459999978,
+      "isFiltered": false,
       "stopLevel": 3519.0632,
       "upperLevel": 3565.0532,
       "lowerLevel": 3410.5268,
@@ -134333,7 +134385,8 @@
       "entryPrice": 3645.1937,
       "exitPrice": 3599.8581642857143,
       "direction": "long",
-      "portfolioPnl": -22.007811037338463,
+      "portfolioPnl": -56.2031135107145,
+      "isFiltered": false,
       "stopLevel": 3599.8581642857143,
       "upperLevel": 3645.1937,
       "lowerLevel": 3492.8663,
@@ -134345,7 +134398,8 @@
       "entryPrice": 3552.5609,
       "exitPrice": 3596.667507142857,
       "direction": "short",
-      "portfolioPnl": -21.52135539124741,
+      "portfolioPnl": -54.83044975357152,
+      "isFiltered": true,
       "stopLevel": 3596.667507142857,
       "upperLevel": 3700.7591,
       "lowerLevel": 3552.5609,
@@ -134357,7 +134411,8 @@
       "entryPrice": 3656.3426,
       "exitPrice": 3846.73,
       "direction": "long",
-      "portfolioPnl": 69.13804500991738,
+      "portfolioPnl": 179.13279110000008,
+      "isFiltered": false,
       "stopLevel": 3612.602957142857,
       "upperLevel": 3656.3426,
       "lowerLevel": 3509.3774000000003,
@@ -134369,7 +134424,8 @@
       "entryPrice": 3925.1862,
       "exitPrice": 3879.355128571429,
       "direction": "long",
-      "portfolioPnl": -22.92987600725652,
+      "portfolioPnl": -57.53788342142839,
+      "isFiltered": false,
       "stopLevel": 3879.355128571429,
       "upperLevel": 3925.1862,
       "lowerLevel": 3771.1938,
@@ -134381,7 +134437,8 @@
       "entryPrice": 3967.0943,
       "exitPrice": 4193.29,
       "direction": "long",
-      "portfolioPnl": 83.4403851873819,
+      "portfolioPnl": 213.95512355000025,
+      "isFiltered": true,
       "stopLevel": 3921.436978571429,
       "upperLevel": 3967.0943,
       "lowerLevel": 3813.6857,
@@ -134393,7 +134450,8 @@
       "entryPrice": 4276.5623,
       "exitPrice": 4227.787121428572,
       "direction": "long",
-      "portfolioPnl": -24.56807404113025,
+      "portfolioPnl": -61.53170270357097,
+      "isFiltered": false,
       "stopLevel": 4227.787121428572,
       "upperLevel": 4276.5623,
       "lowerLevel": 4112.6777,
@@ -134405,7 +134463,8 @@
       "entryPrice": 4283.3349,
       "exitPrice": 4233.730792857143,
       "direction": "long",
-      "portfolioPnl": -23.87253588615512,
+      "portfolioPnl": -62.37970568214288,
+      "isFiltered": true,
       "stopLevel": 4233.730792857143,
       "upperLevel": 4283.3349,
       "lowerLevel": 4116.6651,
@@ -134417,7 +134476,8 @@
       "entryPrice": 4267.2264,
       "exitPrice": 4216.960685714285,
       "direction": "long",
-      "portfolioPnl": -23.191226315161163,
+      "portfolioPnl": -62.99199491428567,
+      "isFiltered": true,
       "stopLevel": 4216.960685714285,
       "upperLevel": 4267.2264,
       "lowerLevel": 4098.3336,
@@ -134429,7 +134489,8 @@
       "entryPrice": 4492.4326,
       "exitPrice": 4682.28,
       "direction": "long",
-      "portfolioPnl": 61.04436225391142,
+      "portfolioPnl": 176.08533109999965,
+      "isFiltered": true,
       "stopLevel": 4440.389385714286,
       "upperLevel": 4492.4326,
       "lowerLevel": 4317.5674,
@@ -134441,7 +134502,8 @@
       "entryPrice": 4778.9701,
       "exitPrice": 4723.154564285714,
       "direction": "long",
-      "portfolioPnl": -24.181998308377928,
+      "portfolioPnl": -70.06872271071451,
+      "isFiltered": true,
       "stopLevel": 4723.154564285714,
       "upperLevel": 4778.9701,
       "lowerLevel": 4591.4299,
@@ -134453,7 +134515,8 @@
       "entryPrice": 4474.1508,
       "exitPrice": 4531.287228571429,
       "direction": "short",
-      "portfolioPnl": -23.21911789054593,
+      "portfolioPnl": -70.6445856142861,
+      "isFiltered": true,
       "stopLevel": 4531.287228571429,
       "upperLevel": 4666.1292,
       "lowerLevel": 4474.1508,
@@ -134465,7 +134528,8 @@
       "entryPrice": 4531.0004,
       "exitPrice": 4407.86,
       "direction": "short",
-      "portfolioPnl": 35.1558963611509,
+      "portfolioPnl": 109.73210940000024,
+      "isFiltered": true,
       "stopLevel": 4588.166828571429,
       "upperLevel": 4723.0796,
       "lowerLevel": 4531.0004,
@@ -134477,7 +134541,8 @@
       "entryPrice": 4505.156,
       "exitPrice": 4541.58,
       "direction": "long",
-      "portfolioPnl": 7.551395090606356,
+      "portfolioPnl": 22.853895999999978,
+      "isFiltered": true,
       "stopLevel": 4447.598857142857,
       "upperLevel": 4505.156,
       "lowerLevel": 4311.764,
@@ -134489,7 +134554,8 @@
       "entryPrice": 4441.6877,
       "exitPrice": 4499.730735714285,
       "direction": "short",
-      "portfolioPnl": -23.598527673722167,
+      "portfolioPnl": -71.45516336785734,
+      "isFiltered": false,
       "stopLevel": 4499.730735714285,
       "upperLevel": 4636.7123,
       "lowerLevel": 4441.6877,
@@ -134501,7 +134567,8 @@
       "entryPrice": 4236.9861,
       "exitPrice": 4298.899135714286,
       "direction": "short",
-      "portfolioPnl": -22.563743179881406,
+      "portfolioPnl": -74.71686356785723,
+      "isFiltered": true,
       "stopLevel": 4298.899135714286,
       "upperLevel": 4445.0139,
       "lowerLevel": 4236.9861,
@@ -134513,7 +134580,8 @@
       "entryPrice": 4199.4046,
       "exitPrice": 4200.12,
       "direction": "short",
-      "portfolioPnl": -3.902411462070466,
+      "portfolioPnl": -13.314686900000046,
+      "isFiltered": true,
       "stopLevel": 4261.657814285714,
       "upperLevel": 4408.5754,
       "lowerLevel": 4199.4046,
@@ -134525,7 +134593,8 @@
       "entryPrice": 4312.8616,
       "exitPrice": 4247.723742857143,
       "direction": "long",
-      "portfolioPnl": -21.74927982709156,
+      "portfolioPnl": -77.9787351571425,
+      "isFiltered": true,
       "stopLevel": 4247.723742857143,
       "upperLevel": 4312.8616,
       "lowerLevel": 4093.9984,
@@ -134537,7 +134606,8 @@
       "entryPrice": 4351.371700000001,
       "exitPrice": 4709.19,
       "direction": "long",
-      "portfolioPnl": 94.86363300520364,
+      "portfolioPnl": 344.227457449999,
+      "isFiltered": true,
       "stopLevel": 4287.025450000001,
       "upperLevel": 4351.371700000001,
       "lowerLevel": 4135.1683,
@@ -134549,7 +134619,8 @@
       "entryPrice": 4868.546899999999,
       "exitPrice": 4800.132078571428,
       "direction": "long",
-      "portfolioPnl": -23.79139144371967,
+      "portfolioPnl": -82.91783989642863,
+      "isFiltered": false,
       "stopLevel": 4800.132078571428,
       "upperLevel": 4868.546899999999,
       "lowerLevel": 4638.6731,
@@ -134561,7 +134632,8 @@
       "entryPrice": 4522.2892,
       "exitPrice": 4483.72,
       "direction": "short",
-      "portfolioPnl": 6.584551702008468,
+      "portfolioPnl": 25.060186199999908,
+      "isFiltered": true,
       "stopLevel": 4595.188485714286,
       "upperLevel": 4767.2308,
       "lowerLevel": 4522.2892,
@@ -134573,7 +134645,8 @@
       "entryPrice": 4619.7146,
       "exitPrice": 4544.771385714286,
       "direction": "long",
-      "portfolioPnl": -22.82353631619198,
+      "portfolioPnl": -88.68994326428545,
+      "isFiltered": true,
       "stopLevel": 4544.771385714286,
       "upperLevel": 4619.7146,
       "lowerLevel": 4367.905400000001,
@@ -134585,7 +134658,8 @@
       "entryPrice": 4491.4819,
       "exitPrice": 4563.522435714285,
       "direction": "short",
-      "portfolioPnl": -22.379576532640662,
+      "portfolioPnl": -85.62304221785682,
+      "isFiltered": true,
       "stopLevel": 4563.522435714285,
       "upperLevel": 4733.538100000001,
       "lowerLevel": 4491.4819,
@@ -134597,7 +134671,8 @@
       "entryPrice": 4479.1497,
       "exitPrice": 4402.9,
       "direction": "short",
-      "portfolioPnl": 16.403033641011053,
+      "portfolioPnl": 62.9266254500003,
+      "isFiltered": false,
       "stopLevel": 4549.667735714285,
       "upperLevel": 4716.0903,
       "lowerLevel": 4479.1497,
@@ -134609,7 +134684,8 @@
       "entryPrice": 4285.3046,
       "exitPrice": 4356.611385714286,
       "direction": "short",
-      "portfolioPnl": -22.111224948679094,
+      "portfolioPnl": -84.26965969285742,
+      "isFiltered": true,
       "stopLevel": 4356.611385714286,
       "upperLevel": 4524.8954,
       "lowerLevel": 4285.3046,
@@ -134621,7 +134697,8 @@
       "entryPrice": 4482.044,
       "exitPrice": 4492.41,
       "direction": "long",
-      "portfolioPnl": -0.8149820678749923,
+      "portfolioPnl": -3.095681000000015,
+      "isFiltered": false,
       "stopLevel": 4412.654714285714,
       "upperLevel": 4482.044,
       "lowerLevel": 4248.896000000001,
@@ -134633,7 +134710,8 @@
       "entryPrice": 4371.4719,
       "exitPrice": 4440.387435714285,
       "direction": "short",
-      "portfolioPnl": -21.751983059351847,
+      "portfolioPnl": -82.13332471785682,
+      "isFiltered": false,
       "stopLevel": 4440.387435714285,
       "upperLevel": 4603.0281,
       "lowerLevel": 4371.4719,
@@ -134645,7 +134723,8 @@
       "entryPrice": 4291.6397,
       "exitPrice": 4356.979164285714,
       "direction": "short",
-      "portfolioPnl": -21.35375852659254,
+      "portfolioPnl": -78.31239258214329,
+      "isFiltered": true,
       "stopLevel": 4356.979164285714,
       "upperLevel": 4511.1803,
       "lowerLevel": 4291.6397,
@@ -134657,7 +134736,8 @@
       "entryPrice": 4384.9224,
       "exitPrice": 4319.295971428572,
       "direction": "long",
-      "portfolioPnl": -20.848890570934024,
+      "portfolioPnl": -78.68275612857158,
+      "isFiltered": true,
       "stopLevel": 4319.295971428572,
       "upperLevel": 4384.9224,
       "lowerLevel": 4164.4176,
@@ -134669,7 +134749,8 @@
       "entryPrice": 4459.4315,
       "exitPrice": 4396.269892857143,
       "direction": "long",
-      "portfolioPnl": -20.541783254281576,
+      "portfolioPnl": -76.44515923214279,
+      "isFiltered": false,
       "stopLevel": 4396.269892857143,
       "upperLevel": 4459.4315,
       "lowerLevel": 4247.2085,
@@ -134681,7 +134762,8 @@
       "entryPrice": 4312.3164,
       "exitPrice": 4373.032828571429,
       "direction": "short",
-      "portfolioPnl": -20.11511462692881,
+      "portfolioPnl": -73.74445241428602,
+      "isFiltered": false,
       "stopLevel": 4373.032828571429,
       "upperLevel": 4516.3236,
       "lowerLevel": 4312.3164,
@@ -134693,7 +134775,8 @@
       "entryPrice": 4365.2931,
       "exitPrice": 4296.73,
       "direction": "short",
-      "portfolioPnl": 14.440790733724358,
+      "portfolioPnl": 55.57006535000031,
+      "isFiltered": false,
       "stopLevel": 4427.475778571428,
       "upperLevel": 4574.226900000001,
       "lowerLevel": 4365.2931,
@@ -134705,7 +134788,8 @@
       "entryPrice": 4438.6908,
       "exitPrice": 4397.737942857143,
       "direction": "long",
-      "portfolioPnl": -21.771499002581237,
+      "portfolioPnl": -54.207500257143,
+      "isFiltered": false,
       "stopLevel": 4397.737942857143,
       "upperLevel": 4438.6908,
       "lowerLevel": 4301.0892,
@@ -134717,7 +134801,8 @@
       "entryPrice": 4493.2806,
       "exitPrice": 4524.44,
       "direction": "long",
-      "portfolioPnl": 6.928694879929755,
+      "portfolioPnl": 17.63281909999955,
+      "isFiltered": true,
       "stopLevel": 4452.530242857143,
       "upperLevel": 4493.2806,
       "lowerLevel": 4356.359399999999,
@@ -134729,7 +134814,8 @@
       "entryPrice": 4590.3337,
       "exitPrice": 4718.0,
       "direction": "long",
-      "portfolioPnl": 47.5281864727317,
+      "portfolioPnl": 113.70379944999986,
+      "isFiltered": false,
       "stopLevel": 4551.694592857143,
       "upperLevel": 4590.3337,
       "lowerLevel": 4460.5063,
@@ -134741,7 +134827,8 @@
       "entryPrice": 4650.5268,
       "exitPrice": 4690.981085714286,
       "direction": "short",
-      "portfolioPnl": -23.025276085721973,
+      "portfolioPnl": -54.46654754285744,
+      "isFiltered": false,
       "stopLevel": 4690.981085714286,
       "upperLevel": 4786.4532,
       "lowerLevel": 4650.5268,
@@ -134753,7 +134840,8 @@
       "entryPrice": 4565.894,
       "exitPrice": 4514.14,
       "direction": "short",
-      "portfolioPnl": 16.02801329122072,
+      "portfolioPnl": 38.1339489999999,
+      "isFiltered": false,
       "stopLevel": 4605.486857142858,
       "upperLevel": 4698.926,
       "lowerLevel": 4565.894,
@@ -134765,7 +134853,8 @@
       "entryPrice": 4434.577,
       "exitPrice": 4472.328785714286,
       "direction": "short",
-      "portfolioPnl": -22.96453397382631,
+      "portfolioPnl": -51.11214439285712,
+      "isFiltered": false,
       "stopLevel": 4472.328785714286,
       "upperLevel": 4561.423,
       "lowerLevel": 4434.577,
@@ -134777,7 +134866,8 @@
       "entryPrice": 4436.5128,
       "exitPrice": 4474.088514285715,
       "direction": "short",
-      "portfolioPnl": -22.37250080097153,
+      "portfolioPnl": -50.94161625714321,
+      "isFiltered": false,
       "stopLevel": 4474.088514285715,
       "upperLevel": 4562.7672,
       "lowerLevel": 4436.5128,
@@ -134789,7 +134879,8 @@
       "entryPrice": 4453.2119,
       "exitPrice": 4464.08,
       "direction": "short",
-      "portfolioPnl": -10.353713355762697,
+      "portfolioPnl": -24.244037849999685,
+      "isFiltered": false,
       "stopLevel": 4490.806007142857,
       "upperLevel": 4579.5281,
       "lowerLevel": 4453.2119,
@@ -134801,7 +134892,8 @@
       "entryPrice": 4406.4042,
       "exitPrice": 4187.58,
       "direction": "short",
-      "portfolioPnl": 92.40425762765496,
+      "portfolioPnl": 205.9332237,
+      "isFiltered": false,
       "stopLevel": 4441.723128571429,
       "upperLevel": 4525.0758,
       "lowerLevel": 4406.4042,
@@ -134813,7 +134905,8 @@
       "entryPrice": 4119.195000000001,
       "exitPrice": 4161.346785714286,
       "direction": "short",
-      "portfolioPnl": -22.910502790658963,
+      "portfolioPnl": -54.572598392856754,
+      "isFiltered": true,
       "stopLevel": 4161.346785714286,
       "upperLevel": 4260.825,
       "lowerLevel": 4119.195000000001,
@@ -134825,7 +134918,8 @@
       "entryPrice": 4122.434700000001,
       "exitPrice": 4164.747378571429,
       "direction": "short",
-      "portfolioPnl": -22.30201589538021,
+      "portfolioPnl": -54.74345168928562,
+      "isFiltered": false,
       "stopLevel": 4164.747378571429,
       "upperLevel": 4264.6053,
       "lowerLevel": 4122.434700000001,
@@ -134837,7 +134931,8 @@
       "entryPrice": 4106.9472000000005,
       "exitPrice": 3976.0,
       "direction": "short",
-      "portfolioPnl": 46.75524073727234,
+      "portfolioPnl": 118.82277920000053,
+      "isFiltered": false,
       "stopLevel": 4149.621485714286,
       "upperLevel": 4250.3328,
       "lowerLevel": 4106.9472000000005,
@@ -134849,7 +134944,8 @@
       "entryPrice": 3901.7073,
       "exitPrice": 3946.119621428572,
       "direction": "short",
-      "portfolioPnl": -22.42550294291416,
+      "portfolioPnl": -56.18406181071429,
+      "isFiltered": true,
       "stopLevel": 3946.119621428572,
       "upperLevel": 4050.9327,
       "lowerLevel": 3901.7073,
@@ -134861,7 +134957,8 @@
       "entryPrice": 4010.5687,
       "exitPrice": 4024.9,
       "direction": "long",
-      "portfolioPnl": 0.8791412610928788,
+      "portfolioPnl": 2.2780969500002843,
+      "isFiltered": true,
       "stopLevel": 3965.7956642857134,
       "upperLevel": 4010.5687,
       "lowerLevel": 3860.1313,
@@ -134873,7 +134970,8 @@
       "entryPrice": 4046.7751,
       "exitPrice": 4097.86,
       "direction": "long",
-      "portfolioPnl": 15.93049947112798,
+      "portfolioPnl": 38.86794734999938,
+      "isFiltered": false,
       "stopLevel": 4004.575635714286,
       "upperLevel": 4046.7751,
       "lowerLevel": 3904.9849,
@@ -134885,7 +134983,8 @@
       "entryPrice": 4166.4662,
       "exitPrice": 4156.0,
       "direction": "long",
-      "portfolioPnl": -9.594305962719927,
+      "portfolioPnl": -22.94989929999984,
+      "isFiltered": false,
       "stopLevel": 4124.331557142857,
       "upperLevel": 4166.4662,
       "lowerLevel": 4024.8938,
@@ -134897,7 +134996,8 @@
       "entryPrice": 4229.603999999999,
       "exitPrice": 4282.64,
       "direction": "long",
-      "portfolioPnl": 16.056865744362863,
+      "portfolioPnl": 40.26763400000097,
+      "isFiltered": false,
       "stopLevel": 4185.911142857142,
       "upperLevel": 4229.603999999999,
       "lowerLevel": 4082.796,
@@ -134909,7 +135009,8 @@
       "entryPrice": 4359.5402,
       "exitPrice": 4405.0,
       "direction": "long",
-      "portfolioPnl": 12.5699534087785,
+      "portfolioPnl": 32.31298970000054,
+      "isFiltered": false,
       "stopLevel": 4313.926985714285,
       "upperLevel": 4359.5402,
       "lowerLevel": 4206.2798,
@@ -134921,7 +135022,8 @@
       "entryPrice": 4330.680600000001,
       "exitPrice": 4374.555242857144,
       "direction": "short",
-      "portfolioPnl": -23.350912234505834,
+      "portfolioPnl": -56.93249662142876,
+      "isFiltered": false,
       "stopLevel": 4374.555242857144,
       "upperLevel": 4478.0994,
       "lowerLevel": 4330.680600000001,
@@ -134933,7 +135035,8 @@
       "entryPrice": 4557.1357,
       "exitPrice": 4511.48945,
       "direction": "long",
-      "portfolioPnl": -22.751745313416176,
+      "portfolioPnl": -59.249187724999786,
+      "isFiltered": false,
       "stopLevel": 4511.48945,
       "upperLevel": 4557.1357,
       "lowerLevel": 4403.7643,
@@ -134945,7 +135048,8 @@
       "entryPrice": 4557.051,
       "exitPrice": 4529.17,
       "direction": "long",
-      "portfolioPnl": -15.242893997081715,
+      "portfolioPnl": -41.5103314999994,
+      "isFiltered": false,
       "stopLevel": 4510.5563571428565,
       "upperLevel": 4557.051,
       "lowerLevel": 4400.829,
@@ -134957,7 +135061,8 @@
       "entryPrice": 4650.966100000001,
       "exitPrice": 4743.68,
       "direction": "long",
-      "portfolioPnl": 30.89205381606378,
+      "portfolioPnl": 78.62193084999974,
+      "isFiltered": false,
       "stopLevel": 4608.28985,
       "upperLevel": 4650.966100000001,
       "lowerLevel": 4507.5739,
@@ -134969,7 +135074,8 @@
       "entryPrice": 4673.5739,
       "exitPrice": 4480.22,
       "direction": "short",
-      "portfolioPnl": 71.53164101134512,
+      "portfolioPnl": 179.62320915000006,
+      "isFiltered": false,
       "stopLevel": 4717.232292857143,
       "upperLevel": 4820.2661,
       "lowerLevel": 4673.5739,
@@ -134981,7 +135087,8 @@
       "entryPrice": 4556.1409,
       "exitPrice": 4508.783221428572,
       "direction": "long",
-      "portfolioPnl": -24.219480237188478,
+      "portfolioPnl": -60.955064753571406,
+      "isFiltered": false,
       "stopLevel": 4508.783221428572,
       "upperLevel": 4556.1409,
       "lowerLevel": 4397.0191,
@@ -134993,7 +135100,8 @@
       "entryPrice": 4323.4435,
       "exitPrice": 4369.989035714286,
       "direction": "short",
-      "portfolioPnl": -23.4683804483923,
+      "portfolioPnl": -59.58568451785693,
+      "isFiltered": true,
       "stopLevel": 4369.989035714286,
       "upperLevel": 4479.8365,
       "lowerLevel": 4323.4435,
@@ -135005,7 +135113,8 @@
       "entryPrice": 4270.342,
       "exitPrice": 3818.88,
       "direction": "short",
-      "portfolioPnl": 172.3693736804341,
+      "portfolioPnl": 439.3281669999996,
+      "isFiltered": false,
       "stopLevel": 4315.870571428571,
       "upperLevel": 4423.318,
       "lowerLevel": 4270.342,
@@ -135017,7 +135126,8 @@
       "entryPrice": 3717.1408,
       "exitPrice": 3778.9915142857135,
       "direction": "short",
-      "portfolioPnl": -25.184558929552523,
+      "portfolioPnl": -73.09491275714285,
+      "isFiltered": true,
       "stopLevel": 3778.9915142857135,
       "upperLevel": 3924.9592,
       "lowerLevel": 3717.1408,
@@ -135029,7 +135139,8 @@
       "entryPrice": 3938.6259,
       "exitPrice": 4099.5,
       "direction": "long",
-      "portfolioPnl": 47.879757051820846,
+      "portfolioPnl": 148.81691115,
+      "isFiltered": true,
       "stopLevel": 3873.955721428572,
       "upperLevel": 3938.6259,
       "lowerLevel": 3721.3341,
@@ -135041,7 +135152,8 @@
       "entryPrice": 4211.3716,
       "exitPrice": 4142.073028571428,
       "direction": "long",
-      "portfolioPnl": -25.69961779906317,
+      "portfolioPnl": -81.82873837142859,
+      "isFiltered": true,
       "stopLevel": 4142.073028571428,
       "upperLevel": 4211.3716,
       "lowerLevel": 3978.5284,
@@ -135053,7 +135165,8 @@
       "entryPrice": 4062.0094,
       "exitPrice": 4090.4,
       "direction": "long",
-      "portfolioPnl": 4.668240923052244,
+      "portfolioPnl": 16.161985900000175,
+      "isFiltered": true,
       "stopLevel": 3988.438328571429,
       "upperLevel": 4062.0094,
       "lowerLevel": 3814.8106,
@@ -135065,7 +135178,8 @@
       "entryPrice": 3966.8129,
       "exitPrice": 4041.87665,
       "direction": "short",
-      "portfolioPnl": -24.75948849929998,
+      "portfolioPnl": -87.0767843249998,
+      "isFiltered": true,
       "stopLevel": 4041.87665,
       "upperLevel": 4219.0271,
       "lowerLevel": 3966.8129,
@@ -135077,7 +135191,8 @@
       "entryPrice": 3925.7708,
       "exitPrice": 3778.67,
       "direction": "short",
-      "portfolioPnl": 37.32627458884182,
+      "portfolioPnl": 135.54413880000016,
+      "isFiltered": true,
       "stopLevel": 4001.478657142857,
       "upperLevel": 4180.1492,
       "lowerLevel": 3925.7708,
@@ -135089,7 +135204,8 @@
       "entryPrice": 3905.7724,
       "exitPrice": 3876.8,
       "direction": "long",
-      "portfolioPnl": -11.153506694924223,
+      "portfolioPnl": -40.646258599999655,
+      "isFiltered": true,
       "stopLevel": 3827.074542857143,
       "upperLevel": 3905.7724,
       "lowerLevel": 3641.3476,
@@ -135101,7 +135217,8 @@
       "entryPrice": 4054.3692,
       "exitPrice": 4035.7,
       "direction": "long",
-      "portfolioPnl": -8.351191300305368,
+      "portfolioPnl": -30.80430379999982,
+      "isFiltered": true,
       "stopLevel": 3975.536342857143,
       "upperLevel": 4054.3692,
       "lowerLevel": 3789.4908,
@@ -135113,7 +135230,8 @@
       "entryPrice": 3901.8479,
       "exitPrice": 3882.9,
       "direction": "short",
-      "portfolioPnl": 1.9319179651208984,
+      "portfolioPnl": 7.270778150000117,
+      "isFiltered": false,
       "stopLevel": 3981.652721428572,
       "upperLevel": 4169.9921,
       "lowerLevel": 3901.8479,
@@ -135125,7 +135243,8 @@
       "entryPrice": 4013.934,
       "exitPrice": 3933.437571428571,
       "direction": "long",
-      "portfolioPnl": -24.38962264113832,
+      "portfolioPnl": -92.41748592857148,
+      "isFiltered": false,
       "stopLevel": 3933.437571428571,
       "upperLevel": 4013.934,
       "lowerLevel": 3743.466,
@@ -135137,7 +135256,8 @@
       "entryPrice": 3709.6773,
       "exitPrice": 3790.1431928571433,
       "direction": "short",
-      "portfolioPnl": -23.657592021126412,
+      "portfolioPnl": -91.7156235964287,
+      "isFiltered": true,
       "stopLevel": 3790.1431928571433,
       "upperLevel": 3980.0427,
       "lowerLevel": 3709.6773,
@@ -135149,7 +135269,8 @@
       "entryPrice": 3985.6538,
       "exitPrice": 3961.89,
       "direction": "long",
-      "portfolioPnl": -9.070714145064365,
+      "portfolioPnl": -35.685115700000175,
+      "isFiltered": false,
       "stopLevel": 3905.8598714285713,
       "upperLevel": 3985.6538,
       "lowerLevel": 3717.5462,
@@ -135161,7 +135282,8 @@
       "entryPrice": 4059.5906,
       "exitPrice": 4076.13,
       "direction": "long",
-      "portfolioPnl": 1.3606538593412012,
+      "portfolioPnl": 4.335819100000114,
+      "isFiltered": false,
       "stopLevel": 3995.536671428572,
       "upperLevel": 4059.5906,
       "lowerLevel": 3844.3694,
@@ -135173,7 +135295,8 @@
       "entryPrice": 4177.5831,
       "exitPrice": 4144.35,
       "direction": "long",
-      "portfolioPnl": -14.627893330847398,
+      "portfolioPnl": -45.71599964999947,
+      "isFiltered": false,
       "stopLevel": 4114.676492857143,
       "upperLevel": 4177.5831,
       "lowerLevel": 3966.2169,
@@ -135185,7 +135308,8 @@
       "entryPrice": 4028.1215,
       "exitPrice": 4013.0,
       "direction": "short",
-      "portfolioPnl": 1.107864210669579,
+      "portfolioPnl": 3.059817749999743,
+      "isFiltered": false,
       "stopLevel": 4082.906321428571,
       "upperLevel": 4212.1985,
       "lowerLevel": 4028.1215,
@@ -135197,7 +135321,8 @@
       "entryPrice": 3924.3426,
       "exitPrice": 3977.7279571428576,
       "direction": "short",
-      "portfolioPnl": -24.267086676221936,
+      "portfolioPnl": -65.23846297857146,
+      "isFiltered": false,
       "stopLevel": 3977.7279571428576,
       "upperLevel": 4103.7174,
       "lowerLevel": 3924.3426,
@@ -135209,7 +135334,8 @@
       "entryPrice": 3724.3212,
       "exitPrice": 3778.713342857143,
       "direction": "short",
-      "portfolioPnl": -23.381183699904238,
+      "portfolioPnl": -65.64669467142869,
+      "isFiltered": true,
       "stopLevel": 3778.713342857143,
       "upperLevel": 3907.0788,
       "lowerLevel": 3724.3212,
@@ -135221,7 +135347,8 @@
       "entryPrice": 3794.7056,
       "exitPrice": 3706.98,
       "direction": "short",
-      "portfolioPnl": 30.08039093731212,
+      "portfolioPnl": 76.47307159999976,
+      "isFiltered": false,
       "stopLevel": 3842.767742857143,
       "upperLevel": 3956.1944,
       "lowerLevel": 3794.7056,
@@ -135233,7 +135360,8 @@
       "entryPrice": 3624.2226,
       "exitPrice": 3673.697242857143,
       "direction": "short",
-      "portfolioPnl": -23.822761196039306,
+      "portfolioPnl": -60.42152262142866,
+      "isFiltered": true,
       "stopLevel": 3673.697242857143,
       "upperLevel": 3790.4574,
       "lowerLevel": 3624.2226,
@@ -135245,7 +135373,8 @@
       "entryPrice": 3424.009,
       "exitPrice": 3344.02,
       "direction": "short",
-      "portfolioPnl": 26.125840295859447,
+      "portfolioPnl": 69.83695650000003,
+      "isFiltered": true,
       "stopLevel": 3474.878642857143,
       "upperLevel": 3594.931,
       "lowerLevel": 3424.009,
@@ -135257,7 +135386,8 @@
       "entryPrice": 3434.2408,
       "exitPrice": 3379.9665142857143,
       "direction": "long",
-      "portfolioPnl": -23.235036006576124,
+      "portfolioPnl": -64.4955966857143,
+      "isFiltered": true,
       "stopLevel": 3379.9665142857143,
       "upperLevel": 3434.2408,
       "lowerLevel": 3251.8792,
@@ -135269,7 +135399,8 @@
       "entryPrice": 3257.7791,
       "exitPrice": 3311.368921428571,
       "direction": "short",
-      "portfolioPnl": -22.59780267259551,
+      "portfolioPnl": -63.44354346071407,
+      "isFiltered": true,
       "stopLevel": 3311.368921428571,
       "upperLevel": 3437.8409,
       "lowerLevel": 3257.7791,
@@ -135281,7 +135412,8 @@
       "entryPrice": 3311.1126,
       "exitPrice": 3409.09,
       "direction": "long",
-      "portfolioPnl": 30.716100170288144,
+      "portfolioPnl": 87.89709610000021,
+      "isFiltered": true,
       "stopLevel": 3257.783671428572,
       "upperLevel": 3311.1126,
       "lowerLevel": 3131.9274,
@@ -135293,7 +135425,8 @@
       "entryPrice": 3533.6041,
       "exitPrice": 3589.56,
       "direction": "long",
-      "portfolioPnl": 15.69001006899555,
+      "portfolioPnl": 45.271153849999926,
+      "isFiltered": false,
       "stopLevel": 3478.059992857143,
       "upperLevel": 3533.6041,
       "lowerLevel": 3346.9759,
@@ -135305,7 +135438,8 @@
       "entryPrice": 3447.005,
       "exitPrice": 3502.2282142857143,
       "direction": "short",
-      "portfolioPnl": -23.257103064551675,
+      "portfolioPnl": -65.6470641071428,
+      "isFiltered": true,
       "stopLevel": 3502.2282142857143,
       "upperLevel": 3632.555,
       "lowerLevel": 3447.005,
@@ -135317,7 +135451,8 @@
       "entryPrice": 3460.1547,
       "exitPrice": 3514.02095,
       "direction": "short",
-      "portfolioPnl": -22.80824463638541,
+      "portfolioPnl": -64.32751347500003,
+      "isFiltered": true,
       "stopLevel": 3514.02095,
       "upperLevel": 3641.1453,
       "lowerLevel": 3460.1547,
@@ -135329,7 +135464,8 @@
       "entryPrice": 3409.9081,
       "exitPrice": 3463.438992857143,
       "direction": "short",
-      "portfolioPnl": -22.233498485523945,
+      "portfolioPnl": -63.84091349642876,
+      "isFiltered": true,
       "stopLevel": 3463.438992857143,
       "upperLevel": 3589.7719,
       "lowerLevel": 3409.9081,
@@ -135341,7 +135477,8 @@
       "entryPrice": 3222.4305,
       "exitPrice": 3164.942107142857,
       "direction": "long",
-      "portfolioPnl": -21.231147231478296,
+      "portfolioPnl": -67.06945176785732,
+      "isFiltered": true,
       "stopLevel": 3164.942107142857,
       "upperLevel": 3222.4305,
       "lowerLevel": 3029.2695,
@@ -135353,7 +135490,8 @@
       "entryPrice": 3068.0086,
       "exitPrice": 3127.7475285714286,
       "direction": "short",
-      "portfolioPnl": -20.5386483289759,
+      "portfolioPnl": -69.0325627642856,
+      "isFiltered": true,
       "stopLevel": 3127.7475285714286,
       "upperLevel": 3268.7314,
       "lowerLevel": 3068.0086,
@@ -135365,7 +135503,8 @@
       "entryPrice": 3083.3145,
       "exitPrice": 3046.19,
       "direction": "short",
-      "portfolioPnl": 8.204927701319749,
+      "portfolioPnl": 27.930243249999897,
+      "isFiltered": true,
       "stopLevel": 3142.418964285714,
       "upperLevel": 3281.9055000000003,
       "lowerLevel": 3083.3145,
@@ -135377,7 +135516,8 @@
       "entryPrice": 3146.958,
       "exitPrice": 3088.2687142857144,
       "direction": "long",
-      "portfolioPnl": -20.320045700881234,
+      "portfolioPnl": -68.04212578571426,
+      "isFiltered": true,
       "stopLevel": 3088.2687142857144,
       "upperLevel": 3146.958,
       "lowerLevel": 2949.762,
@@ -135389,7 +135529,8 @@
       "entryPrice": 3011.5489,
       "exitPrice": 3026.77,
       "direction": "short",
-      "portfolioPnl": -7.940678193368352,
+      "portfolioPnl": -24.27857835000021,
+      "isFiltered": true,
       "stopLevel": 3063.8947928571424,
       "upperLevel": 3187.4311,
       "lowerLevel": 3011.5489,
@@ -135401,7 +135542,8 @@
       "entryPrice": 2937.7486000000004,
       "exitPrice": 2729.7,
       "direction": "short",
-      "portfolioPnl": 63.13032824189021,
+      "portfolioPnl": 199.54742710000053,
+      "isFiltered": true,
       "stopLevel": 2991.362528571429,
       "upperLevel": 3117.8914,
       "lowerLevel": 2937.7486000000004,
@@ -135413,7 +135555,8 @@
       "entryPrice": 2811.8732,
       "exitPrice": 2832.36,
       "direction": "long",
-      "portfolioPnl": 4.007136879013283,
+      "portfolioPnl": 12.020450200000129,
+      "isFiltered": true,
       "stopLevel": 2757.2046285714287,
       "upperLevel": 2811.8732,
       "lowerLevel": 2628.1868000000004,
@@ -135425,7 +135568,8 @@
       "entryPrice": 2892.4923000000003,
       "exitPrice": 2924.64,
       "direction": "long",
-      "portfolioPnl": 8.004478106875233,
+      "portfolioPnl": 23.42200154999953,
+      "isFiltered": true,
       "stopLevel": 2838.9314071428576,
       "upperLevel": 2892.4923000000003,
       "lowerLevel": 2712.5277,
@@ -135437,7 +135581,8 @@
       "entryPrice": 2990.6675,
       "exitPrice": 2993.86,
       "direction": "long",
-      "portfolioPnl": -1.979002824819533,
+      "portfolioPnl": -5.784291249999891,
+      "isFiltered": false,
       "stopLevel": 2936.69875,
       "upperLevel": 2990.6675,
       "lowerLevel": 2809.3325,
@@ -135449,7 +135594,8 @@
       "entryPrice": 2948.99,
       "exitPrice": 2820.01,
       "direction": "short",
-      "portfolioPnl": 49.1888468840207,
+      "portfolioPnl": 120.32650000000002,
+      "isFiltered": false,
       "stopLevel": 2994.0614285714287,
       "upperLevel": 3100.43,
       "lowerLevel": 2948.99,
@@ -135461,7 +135607,8 @@
       "entryPrice": 2742.6586,
       "exitPrice": 2788.3975285714287,
       "direction": "short",
-      "portfolioPnl": -22.929294081024103,
+      "portfolioPnl": -54.0355127642856,
+      "isFiltered": true,
       "stopLevel": 2788.3975285714287,
       "upperLevel": 2896.3414,
       "lowerLevel": 2742.6586,
@@ -135473,7 +135620,8 @@
       "entryPrice": 2899.0303,
       "exitPrice": 3079.65,
       "direction": "long",
-      "portfolioPnl": 75.36512726166907,
+      "portfolioPnl": 171.65167955000018,
+      "isFiltered": false,
       "stopLevel": 2855.869407142857,
       "upperLevel": 2899.0303,
       "lowerLevel": 2754.0097,
@@ -135485,7 +135633,8 @@
       "entryPrice": 3155.7212,
       "exitPrice": 3178.24,
       "direction": "long",
-      "portfolioPnl": 5.962914955718137,
+      "portfolioPnl": 13.017858199999829,
+      "isFiltered": false,
       "stopLevel": 3111.059771428572,
       "upperLevel": 3155.7212,
       "lowerLevel": 3005.6588,
@@ -135497,7 +135646,8 @@
       "entryPrice": 3100.551,
       "exitPrice": 3144.806357142857,
       "direction": "short",
-      "portfolioPnl": -24.932425658713072,
+      "portfolioPnl": -53.62339317857135,
+      "isFiltered": false,
       "stopLevel": 3144.806357142857,
       "upperLevel": 3249.2490000000003,
       "lowerLevel": 3100.551,
@@ -135509,7 +135659,8 @@
       "entryPrice": 3060.3059000000003,
       "exitPrice": 3029.35,
       "direction": "short",
-      "portfolioPnl": 11.104647760797263,
+      "portfolioPnl": 21.82141615000038,
+      "isFiltered": true,
       "stopLevel": 3099.760721428572,
       "upperLevel": 3192.8741,
       "lowerLevel": 3060.3059000000003,
@@ -135521,7 +135672,8 @@
       "entryPrice": 2982.8134,
       "exitPrice": 3021.3351857142857,
       "direction": "short",
-      "portfolioPnl": -25.04624964028898,
+      "portfolioPnl": -47.5280085928571,
+      "isFiltered": false,
       "stopLevel": 3021.3351857142857,
       "upperLevel": 3112.2466000000004,
       "lowerLevel": 2982.8134,
@@ -135533,7 +135685,8 @@
       "entryPrice": 3202.2933000000003,
       "exitPrice": 3319.79,
       "direction": "long",
-      "portfolioPnl": 54.135200920021056,
+      "portfolioPnl": 107.71357504999968,
+      "isFiltered": false,
       "stopLevel": 3162.8984785714288,
       "upperLevel": 3202.2933000000003,
       "lowerLevel": 3069.9267,
@@ -135545,7 +135698,8 @@
       "entryPrice": 3394.2494,
       "exitPrice": 3351.8033285714287,
       "direction": "long",
-      "portfolioPnl": -25.86016379259288,
+      "portfolioPnl": -52.56515052142863,
+      "isFiltered": false,
       "stopLevel": 3351.8033285714287,
       "upperLevel": 3394.2494,
       "lowerLevel": 3251.6306,
@@ -135557,7 +135711,8 @@
       "entryPrice": 3170.3981,
       "exitPrice": 3114.69,
       "direction": "short",
-      "portfolioPnl": 20.904974553321832,
+      "portfolioPnl": 46.28046784999983,
+      "isFiltered": false,
       "stopLevel": 3215.482564285714,
       "upperLevel": 3321.8819,
       "lowerLevel": 3170.3981,
@@ -135569,7 +135724,8 @@
       "entryPrice": 3175.3449,
       "exitPrice": 3154.53,
       "direction": "long",
-      "portfolioPnl": -13.45457996841445,
+      "portfolioPnl": -30.309712349999856,
+      "isFiltered": false,
       "stopLevel": 3128.526507142857,
       "upperLevel": 3175.3449,
       "lowerLevel": 3018.0351,
@@ -135581,641 +135737,13 @@
       "entryPrice": 3078.9061,
       "exitPrice": 2947.01,
       "direction": "short",
-      "portfolioPnl": 56.09196009757934,
+      "portfolioPnl": 122.85722584999948,
+      "isFiltered": false,
       "stopLevel": 3123.8369928571424,
       "upperLevel": 3229.8739,
       "lowerLevel": 3078.9061,
       "exitReason": "end_of_day"
     }
   ],
-  "equityData": [
-    {
-      "time": 1748803380,
-      "value": 972.9272119844908
-    },
-    {
-      "time": 1748955600,
-      "value": 1045.538829662679
-    },
-    {
-      "time": 1748964780,
-      "value": 1018.452769994122
-    },
-    {
-      "time": 1749058380,
-      "value": 991.6461708639908
-    },
-    {
-      "time": 1749134760,
-      "value": 965.6487620773828
-    },
-    {
-      "time": 1749224460,
-      "value": 941.7226461898746
-    },
-    {
-      "time": 1749560400,
-      "value": 1059.2570880964222
-    },
-    {
-      "time": 1749571380,
-      "value": 1032.5427133183068
-    },
-    {
-      "time": 1749664740,
-      "value": 1006.3684841787518
-    },
-    {
-      "time": 1749819600,
-      "value": 1088.8937086679243
-    },
-    {
-      "time": 1750078800,
-      "value": 1103.791837403167
-    },
-    {
-      "time": 1750113120,
-      "value": 1076.8991445912898
-    },
-    {
-      "time": 1750187820,
-      "value": 1050.919720975605
-    },
-    {
-      "time": 1750510800,
-      "value": 1082.4307196410375
-    },
-    {
-      "time": 1750597200,
-      "value": 1135.3209649597334
-    },
-    {
-      "time": 1750639440,
-      "value": 1108.7005247604454
-    },
-    {
-      "time": 1750698300,
-      "value": 1082.9013738106355
-    },
-    {
-      "time": 1750785900,
-      "value": 1057.2629965848505
-    },
-    {
-      "time": 1750932180,
-      "value": 1032.0851726045278
-    },
-    {
-      "time": 1751265960,
-      "value": 1006.7653872524904
-    },
-    {
-      "time": 1751329800,
-      "value": 981.9770268639774
-    },
-    {
-      "time": 1751421840,
-      "value": 957.8089823571554
-    },
-    {
-      "time": 1751547600,
-      "value": 1015.3692367504268
-    },
-    {
-      "time": 1751634000,
-      "value": 1001.3716310530252
-    },
-    {
-      "time": 1751689800,
-      "value": 976.7762959138328
-    },
-    {
-      "time": 1751826180,
-      "value": 951.8226268583908
-    },
-    {
-      "time": 1752008340,
-      "value": 926.254344493643
-    },
-    {
-      "time": 1752152400,
-      "value": 983.683513221404
-    },
-    {
-      "time": 1752238800,
-      "value": 1113.381940912975
-    },
-    {
-      "time": 1752249780,
-      "value": 1084.1030952458416
-    },
-    {
-      "time": 1752411600,
-      "value": 1076.3575281642595
-    },
-    {
-      "time": 1752498000,
-      "value": 1080.8695853273143
-    },
-    {
-      "time": 1752584400,
-      "value": 1073.6118799996982
-    },
-    {
-      "time": 1752590520,
-      "value": 1045.8265116458958
-    },
-    {
-      "time": 1752757200,
-      "value": 1168.0913813109476
-    },
-    {
-      "time": 1752760260,
-      "value": 1138.1061915672726
-    },
-    {
-      "time": 1752859740,
-      "value": 1109.12244710119
-    },
-    {
-      "time": 1753016400,
-      "value": 1163.1171993881908
-    },
-    {
-      "time": 1753030980,
-      "value": 1133.9873996601568
-    },
-    {
-      "time": 1753137840,
-      "value": 1105.8076415694657
-    },
-    {
-      "time": 1753295040,
-      "value": 1078.9398018830848
-    },
-    {
-      "time": 1753375020,
-      "value": 1052.506394032822
-    },
-    {
-      "time": 1753475580,
-      "value": 1026.6440146524087
-    },
-    {
-      "time": 1753621200,
-      "value": 1021.9036500237096
-    },
-    {
-      "time": 1753702380,
-      "value": 996.7218620857238
-    },
-    {
-      "time": 1753772760,
-      "value": 972.257914544899
-    },
-    {
-      "time": 1753843260,
-      "value": 948.4517408488606
-    },
-    {
-      "time": 1753904520,
-      "value": 925.2334025594894
-    },
-    {
-      "time": 1754053200,
-      "value": 956.3166714138506
-    },
-    {
-      "time": 1754057880,
-      "value": 932.7491278105592
-    },
-    {
-      "time": 1754216220,
-      "value": 910.0219434735988
-    },
-    {
-      "time": 1754289480,
-      "value": 887.6162199504274
-    },
-    {
-      "time": 1754379480,
-      "value": 865.608408913089
-    },
-    {
-      "time": 1754434560,
-      "value": 844.0870535218417
-    },
-    {
-      "time": 1754571600,
-      "value": 913.2250985317588
-    },
-    {
-      "time": 1754618280,
-      "value": 890.2952225245025
-    },
-    {
-      "time": 1754744400,
-      "value": 973.7356077118844
-    },
-    {
-      "time": 1754795460,
-      "value": 949.167533670754
-    },
-    {
-      "time": 1754907480,
-      "value": 925.294997784599
-    },
-    {
-      "time": 1754947800,
-      "value": 902.1037714694378
-    },
-    {
-      "time": 1755090000,
-      "value": 963.1481337233492
-    },
-    {
-      "time": 1755125880,
-      "value": 938.9661354149712
-    },
-    {
-      "time": 1755176760,
-      "value": 915.7470175244254
-    },
-    {
-      "time": 1755349200,
-      "value": 950.9029138855764
-    },
-    {
-      "time": 1755435600,
-      "value": 958.4543089761828
-    },
-    {
-      "time": 1755469200,
-      "value": 934.8557813024604
-    },
-    {
-      "time": 1755595920,
-      "value": 912.292038122579
-    },
-    {
-      "time": 1755694800,
-      "value": 908.3896266605086
-    },
-    {
-      "time": 1755780600,
-      "value": 886.6403468334171
-    },
-    {
-      "time": 1755954000,
-      "value": 981.5039798386208
-    },
-    {
-      "time": 1756064220,
-      "value": 957.712588394901
-    },
-    {
-      "time": 1756213200,
-      "value": 964.2971400969096
-    },
-    {
-      "time": 1756258860,
-      "value": 941.4736037807176
-    },
-    {
-      "time": 1756356180,
-      "value": 919.0940272480768
-    },
-    {
-      "time": 1756472400,
-      "value": 935.4970608890878
-    },
-    {
-      "time": 1756488660,
-      "value": 913.3858359404088
-    },
-    {
-      "time": 1756645200,
-      "value": 912.5708538725338
-    },
-    {
-      "time": 1756713060,
-      "value": 890.818870813182
-    },
-    {
-      "time": 1756781880,
-      "value": 869.4651122865894
-    },
-    {
-      "time": 1756825560,
-      "value": 848.6162217156555
-    },
-    {
-      "time": 1756956780,
-      "value": 828.0744384613738
-    },
-    {
-      "time": 1757056860,
-      "value": 807.9593238344451
-    },
-    {
-      "time": 1757163600,
-      "value": 822.4001145681693
-    },
-    {
-      "time": 1757516220,
-      "value": 800.6286155655881
-    },
-    {
-      "time": 1757682000,
-      "value": 807.5573104455179
-    },
-    {
-      "time": 1757768400,
-      "value": 855.0854969182496
-    },
-    {
-      "time": 1757772960,
-      "value": 832.0602208325276
-    },
-    {
-      "time": 1757941200,
-      "value": 848.0882341237484
-    },
-    {
-      "time": 1758031140,
-      "value": 825.1237001499221
-    },
-    {
-      "time": 1758132000,
-      "value": 802.7511993489505
-    },
-    {
-      "time": 1758373200,
-      "value": 792.3974859931878
-    },
-    {
-      "time": 1758546000,
-      "value": 884.8017436208428
-    },
-    {
-      "time": 1758573120,
-      "value": 861.8912408301838
-    },
-    {
-      "time": 1758692520,
-      "value": 839.5892249348036
-    },
-    {
-      "time": 1758805200,
-      "value": 886.344465672076
-    },
-    {
-      "time": 1758851100,
-      "value": 863.9189627291619
-    },
-    {
-      "time": 1758978000,
-      "value": 864.7981039902547
-    },
-    {
-      "time": 1759150800,
-      "value": 880.7286034613827
-    },
-    {
-      "time": 1759237200,
-      "value": 871.1342974986628
-    },
-    {
-      "time": 1759323600,
-      "value": 887.1911632430256
-    },
-    {
-      "time": 1759410000,
-      "value": 899.7611166518042
-    },
-    {
-      "time": 1759417800,
-      "value": 876.4102044172982
-    },
-    {
-      "time": 1759510860,
-      "value": 853.6584591038821
-    },
-    {
-      "time": 1759669200,
-      "value": 838.4155651068004
-    },
-    {
-      "time": 1759842000,
-      "value": 869.3076189228642
-    },
-    {
-      "time": 1759928400,
-      "value": 940.8392599342092
-    },
-    {
-      "time": 1759950480,
-      "value": 916.6197796970208
-    },
-    {
-      "time": 1760048820,
-      "value": 893.1513992486285
-    },
-    {
-      "time": 1760187600,
-      "value": 1065.5207729290626
-    },
-    {
-      "time": 1760239320,
-      "value": 1040.3362139995102
-    },
-    {
-      "time": 1760360400,
-      "value": 1088.215971051331
-    },
-    {
-      "time": 1760411220,
-      "value": 1062.516353252268
-    },
-    {
-      "time": 1760533200,
-      "value": 1067.18459417532
-    },
-    {
-      "time": 1760597400,
-      "value": 1042.4251056760202
-    },
-    {
-      "time": 1760706000,
-      "value": 1079.7513802648618
-    },
-    {
-      "time": 1760792400,
-      "value": 1068.5978735699375
-    },
-    {
-      "time": 1760965200,
-      "value": 1060.2466822696324
-    },
-    {
-      "time": 1761051600,
-      "value": 1062.1786002347533
-    },
-    {
-      "time": 1761077820,
-      "value": 1037.7889775936148
-    },
-    {
-      "time": 1761175560,
-      "value": 1014.1313855724884
-    },
-    {
-      "time": 1761310800,
-      "value": 1005.0606714274242
-    },
-    {
-      "time": 1761483600,
-      "value": 1006.4213252867652
-    },
-    {
-      "time": 1761570000,
-      "value": 991.793431955918
-    },
-    {
-      "time": 1761742800,
-      "value": 992.9012961665876
-    },
-    {
-      "time": 1761759300,
-      "value": 968.6342094903656
-    },
-    {
-      "time": 1761861000,
-      "value": 945.2530257904614
-    },
-    {
-      "time": 1762174800,
-      "value": 975.3334167277734
-    },
-    {
-      "time": 1762192020,
-      "value": 951.5106555317342
-    },
-    {
-      "time": 1762347600,
-      "value": 977.6364958275936
-    },
-    {
-      "time": 1762391940,
-      "value": 954.4014598210176
-    },
-    {
-      "time": 1762450320,
-      "value": 931.803657148422
-    },
-    {
-      "time": 1762606800,
-      "value": 962.51975731871
-    },
-    {
-      "time": 1762779600,
-      "value": 978.2097673877056
-    },
-    {
-      "time": 1762942980,
-      "value": 954.952664323154
-    },
-    {
-      "time": 1763012760,
-      "value": 932.1444196867684
-    },
-    {
-      "time": 1763045520,
-      "value": 909.9109212012446
-    },
-    {
-      "time": 1763142720,
-      "value": 888.6797739697663
-    },
-    {
-      "time": 1763316720,
-      "value": 868.1411256407904
-    },
-    {
-      "time": 1763470800,
-      "value": 876.3460533421102
-    },
-    {
-      "time": 1763511420,
-      "value": 856.026007641229
-    },
-    {
-      "time": 1763643600,
-      "value": 848.0853294478605
-    },
-    {
-      "time": 1763730000,
-      "value": 911.2156576897509
-    },
-    {
-      "time": 1763902800,
-      "value": 915.222794568764
-    },
-    {
-      "time": 1764075600,
-      "value": 923.2272726756394
-    },
-    {
-      "time": 1764248400,
-      "value": 921.2482698508196
-    },
-    {
-      "time": 1764594000,
-      "value": 970.4371167348404
-    },
-    {
-      "time": 1764624300,
-      "value": 947.5078226538164
-    },
-    {
-      "time": 1764766800,
-      "value": 1022.8729499154856
-    },
-    {
-      "time": 1764853200,
-      "value": 1028.8358648712035
-    },
-    {
-      "time": 1764882360,
-      "value": 1003.9034392124904
-    },
-    {
-      "time": 1765026000,
-      "value": 1015.0080869732876
-    },
-    {
-      "time": 1765122900,
-      "value": 989.9618373329988
-    },
-    {
-      "time": 1765371600,
-      "value": 1044.09703825302
-    },
-    {
-      "time": 1765393380,
-      "value": 1018.236874460427
-    },
-    {
-      "time": 1765630800,
-      "value": 1039.141849013749
-    },
-    {
-      "time": 1765803600,
-      "value": 1025.6872690453345
-    },
-    {
-      "time": 1765890000,
-      "value": 1081.7792291429137
-    }
-  ]
+  "equityData": []
 }

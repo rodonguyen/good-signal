@@ -19,7 +19,7 @@ class PortfolioAnalysis:
     """Analyze portfolio performance and generate reports."""
 
     def __init__(
-        self, portfolio_file: str = "data/portfolio/portfolio_trades.csv", output_dir: str = "src/reports", raw_data_dir: str = "data/raw/crypto", breakout_config_path: str = "src/config/breakout_config.yaml"
+        self, portfolio_file: str = "data/portfolio/portfolio_trades.csv", output_dir: str = "src/reports", raw_data_dir: str = "data/raw/crypto", breakout_config_path: str = "src/config/breakout_config.yaml", trades_dir: str = "data/trades"
     ):
         """Initialize analysis engine.
 
@@ -28,11 +28,13 @@ class PortfolioAnalysis:
             output_dir: Directory for output reports
             raw_data_dir: Directory containing raw price data
             breakout_config_path: Path to breakout config file
+            trades_dir: Directory containing unfiltered trades (for identifying filtered trades)
         """
         self.portfolio_file = Path(portfolio_file)
         self.output_dir = Path(output_dir)
         self.raw_data_dir = Path(raw_data_dir)
         self.breakout_config_path = breakout_config_path
+        self.trades_dir = Path(trades_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def load_portfolio(self) -> tuple[pd.DataFrame, pd.Series, float]:
@@ -74,6 +76,38 @@ class PortfolioAnalysis:
         df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
 
         return df
+
+    def _identify_filtered_trades(self, portfolio_trades: pd.DataFrame, symbol: str) -> set:
+        """Identify which trades were filtered out by comparing portfolio trades with unfiltered trades.
+        
+        Args:
+            portfolio_trades: DataFrame with portfolio trades (filtered)
+            symbol: Symbol name
+            
+        Returns:
+            Set of trade identifiers (entry_time timestamps) that were filtered out
+        """
+        # Load unfiltered trades for this symbol
+        unfiltered_file = self.trades_dir / f"{symbol}_trades.csv"
+        if not unfiltered_file.exists():
+            return set()
+        
+        try:
+            unfiltered_df = pd.read_csv(unfiltered_file)
+            unfiltered_df["entry_time"] = pd.to_datetime(unfiltered_df["entry_time"], utc=True)
+            
+            # Create identifiers for portfolio trades (filtered) - use entry_time as identifier
+            portfolio_ids = set(portfolio_trades["entry_time"].values)
+            
+            # Create identifiers for unfiltered trades
+            unfiltered_ids = set(unfiltered_df["entry_time"].values)
+            
+            # Filtered out trades are in unfiltered but not in portfolio
+            filtered_out = unfiltered_ids - portfolio_ids
+            return filtered_out
+            
+        except Exception:
+            return set()
 
     def create_interactive_chart(self, trades_df: pd.DataFrame, price_df: pd.DataFrame, equity_curve: pd.Series) -> str:
         """Create interactive TradingView-style chart using Lightweight Charts JavaScript.
@@ -983,7 +1017,10 @@ class PortfolioAnalysis:
                 }
             )
 
-        # Prepare trades data
+        # Identify filtered trades (trades in unfiltered but not in portfolio)
+        filtered_trade_times = self._identify_filtered_trades(symbol_trades, symbol)
+        
+        # Prepare trades data (portfolio trades - these are allowed/filtered in)
         trades_list = []
         for _, trade in symbol_trades.iterrows():
             entry_time = int(pd.Timestamp(trade["entry_time"]).timestamp())
@@ -996,6 +1033,7 @@ class PortfolioAnalysis:
                 "exitPrice": float(trade["exit_price"]),
                 "direction": str(trade["direction"]),
                 "portfolioPnl": float(trade["portfolio_pnl"]) if pd.notna(trade["portfolio_pnl"]) else 0.0,
+                "isFiltered": False,  # These are allowed trades
             }
 
             # Add optional fields
@@ -1009,6 +1047,46 @@ class PortfolioAnalysis:
                 trade_data["exitReason"] = str(trade["exit_reason"])
 
             trades_list.append(trade_data)
+        
+        # Add filtered out trades (trades that were removed by filters)
+        unfiltered_file = self.trades_dir / f"{symbol}_trades.csv"
+        if unfiltered_file.exists():
+            try:
+                unfiltered_df = pd.read_csv(unfiltered_file)
+                unfiltered_df["entry_time"] = pd.to_datetime(unfiltered_df["entry_time"], utc=True)
+                unfiltered_df["exit_time"] = pd.to_datetime(unfiltered_df["exit_time"], utc=True)
+                
+                # Get filtered out trades (in unfiltered but not in portfolio)
+                portfolio_entry_times = set(symbol_trades["entry_time"].values)
+                filtered_out_df = unfiltered_df[~unfiltered_df["entry_time"].isin(portfolio_entry_times)]
+                
+                for _, trade in filtered_out_df.iterrows():
+                    entry_time = int(pd.Timestamp(trade["entry_time"]).timestamp())
+                    exit_time = int(pd.Timestamp(trade["exit_time"]).timestamp())
+                    
+                    trade_data = {
+                        "entryTime": entry_time,
+                        "exitTime": exit_time,
+                        "entryPrice": float(trade["entry_price"]),
+                        "exitPrice": float(trade["exit_price"]),
+                        "direction": str(trade["direction"]),
+                        "portfolioPnl": float(trade.get("net_pnl", 0)) if pd.notna(trade.get("net_pnl")) else 0.0,
+                        "isFiltered": True,  # These are filtered out trades
+                    }
+                    
+                    # Add optional fields
+                    if pd.notna(trade.get("stop_level")):
+                        trade_data["stopLevel"] = float(trade["stop_level"])
+                    if pd.notna(trade.get("upper_level")):
+                        trade_data["upperLevel"] = float(trade["upper_level"])
+                    if pd.notna(trade.get("lower_level")):
+                        trade_data["lowerLevel"] = float(trade["lower_level"])
+                    if "exit_reason" in trade.index and pd.notna(trade["exit_reason"]):
+                        trade_data["exitReason"] = str(trade["exit_reason"])
+                    
+                    trades_list.append(trade_data)
+            except Exception:
+                pass  # If we can't load unfiltered trades, just skip
 
         # Prepare equity data (filtered by symbol trades exit times)
         equity_data = []

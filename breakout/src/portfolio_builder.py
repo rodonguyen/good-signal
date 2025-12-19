@@ -300,8 +300,20 @@ class PortfolioBuilder:
         Returns:
             Path to exported JSON file or None if no data
         """
-        # Filter trades for this symbol
-        symbol_trades = trades_df[trades_df["symbol"] == symbol].copy()
+        # Always try to load from filtered_dir first (has isFiltered column with all trades)
+        filtered_file = Path(self.paths["filtered_dir"]) / f"{symbol}_trades.csv"
+        if filtered_file.exists():
+            try:
+                all_trades_df = pd.read_csv(filtered_file)
+                all_trades_df["entry_time"] = pd.to_datetime(all_trades_df["entry_time"], utc=True)
+                all_trades_df["exit_time"] = pd.to_datetime(all_trades_df["exit_time"], utc=True)
+                symbol_trades = all_trades_df.copy()  # Use all trades with isFiltered flag
+            except Exception:
+                # Fallback to portfolio trades
+                symbol_trades = trades_df[trades_df["symbol"] == symbol].copy()
+        else:
+            # Fallback to portfolio trades if filtered file doesn't exist
+            symbol_trades = trades_df[trades_df["symbol"] == symbol].copy()
 
         if len(symbol_trades) == 0:
             print(f"  No trades found for {symbol}, skipping chart data export")
@@ -359,11 +371,33 @@ class PortfolioBuilder:
                 }
             )
 
-        # Prepare trades data
+        # Prepare trades data - check if isFiltered column exists (from Block 3)
         trades_list = []
+        has_isFiltered = "isFiltered" in symbol_trades.columns
+
+        # If using filtered trades and isFiltered column exists, load all trades from filtered_dir
+        if self.paths.get("use_filtered", False) and has_isFiltered:
+            # Load all trades from filtered_dir (includes both filtered and unfiltered with flag)
+            filtered_file = Path(self.paths["filtered_dir"]) / f"{symbol}_trades.csv"
+            if filtered_file.exists():
+                try:
+                    all_trades_df = pd.read_csv(filtered_file)
+                    all_trades_df["entry_time"] = pd.to_datetime(all_trades_df["entry_time"], utc=True)
+                    all_trades_df["exit_time"] = pd.to_datetime(all_trades_df["exit_time"], utc=True)
+                    symbol_trades = all_trades_df  # Use all trades with isFiltered flag
+                except Exception:
+                    pass
+
         for _, trade in symbol_trades.iterrows():
             entry_time = int(pd.Timestamp(trade["entry_time"]).timestamp())
             exit_time = int(pd.Timestamp(trade["exit_time"]).timestamp())
+
+            # Determine isFiltered: True if trade was filtered out, False if passed filters
+            is_filtered = False
+            if "isFiltered" in trade.index:
+                is_filtered = bool(trade["isFiltered"]) if pd.notna(trade["isFiltered"]) else False
+            elif has_isFiltered:
+                is_filtered = bool(trade.get("isFiltered", False))
 
             trade_data = {
                 "entryTime": entry_time,
@@ -371,7 +405,12 @@ class PortfolioBuilder:
                 "entryPrice": float(trade["entry_price"]),
                 "exitPrice": float(trade["exit_price"]),
                 "direction": str(trade["direction"]),
-                "portfolioPnl": float(trade["portfolio_pnl"]) if pd.notna(trade["portfolio_pnl"]) else 0.0,
+                "portfolioPnl": (
+                    float(trade.get("portfolio_pnl", trade.get("net_pnl", 0)))
+                    if pd.notna(trade.get("portfolio_pnl", trade.get("net_pnl", 0)))
+                    else 0.0
+                ),
+                "isFiltered": is_filtered,
             }
 
             # Add optional fields

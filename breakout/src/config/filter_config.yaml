@@ -3,12 +3,12 @@
 # Filter enable/disable flags
 filters:
   narrow_day:
-    enabled: true
+    enabled: false 
     threshold: 0.5  # Previous day range < 0.5 × average range
     lookback_period: 20  # Period for calculating average range
   
   volatility_contraction:
-    enabled: true
+    enabled: false 
     short_period: 5  # Short-term ATR period
     long_period: 14  # Long-term ATR period
   
@@ -21,8 +21,14 @@ filters:
     enabled: false  # Disabled by default
     period: 5  # Period for detecting expansion
 
+  low_volatility_pct:
+    enabled: true  
+    timeframe: 1h  # Use 1-hour bars
+    atr_period: 12  # ATR length on hourly timeframe
+    threshold: 0.01  # 1% of price (ATR/price < threshold to allow trade)
+
 # Filter logic mode
-logic_mode: AND  # 'AND' = all enabled filters must pass, 'OR' = any filter passes
+logic_mode: OR  # 'AND' = all enabled filters must pass, 'OR' = any filter passes
 
 # Input/Output paths
 paths:

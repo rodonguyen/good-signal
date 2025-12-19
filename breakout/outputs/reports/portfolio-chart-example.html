@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Chart Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2E86AB;
+            border-bottom: 3px solid #2E86AB;
+            padding-bottom: 10px;
+        }
+        #chart-container {
+            width: 100%;
+            height: 700px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Portfolio Analysis Chart</h1>
+        <div id="chart-container"></div>
+    </div>
+
+    <!-- TradingView Lightweight Charts Library -->
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    
+    <!-- Portfolio Chart Module -->
+    <script src="portfolio-chart.js"></script>
+    
+    <script>
+        // Example usage
+        // Replace this with your actual data from Python backend
+        
+        // Sample data structure (this would come from your Python script)
+        const chartData = {
+            containerId: 'chart-container',
+            candlestickData: [
+                // Example: { time: 1642427876, open: 10, high: 10.63, low: 9.49, close: 9.55 }
+            ],
+            equityData: [
+                // Example: { time: 1642427876, value: 10000 }
+            ],
+            trades: [
+                // Example trade structure:
+                // {
+                //     entryTime: 1642427876,
+                //     exitTime: 1642514276,
+                //     entryPrice: 10.0,
+                //     exitPrice: 10.5,
+                //     direction: 'long',
+                //     stopLevel: 9.5,
+                //     upperLevel: 10.3,
+                //     lowerLevel: 9.7,
+                //     exitReason: 'end_of_day',
+                //     portfolioPnl: 50.0
+                // }
+            ],
+            options: {
+                height: 700
+            }
+        };
+
+        // Initialize chart when DOM is ready
+        function initChart() {
+            if (typeof LightweightCharts === 'undefined') {
+                console.error('LightweightCharts library not loaded');
+                return;
+            }
+            
+            if (typeof PortfolioChart === 'undefined') {
+                console.error('PortfolioChart module not loaded');
+                return;
+            }
+
+            try {
+                PortfolioChart.init(chartData);
+                console.log('Portfolio chart initialized successfully');
+            } catch (error) {
+                console.error('Error initializing chart:', error);
+            }
+        }
+
+        // Wait for DOM and libraries to load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initChart);
+        } else {
+            // If DOM is already loaded, wait a bit for scripts to load
+            setTimeout(initChart, 100);
+        }
+    </script>
+</body>
+</html>
+
