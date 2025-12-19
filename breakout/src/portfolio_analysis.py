@@ -12,13 +12,14 @@ import argparse
 import json
 
 from utils.analysis_utils import calculate_statistics, calculate_monthly_returns
+from utils.config import load_config
 
 
 class PortfolioAnalysis:
     """Analyze portfolio performance and generate reports."""
 
     def __init__(
-        self, portfolio_file: str = "data/portfolio/portfolio_trades.csv", output_dir: str = "src/reports", raw_data_dir: str = "data/raw/crypto"
+        self, portfolio_file: str = "data/portfolio/portfolio_trades.csv", output_dir: str = "src/reports", raw_data_dir: str = "data/raw/crypto", breakout_config_path: str = "src/config/breakout_config.yaml"
     ):
         """Initialize analysis engine.
 
@@ -26,10 +27,12 @@ class PortfolioAnalysis:
             portfolio_file: Path to portfolio trades CSV
             output_dir: Directory for output reports
             raw_data_dir: Directory containing raw price data
+            breakout_config_path: Path to breakout config file
         """
         self.portfolio_file = Path(portfolio_file)
         self.output_dir = Path(output_dir)
         self.raw_data_dir = Path(raw_data_dir)
+        self.breakout_config_path = breakout_config_path
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def load_portfolio(self) -> tuple[pd.DataFrame, pd.Series, float]:
@@ -389,21 +392,84 @@ class PortfolioAnalysis:
 
         return chart_html
 
-    def generate_html_report(self, stats: Dict, interactive_chart_html: str = "") -> str:
+    def generate_html_report(self, stats: Dict, equity_curve: pd.Series, trades_df: pd.DataFrame) -> str:
         """Generate HTML report with embedded charts.
 
         Args:
             stats: Dictionary with statistics
-            interactive_chart_html: HTML string with TradingView chart
+            equity_curve: Series with equity values over time
+            trades_df: DataFrame with trades
 
         Returns:
             HTML report as string
+        """
+        # Load breakout config
+        try:
+            breakout_config = load_config(self.breakout_config_path)
+            strategy = breakout_config.get("strategy", {})
+            paths = breakout_config.get("paths", {})
+        except Exception:
+            strategy = {}
+            paths = {}
+        
+        # Calculate equity curve data
+        if len(equity_curve) > 0:
+            equity_data = [
+                {"time": int(pd.Timestamp(idx).timestamp()), "value": float(val)}
+                for idx, val in zip(equity_curve.index, equity_curve.values)
+            ]
+        else:
+            equity_data = []
+        
+        # Calculate drawdown series
+        if len(equity_curve) > 0:
+            running_max = equity_curve.expanding().max()
+            drawdown_series = (equity_curve - running_max) / running_max * 100
+            drawdown_data = [
+                {"time": int(pd.Timestamp(idx).timestamp()), "value": float(val)}
+                for idx, val in zip(drawdown_series.index, drawdown_series.values)
+            ]
+        else:
+            drawdown_data = []
+        
+        # Prepare PnL histogram data
+        if len(trades_df) > 0 and "portfolio_pnl" in trades_df.columns:
+            pnl_values = trades_df["portfolio_pnl"].dropna().tolist()
+            # Create bins for histogram
+            min_pnl = min(pnl_values) if pnl_values else 0
+            max_pnl = max(pnl_values) if pnl_values else 0
+            num_bins = 20
+            bin_width = (max_pnl - min_pnl) / num_bins if max_pnl != min_pnl else 1
+            bins = [min_pnl + i * bin_width for i in range(num_bins + 1)]
+            hist, bin_edges = np.histogram(pnl_values, bins=bins)
+            histogram_data = {
+                "labels": [f"{bin_edges[i]:.0f} to {bin_edges[i+1]:.0f}" for i in range(len(hist))],
+                "values": hist.tolist()
+            }
+        else:
+            histogram_data = {"labels": [], "values": []}
+        
+        # Format config for display
+        config_html = f"""
+        <div class="config-section">
+            <h3>Breakout Strategy Configuration</h3>
+            <div class="config-grid">
+                <div class="config-item"><strong>ATR Period:</strong> {strategy.get('atr_period', 'N/A')}</div>
+                <div class="config-item"><strong>Breakout Multiplier:</strong> {strategy.get('breakout_multiplier', 'N/A')}</div>
+                <div class="config-item"><strong>Stop Multiplier:</strong> {strategy.get('stop_multiplier', 'N/A')}</div>
+                <div class="config-item"><strong>Day Start Hour:</strong> {strategy.get('day_start_hour', 'N/A')} UTC</div>
+                <div class="config-item"><strong>Fee Rate:</strong> {strategy.get('fee_rate', 'N/A')} ({strategy.get('fee_rate', 0) * 100 if strategy.get('fee_rate') else 0:.2f}%)</div>
+                <div class="config-item"><strong>Data Directory:</strong> {paths.get('data_dir', 'N/A')}</div>
+                <div class="config-item"><strong>Output Directory:</strong> {paths.get('output_dir', 'N/A')}</div>
+            </div>
+        </div>
         """
         html = f"""
 <!DOCTYPE html>
 <html>
 <head>
     <title>Portfolio Performance Report</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         body {{
             font-family: Arial, sans-serif;
@@ -426,6 +492,29 @@ class PortfolioAnalysis:
         h2 {{
             color: #333;
             margin-top: 30px;
+        }}
+        h3 {{
+            color: #555;
+            margin-top: 20px;
+            font-size: 18px;
+        }}
+        .config-section {{
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #2E86AB;
+        }}
+        .config-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }}
+        .config-item {{
+            padding: 8px;
+            background-color: white;
+            border-radius: 3px;
         }}
         .stats-grid {{
             display: grid;
@@ -450,9 +539,10 @@ class PortfolioAnalysis:
             color: #333;
             margin-top: 5px;
         }}
-        .chart {{
+        .chart-container {{
             margin: 30px 0;
-            text-align: center;
+            position: relative;
+            height: 400px;
         }}
         table {{
             width: 100%;
@@ -476,6 +566,8 @@ class PortfolioAnalysis:
 <body>
     <div class="container">
         <h1>Portfolio Performance Report</h1>
+        
+        {config_html}
         
         <h2>Summary Statistics</h2>
         <div class="stats-grid">
@@ -513,9 +605,19 @@ class PortfolioAnalysis:
             </div>
         </div>
         
-        <h2>Interactive Trading Chart</h2>
-        <div class="chart" style="margin: 30px 0;">
-            {interactive_chart_html}
+        <h2>Portfolio Equity Chart</h2>
+        <div class="chart-container">
+            <canvas id="equityChart"></canvas>
+        </div>
+        
+        <h2>Max Drawdown Chart</h2>
+        <div class="chart-container">
+            <canvas id="drawdownChart"></canvas>
+        </div>
+        
+        <h2>Trade PnL Histogram</h2>
+        <div class="chart-container">
+            <canvas id="pnlHistogram"></canvas>
         </div>
         
         <h2>Detailed Statistics</h2>
@@ -602,6 +704,167 @@ class PortfolioAnalysis:
             Report generated on {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}
         </p>
     </div>
+    
+    <script>
+        // Equity Chart
+        const equityData = {json.dumps(equity_data)};
+        const equityLabels = equityData.map(d => new Date(d.time * 1000).toLocaleDateString());
+        const equityValues = equityData.map(d => d.value);
+        
+        const equityCtx = document.getElementById('equityChart').getContext('2d');
+        new Chart(equityCtx, {{
+            type: 'line',
+            data: {{
+                labels: equityLabels,
+                datasets: [{{
+                    label: 'Portfolio Equity ($)',
+                    data: equityValues,
+                    borderColor: '#2E86AB',
+                    backgroundColor: 'rgba(46, 134, 171, 0.1)',
+                    fill: true,
+                    tension: 0.1
+                }}]
+            }},
+            options: {{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {{
+                    title: {{
+                        display: true,
+                        text: 'Portfolio Equity Over Time'
+                    }},
+                    legend: {{
+                        display: true
+                    }}
+                }},
+                scales: {{
+                    y: {{
+                        beginAtZero: false,
+                        title: {{
+                            display: true,
+                            text: 'Equity ($)'
+                        }},
+                        ticks: {{
+                            callback: function(value) {{
+                                return '$' + value.toLocaleString();
+                            }}
+                        }}
+                    }},
+                    x: {{
+                        title: {{
+                            display: true,
+                            text: 'Date'
+                        }}
+                    }}
+                }}
+            }}
+        }});
+        
+        // Drawdown Chart
+        const drawdownData = {json.dumps(drawdown_data)};
+        const drawdownLabels = drawdownData.map(d => new Date(d.time * 1000).toLocaleDateString());
+        const drawdownValues = drawdownData.map(d => d.value);
+        
+        const drawdownCtx = document.getElementById('drawdownChart').getContext('2d');
+        new Chart(drawdownCtx, {{
+            type: 'line',
+            data: {{
+                labels: drawdownLabels,
+                datasets: [{{
+                    label: 'Drawdown (%)',
+                    data: drawdownValues,
+                    borderColor: '#ef5350',
+                    backgroundColor: 'rgba(239, 83, 80, 0.1)',
+                    fill: true,
+                    tension: 0.1
+                }}]
+            }},
+            options: {{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {{
+                    title: {{
+                        display: true,
+                        text: 'Portfolio Drawdown Over Time'
+                    }},
+                    legend: {{
+                        display: true
+                    }}
+                }},
+                scales: {{
+                    y: {{
+                        beginAtZero: false,
+                        title: {{
+                            display: true,
+                            text: 'Drawdown (%)'
+                        }}
+                    }},
+                    x: {{
+                        title: {{
+                            display: true,
+                            text: 'Date'
+                        }}
+                    }}
+                }}
+            }}
+        }});
+        
+        // PnL Histogram
+        const histogramData = {json.dumps(histogram_data)};
+        const pnlCtx = document.getElementById('pnlHistogram').getContext('2d');
+        new Chart(pnlCtx, {{
+            type: 'bar',
+            data: {{
+                labels: histogramData.labels,
+                datasets: [{{
+                    label: 'Number of Trades',
+                    data: histogramData.values,
+                    backgroundColor: histogramData.values.map((v, i) => {{
+                        if (histogramData.values[i] === 0) return 'rgba(158, 158, 158, 0.6)';
+                        const midPoint = Math.floor(histogramData.labels.length / 2);
+                        return i < midPoint ? 'rgba(76, 175, 80, 0.6)' : 'rgba(239, 83, 80, 0.6)';
+                    }}),
+                    borderColor: histogramData.values.map((v, i) => {{
+                        const midPoint = Math.floor(histogramData.labels.length / 2);
+                        return i < midPoint ? '#4caf50' : '#ef5350';
+                    }}),
+                    borderWidth: 1
+                }}]
+            }},
+            options: {{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {{
+                    title: {{
+                        display: true,
+                        text: 'Distribution of Trade PnL'
+                    }},
+                    legend: {{
+                        display: false
+                    }}
+                }},
+                scales: {{
+                    y: {{
+                        beginAtZero: true,
+                        title: {{
+                            display: true,
+                            text: 'Number of Trades'
+                        }}
+                    }},
+                    x: {{
+                        title: {{
+                            display: true,
+                            text: 'PnL Range ($)'
+                        }},
+                        ticks: {{
+                            maxRotation: 45,
+                            minRotation: 45
+                        }}
+                    }}
+                }}
+            }}
+        }});
+    </script>
 </body>
 </html>
 """
@@ -907,24 +1170,12 @@ class PortfolioAnalysis:
         stats = calculate_statistics(equity_curve, trades_df, initial_capital)
         print("  Calculated statistics")
 
-        # Generate interactive chart (legacy embedded chart)
-        print("  Generating interactive trading chart...")
-        interactive_chart_html = ""
-        if len(trades_df) > 0:
-            symbol = trades_df["symbol"].iloc[0]  # Get symbol from first trade
-            price_df = self.load_price_data(symbol)
-            if price_df is not None:
-                interactive_chart_html = self.create_interactive_chart(trades_df, price_df, equity_curve)
-                print("  Interactive chart created")
-            else:
-                print(f"  Warning: Price data not found for {symbol}, skipping interactive chart")
-
         # Generate separate chart files per symbol
         print("  Generating chart files per symbol...")
         self.generate_chart_files(trades_df, equity_curve)
 
         # Generate HTML report
-        html = self.generate_html_report(stats, interactive_chart_html)
+        html = self.generate_html_report(stats, equity_curve, trades_df)
 
         # Save report
         report_file = self.output_dir / "portfolio_report.html"

@@ -20,12 +20,13 @@ from portfolio_analysis import PortfolioAnalysis
 from utils.config import load_config, get_default_symbol
 
 
-def run_all_blocks(config: dict = None, breakout_config_path: str = "src/config/breakout_config.yaml"):
-    """Run all 5 blocks with provided configuration.
+def run_all_blocks(config: dict = None, breakout_config_path: str = "src/config/breakout_config.yaml", blocks: list = None):
+    """Run specified blocks with provided configuration.
 
     Args:
         config: Optional configuration dictionary. If None, uses defaults.
         breakout_config_path: Path to breakout engine config file.
+        blocks: List of block numbers to run (1-5). If None, runs all blocks.
     """
     # Load breakout config defaults
     breakout_config = load_config(breakout_config_path)
@@ -63,7 +64,7 @@ def run_all_blocks(config: dict = None, breakout_config_path: str = "src/config/
         "analysis": {
             "portfolio_file": "data/portfolio/portfolio_trades.csv",
             "output_dir": "src/reports",
-            "raw_data_dir": "data/raw/crypto",
+            "raw_data_dir": paths.get("data_dir", "data/raw/crypto"),  # Use same data_dir as breakout
         },
     }
 
@@ -75,75 +76,97 @@ def run_all_blocks(config: dict = None, breakout_config_path: str = "src/config/
 
     config = defaults
 
+    # If no blocks specified, run all blocks
+    if blocks is None:
+        blocks = [1, 2, 3, 4, 5]
+    else:
+        # Validate block numbers
+        valid_blocks = [1, 2, 3, 4, 5]
+        invalid_blocks = [b for b in blocks if b not in valid_blocks]
+        if invalid_blocks:
+            raise ValueError(f"Invalid block numbers: {invalid_blocks}. Valid blocks are: {valid_blocks}")
+
     print("=" * 60)
-    print("Running Complete Breakout System Workflow")
+    print(f"Running Breakout System Workflow - Blocks: {blocks}")
     print("=" * 60)
 
-    # # Block 1: Download data
-    # print("\n[Block 1] Downloading data...")
-    # downloader = BybitDownloader(config_path=config["downloader"]["config_path"])
-
-    # Get symbol
+    # Get symbol (needed for multiple blocks)
     symbol = config["downloader"]["symbol"]
     if symbol is None:
         crypto_config = load_config(config["downloader"]["config_path"])
         symbol = get_default_symbol(crypto_config)
 
-    # # Parse dates
-    # start_date = config["downloader"]["start_date"]
-    # end_date = config["downloader"]["end_date"]
-    # if start_date and isinstance(start_date, str):
-    #     start_date = datetime.strptime(start_date, "%Y-%m-%d")
-    # if end_date and isinstance(end_date, str):
-    #     end_date = datetime.strptime(end_date, "%Y-%m-%d")
+    trades_df = None
+    filtered_trades = None
+    portfolio_df = None
+    report_file = None
 
-    # filepath = downloader.download_and_save(symbol=symbol, start_date=start_date, end_date=end_date)
-    # print(f"  ✓ Data downloaded: {filepath}")
+    # Block 1: Download data
+    if 1 in blocks:
+        print("\n[Block 1] Downloading data...")
+        downloader = BybitDownloader(config_path=config["downloader"]["config_path"])
+        
+        # Parse dates
+        start_date = config["downloader"]["start_date"]
+        end_date = config["downloader"]["end_date"]
+        if start_date and isinstance(start_date, str):
+            start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        if end_date and isinstance(end_date, str):
+            end_date = datetime.strptime(end_date, "%Y-%m-%d")
+        
+        filepath = downloader.download_and_save(symbol=symbol, start_date=start_date, end_date=end_date)
+        print(f"  ✓ Data downloaded: {filepath}")
 
     # Block 2: Generate trades
-    print("\n[Block 2] Generating trades...")
-    engine = CryptoBreakoutEngine(
-        atr_period=config["breakout"].get("atr_period"),
-        breakout_multiplier=config["breakout"].get("breakout_multiplier"),
-        stop_multiplier=config["breakout"].get("stop_multiplier"),
-        day_start_hour=config["breakout"].get("day_start_hour"),
-        fee_rate=config["breakout"].get("fee_rate"),
-        config_path=config["downloader"]["config_path"],
-        breakout_config_path=breakout_config_path,
-    )
-    trades_df = engine.process_symbol(
-        symbol=symbol,
-        data_dir=config["breakout"].get("data_dir"),
-        output_dir=config["breakout"].get("output_dir"),
-    )
-    print(f"  ✓ Generated {len(trades_df)} trades")
+    if 2 in blocks:
+        print("\n[Block 2] Generating trades...")
+        engine = CryptoBreakoutEngine(
+            atr_period=config["breakout"].get("atr_period"),
+            breakout_multiplier=config["breakout"].get("breakout_multiplier"),
+            stop_multiplier=config["breakout"].get("stop_multiplier"),
+            day_start_hour=config["breakout"].get("day_start_hour"),
+            fee_rate=config["breakout"].get("fee_rate"),
+            config_path=config["downloader"]["config_path"],
+            breakout_config_path=breakout_config_path,
+        )
+        trades_df = engine.process_symbol(
+            symbol=symbol,
+            data_dir=config["breakout"].get("data_dir"),
+            output_dir=config["breakout"].get("output_dir"),
+        )
+        print(f"  ✓ Generated {len(trades_df)} trades")
 
     # Block 3: Filter trades
-    print("\n[Block 3] Filtering trades...")
-    trade_filter = TradeFilter(config_path=config["filter"]["config_path"])
-    filtered_trades = trade_filter.filter_symbol(symbol)
-    print(f"  ✓ Filtered to {len(filtered_trades)} trades")
+    if 3 in blocks:
+        print("\n[Block 3] Filtering trades...")
+        trade_filter = TradeFilter(config_path=config["filter"]["config_path"])
+        filtered_trades = trade_filter.filter_symbol(symbol)
+        print(f"  ✓ Filtered to {len(filtered_trades)} trades")
 
     # Block 4: Build portfolio
-    print("\n[Block 4] Building portfolio...")
-    builder = PortfolioBuilder(config_path=config["portfolio"]["config_path"])
-    portfolio_df = builder.build_portfolio()
-    print(f"  ✓ Portfolio built with {len(portfolio_df)} trades")
+    if 4 in blocks:
+        print("\n[Block 4] Building portfolio...")
+        builder = PortfolioBuilder(config_path=config["portfolio"]["config_path"])
+        portfolio_df = builder.build_portfolio()
+        print(f"  ✓ Portfolio built with {len(portfolio_df)} trades")
 
     # Block 5: Analyze portfolio
-    print("\n[Block 5] Analyzing portfolio...")
-    analyzer = PortfolioAnalysis(
-        portfolio_file=config["analysis"]["portfolio_file"],
-        output_dir=config["analysis"]["output_dir"],
-        raw_data_dir=config["analysis"]["raw_data_dir"],
-    )
-    report_file = analyzer.analyze()
-    print(f"  ✓ Analysis complete: {report_file}")
+    if 5 in blocks:
+        print("\n[Block 5] Analyzing portfolio...")
+        analyzer = PortfolioAnalysis(
+            portfolio_file=config["analysis"]["portfolio_file"],
+            output_dir=config["analysis"]["output_dir"],
+            raw_data_dir=config["analysis"]["raw_data_dir"],
+            breakout_config_path=breakout_config_path,
+        )
+        report_file = analyzer.analyze()
+        print(f"  ✓ Analysis complete: {report_file}")
 
     print("\n" + "=" * 60)
-    print("All blocks completed successfully!")
+    print(f"Completed blocks: {blocks}")
     print("=" * 60)
-    print(f"\nReport location: {report_file}")
+    if report_file:
+        print(f"\nReport location: {report_file}")
 
 
 def main():
@@ -161,6 +184,9 @@ Examples:
   
   # Run with custom breakout parameters
   python src/main.py --atr-period 20 --breakout-multiplier 0.5
+  
+  # Run only specific blocks
+  python src/main.py --blocks 2 4 5
         """,
     )
 
@@ -188,6 +214,9 @@ Examples:
     parser.add_argument("--portfolio-file", type=str, default="data/portfolio/portfolio_trades.csv", help="Portfolio trades file")
     parser.add_argument("--output-dir", type=str, default="src/reports", help="Reports output directory")
 
+    # Blocks selection
+    parser.add_argument("--blocks", type=int, nargs="+", default=None, help="List of blocks to run (1-5). Example: --blocks 2 4 5")
+
     args = parser.parse_args()
 
     # Build config from arguments (only include non-None values to allow config defaults)
@@ -208,7 +237,6 @@ Examples:
         "analysis": {
             "portfolio_file": args.portfolio_file,
             "output_dir": args.output_dir,
-            "raw_data_dir": args.data_dir,
         },
     }
 
@@ -221,10 +249,12 @@ Examples:
         config["breakout"]["stop_multiplier"] = args.stop_multiplier
     if args.data_dir is not None:
         config["breakout"]["data_dir"] = args.data_dir
+        config["analysis"]["raw_data_dir"] = args.data_dir
     if args.trades_dir is not None:
         config["breakout"]["output_dir"] = args.trades_dir
-    # Run all blocks
-    run_all_blocks(config, breakout_config_path=args.breakout_config)
+    
+    # Run specified blocks
+    run_all_blocks(config, breakout_config_path=args.breakout_config, blocks=args.blocks)
 
 
 if __name__ == "__main__":
