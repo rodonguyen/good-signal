@@ -19,7 +19,12 @@ class PortfolioAnalysis:
     """Analyze portfolio performance and generate reports."""
 
     def __init__(
-        self, portfolio_file: str = "data/portfolio/portfolio_trades.csv", output_dir: str = "src/reports", raw_data_dir: str = "data/raw/crypto", breakout_config_path: str = "src/config/breakout_config.yaml", trades_dir: str = "data/trades"
+        self,
+        portfolio_file: str = "data/portfolio/portfolio_trades.csv",
+        output_dir: str = "src/reports",
+        raw_data_dir: str = "data/raw/crypto",
+        breakout_config_path: str = "src/config/breakout_config.yaml",
+        trades_dir: str = "data/trades",
     ):
         """Initialize analysis engine.
 
@@ -79,11 +84,11 @@ class PortfolioAnalysis:
 
     def _identify_filtered_trades(self, portfolio_trades: pd.DataFrame, symbol: str) -> set:
         """Identify which trades were filtered out by comparing portfolio trades with unfiltered trades.
-        
+
         Args:
             portfolio_trades: DataFrame with portfolio trades (filtered)
             symbol: Symbol name
-            
+
         Returns:
             Set of trade identifiers (entry_time timestamps) that were filtered out
         """
@@ -91,21 +96,21 @@ class PortfolioAnalysis:
         unfiltered_file = self.trades_dir / f"{symbol}_trades.csv"
         if not unfiltered_file.exists():
             return set()
-        
+
         try:
             unfiltered_df = pd.read_csv(unfiltered_file)
             unfiltered_df["entry_time"] = pd.to_datetime(unfiltered_df["entry_time"], utc=True)
-            
+
             # Create identifiers for portfolio trades (filtered) - use entry_time as identifier
             portfolio_ids = set(portfolio_trades["entry_time"].values)
-            
+
             # Create identifiers for unfiltered trades
             unfiltered_ids = set(unfiltered_df["entry_time"].values)
-            
+
             # Filtered out trades are in unfiltered but not in portfolio
             filtered_out = unfiltered_ids - portfolio_ids
             return filtered_out
-            
+
         except Exception:
             return set()
 
@@ -445,27 +450,25 @@ class PortfolioAnalysis:
         except Exception:
             strategy = {}
             paths = {}
-        
+
         # Calculate equity curve data
         if len(equity_curve) > 0:
             equity_data = [
-                {"time": int(pd.Timestamp(idx).timestamp()), "value": float(val)}
-                for idx, val in zip(equity_curve.index, equity_curve.values)
+                {"time": int(pd.Timestamp(idx).timestamp()), "value": float(val)} for idx, val in zip(equity_curve.index, equity_curve.values)
             ]
         else:
             equity_data = []
-        
+
         # Calculate drawdown series
         if len(equity_curve) > 0:
             running_max = equity_curve.expanding().max()
             drawdown_series = (equity_curve - running_max) / running_max * 100
             drawdown_data = [
-                {"time": int(pd.Timestamp(idx).timestamp()), "value": float(val)}
-                for idx, val in zip(drawdown_series.index, drawdown_series.values)
+                {"time": int(pd.Timestamp(idx).timestamp()), "value": float(val)} for idx, val in zip(drawdown_series.index, drawdown_series.values)
             ]
         else:
             drawdown_data = []
-        
+
         # Prepare PnL histogram data
         if len(trades_df) > 0 and "portfolio_pnl" in trades_df.columns:
             pnl_values = trades_df["portfolio_pnl"].dropna().tolist()
@@ -476,13 +479,10 @@ class PortfolioAnalysis:
             bin_width = (max_pnl - min_pnl) / num_bins if max_pnl != min_pnl else 1
             bins = [min_pnl + i * bin_width for i in range(num_bins + 1)]
             hist, bin_edges = np.histogram(pnl_values, bins=bins)
-            histogram_data = {
-                "labels": [f"{bin_edges[i]:.0f} to {bin_edges[i+1]:.0f}" for i in range(len(hist))],
-                "values": hist.tolist()
-            }
+            histogram_data = {"labels": [f"{bin_edges[i]:.0f} to {bin_edges[i+1]:.0f}" for i in range(len(hist))], "values": hist.tolist()}
         else:
             histogram_data = {"labels": [], "values": []}
-        
+
         # Format config for display
         config_html = f"""
         <div class="config-section">
@@ -740,9 +740,18 @@ class PortfolioAnalysis:
     </div>
     
     <script>
+        // Date formatting function for DD/MM/YYYY
+        function formatDateDDMMYYYY(timestamp) {{
+            const date = new Date(timestamp * 1000);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${{day}}/${{month}}/${{year}}`;
+        }}
+        
         // Equity Chart
         const equityData = {json.dumps(equity_data)};
-        const equityLabels = equityData.map(d => new Date(d.time * 1000).toLocaleDateString());
+        const equityLabels = equityData.map(d => formatDateDDMMYYYY(d.time));
         const equityValues = equityData.map(d => d.value);
         
         const equityCtx = document.getElementById('equityChart').getContext('2d');
@@ -796,7 +805,7 @@ class PortfolioAnalysis:
         
         // Drawdown Chart
         const drawdownData = {json.dumps(drawdown_data)};
-        const drawdownLabels = drawdownData.map(d => new Date(d.time * 1000).toLocaleDateString());
+        const drawdownLabels = drawdownData.map(d => formatDateDDMMYYYY(d.time));
         const drawdownValues = drawdownData.map(d => d.value);
         
         const drawdownCtx = document.getElementById('drawdownChart').getContext('2d');
@@ -856,11 +865,11 @@ class PortfolioAnalysis:
                     backgroundColor: histogramData.values.map((v, i) => {{
                         if (histogramData.values[i] === 0) return 'rgba(158, 158, 158, 0.6)';
                         const midPoint = Math.floor(histogramData.labels.length / 2);
-                        return i < midPoint ? 'rgba(76, 175, 80, 0.6)' : 'rgba(239, 83, 80, 0.6)';
+                        return i < midPoint ? 'rgba(239, 83, 80, 0.6)' : 'rgba(76, 175, 80, 0.6)';
                     }}),
                     borderColor: histogramData.values.map((v, i) => {{
                         const midPoint = Math.floor(histogramData.labels.length / 2);
-                        return i < midPoint ? '#4caf50' : '#ef5350';
+                        return i < midPoint ? '#ef5350' : '#4caf50';
                     }}),
                     borderWidth: 1
                 }}]
@@ -1019,7 +1028,7 @@ class PortfolioAnalysis:
 
         # Identify filtered trades (trades in unfiltered but not in portfolio)
         filtered_trade_times = self._identify_filtered_trades(symbol_trades, symbol)
-        
+
         # Prepare trades data (portfolio trades - these are allowed/filtered in)
         trades_list = []
         for _, trade in symbol_trades.iterrows():
@@ -1047,7 +1056,7 @@ class PortfolioAnalysis:
                 trade_data["exitReason"] = str(trade["exit_reason"])
 
             trades_list.append(trade_data)
-        
+
         # Add filtered out trades (trades that were removed by filters)
         unfiltered_file = self.trades_dir / f"{symbol}_trades.csv"
         if unfiltered_file.exists():
@@ -1055,15 +1064,15 @@ class PortfolioAnalysis:
                 unfiltered_df = pd.read_csv(unfiltered_file)
                 unfiltered_df["entry_time"] = pd.to_datetime(unfiltered_df["entry_time"], utc=True)
                 unfiltered_df["exit_time"] = pd.to_datetime(unfiltered_df["exit_time"], utc=True)
-                
+
                 # Get filtered out trades (in unfiltered but not in portfolio)
                 portfolio_entry_times = set(symbol_trades["entry_time"].values)
                 filtered_out_df = unfiltered_df[~unfiltered_df["entry_time"].isin(portfolio_entry_times)]
-                
+
                 for _, trade in filtered_out_df.iterrows():
                     entry_time = int(pd.Timestamp(trade["entry_time"]).timestamp())
                     exit_time = int(pd.Timestamp(trade["exit_time"]).timestamp())
-                    
+
                     trade_data = {
                         "entryTime": entry_time,
                         "exitTime": exit_time,
@@ -1073,7 +1082,7 @@ class PortfolioAnalysis:
                         "portfolioPnl": float(trade.get("net_pnl", 0)) if pd.notna(trade.get("net_pnl")) else 0.0,
                         "isFiltered": True,  # These are filtered out trades
                     }
-                    
+
                     # Add optional fields
                     if pd.notna(trade.get("stop_level")):
                         trade_data["stopLevel"] = float(trade["stop_level"])
@@ -1083,7 +1092,7 @@ class PortfolioAnalysis:
                         trade_data["lowerLevel"] = float(trade["lower_level"])
                     if "exit_reason" in trade.index and pd.notna(trade["exit_reason"]):
                         trade_data["exitReason"] = str(trade["exit_reason"])
-                    
+
                     trades_list.append(trade_data)
             except Exception:
                 pass  # If we can't load unfiltered trades, just skip
