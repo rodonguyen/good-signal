@@ -52,7 +52,7 @@ class PortfolioBuilder:
             symbol: Symbol name (e.g., 'ETHUSDT')
 
         Returns:
-            DataFrame with trades
+            DataFrame with trades (only allowed trades if loading from filtered_dir)
         """
         # Determine which directory to use
         if self.paths.get("use_filtered", False):
@@ -68,6 +68,15 @@ class PortfolioBuilder:
         df = pd.read_csv(trades_file)
         df["entry_time"] = pd.to_datetime(df["entry_time"], utc=True)
         df["exit_time"] = pd.to_datetime(df["exit_time"], utc=True)
+
+        # If loading from filtered_dir, filter out trades where isFiltered=True
+        # (isFiltered=True means the trade was filtered out, False means it passed)
+        if self.paths.get("use_filtered", False) and "isFiltered" in df.columns:
+            original_count = len(df)
+            df = df[~df["isFiltered"]].copy()
+            filtered_count = len(df)
+            if original_count != filtered_count:
+                print(f"  Filtered out {original_count - filtered_count} trades (isFiltered=True)")
 
         return df
 

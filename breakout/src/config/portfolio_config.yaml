@@ -29,7 +29,7 @@ symbols:
 paths:
   trades_dir: data/trades  # Use raw trades
   filtered_dir: data/filtered  # Or use filtered trades
-  use_filtered: false  # Set to true to use filtered trades instead of raw
+  use_filtered: true  # Set to true to use filtered trades instead of raw
 
 # Output paths
 output:

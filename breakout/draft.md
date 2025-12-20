@@ -13,4 +13,5 @@ Then do step 6 with html + JS, but just show:
 - stop loss or take profit markers on chart (cicles)
 - the breakout level, SL level of the day that has trades
 
-
+- Analyse and confirm if portfolio report from @portfolio analysis is using allowed trades or all trades 
+filter True range of the last 9 hours is <0.06%

@@ -855,6 +855,23 @@ class PortfolioAnalysis:
         // PnL Histogram
         const histogramData = {json.dumps(histogram_data)};
         const pnlCtx = document.getElementById('pnlHistogram').getContext('2d');
+        
+        // Helper function to determine if a bin represents positive PnL
+        function isPositiveBin(label) {{
+            // Parse label like "-14 to 1" or "1 to 16"
+            const match = label.match(/^(-?\d+(?:\.\d+)?)\s+to\s+(-?\d+(?:\.\d+)?)$/);
+            if (!match) return false;
+            const startValue = parseFloat(match[1]);
+            const endValue = parseFloat(match[2]);
+            // If bin starts at or above 0, it's positive (green)
+            // If bin ends below 0, it's negative (red)
+            // If bin spans zero, use the midpoint
+            if (startValue >= 0) return true;
+            if (endValue <= 0) return false;
+            // Bin spans zero, use midpoint
+            return (startValue + endValue) / 2 >= 0;
+        }}
+        
         new Chart(pnlCtx, {{
             type: 'bar',
             data: {{
@@ -864,12 +881,13 @@ class PortfolioAnalysis:
                     data: histogramData.values,
                     backgroundColor: histogramData.values.map((v, i) => {{
                         if (histogramData.values[i] === 0) return 'rgba(158, 158, 158, 0.6)';
-                        const midPoint = Math.floor(histogramData.labels.length / 2);
-                        return i < midPoint ? 'rgba(239, 83, 80, 0.6)' : 'rgba(76, 175, 80, 0.6)';
+                        const label = histogramData.labels[i];
+                        return isPositiveBin(label) ? 'rgba(76, 175, 80, 0.6)' : 'rgba(239, 83, 80, 0.6)';
                     }}),
                     borderColor: histogramData.values.map((v, i) => {{
-                        const midPoint = Math.floor(histogramData.labels.length / 2);
-                        return i < midPoint ? '#ef5350' : '#4caf50';
+                        if (histogramData.values[i] === 0) return '#9e9e9e';
+                        const label = histogramData.labels[i];
+                        return isPositiveBin(label) ? '#4caf50' : '#ef5350';
                     }}),
                     borderWidth: 1
                 }}]
