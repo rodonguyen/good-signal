@@ -1,0 +1,201 @@
+---
+alwaysApply: false
+---
+## Block 1: Data Download (`bybit_downloader.py`)
+
+**Purpose**: Downloads 1-minute kline (candlestick) data from Bybit API for crypto futures trading.
+
+**Key Components**:
+- `BybitDownloader` class handles API communication and rate limiting
+- Downloads historical data in chunks (1000 candles per request)
+- Saves data as CSV files: `data/raw/crypto/{SYMBOL}/{SYMBOL}_1min.csv`
+- Handles 24/7 crypto markets with UTC timestamps
+
+**Key Methods**:
+- `download_symbol_data()`: Fetches data for date range, handles pagination
+- `_get_kline_data()`: Single API request with rate limiting
+- `save_to_csv()`: Standardizes column names and saves to disk
+- `download_and_save()`: Main entry point - reads date range from config or uses defaults
+
+**Data Format**: timestamp (UTC), open, high, low, close, volume, turnover
+
+**Configuration**: Uses `src/config/crypto_symbols.yaml` for:
+- Symbol settings and API rate limits
+- Date range: `data.start_date` and `data.end_date` (null = defaults: 1 year ago to now)
+- Data directory paths
+
+---
+
+## Block 2: Breakout Engine (`breakout_engine.py`)
+
+**Purpose**: Executes volatility breakout strategy on 1-minute data, generating raw trades.
+
+**Strategy Logic**:
+- Uses 24-hour virtual trading days starting at configurable hour (default: 13:00 UTC)
+- Calculates ATR (Average True Range) over N periods (default: 14)
+- Sets breakout levels: `Upper = PrevClose + (ATR × multiplier)`, `Lower = PrevClose - (ATR × multiplier)`
+- Enters long when price breaks above upper level, short when breaks below lower level
+- Stop loss: `Entry ± (ATR × stop_multiplier)`
+- Exit: Stop loss hit OR end of 24-hour day (whichever comes first)
+- One breakout attempt per day per symbol
+
+**Key Components**:
+- `CryptoBreakoutEngine` class orchestrates the strategy
+- Aggregates 1-minute bars into 24-hour periods
+- Calculates ATR using daily high-low ranges
+- Detects breakouts by scanning minute bars for level crossings
+
+**Key Methods**:
+- `process_symbol()`: Main workflow - loads data, calculates ATR, processes each day
+- `calculate_breakout_levels()`: Computes upper/lower levels from previous day's close and ATR
+- `detect_breakout()`: Scans minute bars for first breakout during trading day
+- `execute_trade()`: Manages trade lifecycle - checks stop loss, handles EOD exit, calculates PnL with fees
+
+**Output**: CSV file `data/trades/{SYMBOL}_trades.csv` with columns: entry_time, exit_time, direction, entry_price, exit_price, stop_level, net_pnl, fees, symbol, day, prev_close, prev_atr, upper_level, lower_level, exit_reason
+
+**Configuration**: Uses `src/config/breakout_config.yaml` for strategy parameters (ATR period, multipliers, day start hour, fee rate)
+
+---
+
+## Block 3: Trade Filter (`trade_filter.py`)
+
+**Purpose**: Applies market condition filters to raw trades, removing trades that don't meet criteria.
+
+**Filter Types**:
+1. **Narrow Day**: Previous day's range < threshold × average range
+2. **Volatility Contraction**: Short-term ATR < long-term ATR
+3. **Trend Filter**: Price above/below moving average (configurable direction)
+4. **Volatility Expansion**: ATR increasing over period
+5. **Low Volatility Percentage**: Percentage of hours with low volatility within trading day
+
+**Key Components**:
+- `TradeFilter` class loads filter configuration and applies filters
+- Supports AND/OR logic modes (all filters must pass vs. any filter passes)
+- Calculates filter conditions on daily bars, then maps to trades by day
+
+**Key Methods**:
+- `filter_symbol()`: Main entry point - loads trades and daily bars, applies filters
+- `apply_filters()`: Calculates all enabled filter conditions and combines based on logic mode
+- `load_daily_bars()`: Aggregates 1-minute data into 24-hour periods for filter calculations
+- `load_hourly_bars()`: Creates hourly bars for filters requiring intraday data
+
+**Output**: CSV file `data/filtered/{SYMBOL}_trades.csv` with all trades plus `isFiltered` column (True = filtered out, False = passed)
+
+**Configuration**: Uses `src/config/filter_config.yaml` for filter parameters, thresholds, and logic mode (AND/OR)
+
+---
+
+## Block 4: Portfolio Builder (`portfolio_builder.py`)
+
+**Purpose**: Combines trades from multiple symbols into unified portfolio with position sizing.
+
+**Position Sizing Methods**:
+1. **Risk-Based**: Size = (Capital × Risk%) / (Entry Price - Stop Price)
+2. **Fixed Dollar**: Size = Fixed Amount / Entry Price
+3. **Equal Weight**: Equal capital allocation per symbol, divided by number of trades per symbol
+
+**Key Components**:
+- `PortfolioBuilder` class loads trades from all symbols, applies sizing, calculates portfolio metrics
+- Handles overlapping positions across symbols
+- Calculates cumulative equity curve and drawdown
+
+**Key Methods**:
+- `build_portfolio()`: Main workflow - loads all trades, applies sizing, calculates equity curve
+- `load_all_trades()`: Loads trades from all configured symbols (can use filtered or unfiltered)
+- `apply_position_sizing()`: Applies selected sizing method to all trades
+- `calculate_equity_curve()`: Creates cumulative equity series from portfolio PnL
+- `calculate_drawdown()`: Calculates drawdown percentage from equity curve
+- `export_chart_data()`: Exports JSON data for interactive charts (used by Block 5)
+
+**Output**: CSV file `data/portfolio/portfolio_trades.csv` with all trades plus: position_size, portfolio_pnl, equity, drawdown
+
+**Configuration**: Uses `src/config/portfolio_config.yaml` for capital, position sizing method, symbols list, and paths
+
+---
+
+## Block 5: Portfolio Analysis (`portfolio_analysis.py`)
+
+**Purpose**: Generates comprehensive performance statistics and HTML reports with visualizations.
+
+**Analysis Components**:
+- Performance statistics: returns, Sharpe/Sortino ratios, max drawdown, win rate, profit factor
+- Equity curve chart (line chart with area fill)
+- Drawdown chart (shows portfolio drawdown over time)
+- PnL histogram (distribution of trade profits/losses)
+- Interactive TradingView-style charts per symbol (optional, using Lightweight Charts library)
+
+**Key Components**:
+- `PortfolioAnalysis` class loads portfolio data and generates reports
+- Uses Chart.js for main portfolio charts
+- Uses TradingView Lightweight Charts for interactive symbol charts
+- Can identify filtered vs. unfiltered trades for visualization
+
+**Key Methods**:
+- `analyze()`: Main workflow - loads portfolio, calculates stats, generates charts, saves HTML report
+- `generate_html_report()`: Creates comprehensive HTML report with embedded JavaScript charts
+- `load_portfolio()`: Loads portfolio CSV and extracts equity curve
+- `generate_chart_files()`: Creates per-symbol interactive charts (optional)
+- `create_interactive_chart()`: Generates TradingView-style chart HTML with candlesticks, equity overlay, trade markers
+
+**Output**: HTML report `src/reports/portfolio_report.html` with:
+- Summary statistics cards
+- Equity curve chart (DD/MM/YYYY date format)
+- Drawdown chart
+- PnL histogram (red for lower ranges, green for higher ranges)
+- Detailed statistics table
+- Per-symbol chart files (optional)
+
+**Configuration**: Uses `src/config/breakout_config.yaml` for display configuration
+
+---
+
+## Main Orchestrator (`main.py`)
+
+**Purpose**: Coordinates execution of all 5 blocks with flexible configuration.
+
+**Key Features**:
+- Can run all blocks sequentially or select specific blocks
+- Loads configuration from YAML files with command-line overrides
+- Handles date parsing and default values
+- Provides progress feedback during execution
+
+**Key Function**:
+- `run_all_blocks()`: Main orchestration function that:
+  1. Loads configuration (with defaults and overrides)
+  2. Validates block selection
+  3. Executes selected blocks in order
+  4. Passes data between blocks (trades_df, filtered_trades, portfolio_df)
+  5. Returns report file path
+
+**Command-Line Interface**:
+- Supports arguments for all configurable parameters
+- Can override config file values (including date ranges)
+- Example: `python src/main.py --symbol ETHUSDT --start-date 2024-01-01 --blocks 2 4 5`
+- Date ranges are primarily configured in `crypto_symbols.yaml` (`data.start_date`, `data.end_date`)
+
+---
+
+## Data Flow Summary
+
+1. **Block 1** → Raw 1-minute CSV files in `data/raw/crypto/{SYMBOL}/`
+2. **Block 2** → Trade CSV files in `data/trades/{SYMBOL}_trades.csv`
+3. **Block 3** → Filtered trade CSV files in `data/filtered/{SYMBOL}_trades.csv` (with isFiltered flag)
+4. **Block 4** → Portfolio CSV file in `data/portfolio/portfolio_trades.csv`
+5. **Block 5** → HTML report in `src/reports/portfolio_report.html`
+
+## Key Design Patterns
+
+- **Modularity**: Each block is independent and can be run separately
+- **Configuration-Driven**: All parameters loaded from YAML config files
+- **Data Persistence**: Each block saves intermediate results as CSV for inspection
+- **Error Handling**: File existence checks, graceful degradation when data missing
+- **Extensibility**: Easy to add new filters, sizing methods, or analysis metrics
+
+## Utility Dependencies
+
+The system relies on utilities in `src/utils/`:
+- `crypto_utils.py`: 24-hour day aggregation, ATR calculation, day boundary functions
+- `filter_utils.py`: Filter condition calculations (narrow day, volatility, trend)
+- `fee_calculator.py`: PnL calculation with trading fees
+- `analysis_utils.py`: Performance statistics calculations (Sharpe, Sortino, drawdown, etc.)
+- `config.py`: YAML config loading and symbol configuration helpers

@@ -39,8 +39,9 @@ def run_all_blocks(config: dict = None, breakout_config_path: str = "src/config/
         "downloader": {
             "config_path": "src/config/crypto_symbols.yaml",
             "symbol": None,  # Will use default from config
-            "start_date": None,  # Will default to 1 year ago
-            "end_date": None,  # Will default to now
+            # Dates are read from config file, can be overridden via command line
+            "start_date": None,  # Override config if provided
+            "end_date": None,  # Override config if provided
         },
         # Block 2: Breakout Engine (load from config file)
         "breakout": {
@@ -105,15 +106,19 @@ def run_all_blocks(config: dict = None, breakout_config_path: str = "src/config/
     if 1 in blocks:
         print("\n[Block 1] Downloading data...")
         downloader = BybitDownloader(config_path=config["downloader"]["config_path"])
-        
-        # Parse dates
+
+        # Parse dates from config (can be overridden by command line)
         start_date = config["downloader"]["start_date"]
         end_date = config["downloader"]["end_date"]
         if start_date and isinstance(start_date, str):
             start_date = datetime.strptime(start_date, "%Y-%m-%d")
+        else:
+            start_date = None  # Will use config default
         if end_date and isinstance(end_date, str):
             end_date = datetime.strptime(end_date, "%Y-%m-%d")
-        
+        else:
+            end_date = None  # Will use config default
+
         filepath = downloader.download_and_save(symbol=symbol, start_date=start_date, end_date=end_date)
         print(f"  ✓ Data downloaded: {filepath}")
 
@@ -179,7 +184,10 @@ Examples:
   # Run with defaults
   python src/main.py
   
-  # Run with custom symbol and dates
+  # Run with custom symbol (dates from config)
+  python src/main.py --symbol ETHUSDT
+  
+  # Override dates from config
   python src/main.py --symbol ETHUSDT --start-date 2024-01-01 --end-date 2024-12-31
   
   # Run with custom breakout parameters
@@ -192,8 +200,8 @@ Examples:
 
     # Block 1 options
     parser.add_argument("--symbol", type=str, default=None, help="Symbol to process (default: from config)")
-    parser.add_argument("--start-date", type=str, default=None, help="Start date YYYY-MM-DD (default: 1 year ago)")
-    parser.add_argument("--end-date", type=str, default=None, help="End date YYYY-MM-DD (default: now)")
+    parser.add_argument("--start-date", type=str, default=None, help="Start date YYYY-MM-DD (overrides config)")
+    parser.add_argument("--end-date", type=str, default=None, help="End date YYYY-MM-DD (overrides config)")
     parser.add_argument("--crypto-config", type=str, default="src/config/crypto_symbols.yaml", help="Crypto config path")
 
     # Block 2 options
@@ -252,7 +260,7 @@ Examples:
         config["analysis"]["raw_data_dir"] = args.data_dir
     if args.trades_dir is not None:
         config["breakout"]["output_dir"] = args.trades_dir
-    
+
     # Run specified blocks
     run_all_blocks(config, breakout_config_path=args.breakout_config, blocks=args.blocks)
 

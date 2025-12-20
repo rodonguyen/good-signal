@@ -27,6 +27,10 @@ data:
   interval: 1  # 1-minute klines
   output_format: csv
   data_directory: data/raw/crypto
+  # Date range for data download (YYYY-MM-DD format)
+  # If null or not specified, defaults to 1 year ago to now
+  start_date: 2025-06-01  # null = 1 year ago
+  end_date: null    # null = now, or specify like "2024-12-31"
 
 
 

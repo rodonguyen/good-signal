@@ -213,8 +213,8 @@ class BybitDownloader:
 
         Args:
             symbol: Symbol name (defaults to config default)
-            start_date: Start date (defaults to 1 year ago)
-            end_date: End date (defaults to now)
+            start_date: Start date (overrides config, defaults to config or 1 year ago)
+            end_date: End date (overrides config, defaults to config or now)
             interval: Kline interval
 
         Returns:
@@ -224,11 +224,20 @@ class BybitDownloader:
         if symbol is None:
             symbol = get_default_symbol(self.config)
 
+        # Get dates from config if not provided
         if end_date is None:
-            end_date = datetime.now()
+            config_end_date = self.data_config.get("end_date")
+            if config_end_date is None or config_end_date == "null" or config_end_date == "":
+                end_date = datetime.now()
+            else:
+                end_date = datetime.strptime(str(config_end_date), "%Y-%m-%d")
 
         if start_date is None:
-            start_date = end_date - timedelta(days=365)
+            config_start_date = self.data_config.get("start_date")
+            if config_start_date is None or config_start_date == "null" or config_start_date == "":
+                start_date = end_date - timedelta(days=365)
+            else:
+                start_date = datetime.strptime(str(config_start_date), "%Y-%m-%d")
 
         # Download data
         df = self.download_symbol_data(symbol, start_date, end_date, interval)
