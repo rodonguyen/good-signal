@@ -19,7 +19,7 @@ rules:
   # From the breakout project: low volatility percentage on hourly bars.
   # Allows entry when ATR (1h) at day start < threshold × price.
   low_volatility_pct:
-    enabled: false  # Disabled by default, enable when needed
+    enabled: true  # Disabled by default, enable when needed
     params:
       timeframe: 1h
       atr_period: 12

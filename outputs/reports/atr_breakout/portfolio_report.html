@@ -1,0 +1,443 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Portfolio Performance Report</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2E86AB;
+            border-bottom: 3px solid #2E86AB;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #333;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #555;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .config-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #2E86AB;
+        }
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .config-item {
+            padding: 8px;
+            background-color: white;
+            border-radius: 3px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #2E86AB;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 5px;
+        }
+        .chart-container {
+            margin: 30px 0;
+            position: relative;
+            height: 400px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #2E86AB;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Portfolio Performance Report</h1>
+        
+        
+        <div class="config-section">
+            <h3>Breakout Strategy Configuration</h3>
+            <div class="config-grid">
+                <div class="config-item"><strong>ATR Period:</strong> 14</div>
+                <div class="config-item"><strong>Breakout Multiplier:</strong> 0.42</div>
+                <div class="config-item"><strong>Stop Multiplier:</strong> 0.26</div>
+                <div class="config-item"><strong>Day Start Hour:</strong> 13 UTC</div>
+                <div class="config-item"><strong>Fee Rate:</strong> 0.0014 (0.14%)</div>
+                <div class="config-item"><strong>Data Directory:</strong> data/raw/crypto</div>
+                <div class="config-item"><strong>Output Directory:</strong> data\trades\atr_breakout</div>
+            </div>
+        </div>
+        
+        
+        <h2>Summary Statistics</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Return</div>
+                <div class="stat-value">85.88%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Annualized Return</div>
+                <div class="stat-value">215.64%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Sharpe Ratio</div>
+                <div class="stat-value">-14.86</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Max Drawdown</div>
+                <div class="stat-value">-21.85%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Win Rate</div>
+                <div class="stat-value">43.0%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Profit Factor</div>
+                <div class="stat-value">1.64</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Trades</div>
+                <div class="stat-value">86</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Trade</div>
+                <div class="stat-value">$9.99</div>
+            </div>
+        </div>
+        
+        <h2>Portfolio Equity Chart</h2>
+        <div class="chart-container">
+            <canvas id="equityChart"></canvas>
+        </div>
+        
+        <h2>Max Drawdown Chart</h2>
+        <div class="chart-container">
+            <canvas id="drawdownChart"></canvas>
+        </div>
+        
+        <h2>Trade PnL Histogram</h2>
+        <div class="chart-container">
+            <canvas id="pnlHistogram"></canvas>
+        </div>
+        
+        <h2>Detailed Statistics</h2>
+        <table>
+            <tr>
+                <th>Metric</th>
+                <th>Value</th>
+            </tr>
+            <tr>
+                <td>Initial Capital</td>
+                <td>$1,000.00</td>
+            </tr>
+            <tr>
+                <td>Final Equity</td>
+                <td>$1,858.84</td>
+            </tr>
+            <tr>
+                <td>Total Return</td>
+                <td>85.88%</td>
+            </tr>
+            <tr>
+                <td>Annualized Return</td>
+                <td>215.64%</td>
+            </tr>
+            <tr>
+                <td>Sharpe Ratio</td>
+                <td>-14.86</td>
+            </tr>
+            <tr>
+                <td>Sortino Ratio</td>
+                <td>19.48</td>
+            </tr>
+            <tr>
+                <td>Max Drawdown</td>
+                <td>-21.85%</td>
+            </tr>
+            <tr>
+                <td>Average Drawdown</td>
+                <td>-8.66%</td>
+            </tr>
+            <tr>
+                <td>Total Trades</td>
+                <td>86</td>
+            </tr>
+            <tr>
+                <td>Winning Trades</td>
+                <td>37</td>
+            </tr>
+            <tr>
+                <td>Losing Trades</td>
+                <td>49</td>
+            </tr>
+            <tr>
+                <td>Win Rate</td>
+                <td>43.02%</td>
+            </tr>
+            <tr>
+                <td>Average Win</td>
+                <td>$59.35</td>
+            </tr>
+            <tr>
+                <td>Average Loss</td>
+                <td>$-27.29</td>
+            </tr>
+            <tr>
+                <td>Profit Factor</td>
+                <td>1.64</td>
+            </tr>
+            <tr>
+                <td>Average Trade Duration</td>
+                <td>10.7 hours (0.44 days)</td>
+            </tr>
+            <tr>
+                <td>Trades Per Year</td>
+                <td>159.4</td>
+            </tr>
+            <tr>
+                <td>Period</td>
+                <td>197 days (0.54 years)</td>
+            </tr>
+        </table>
+        
+        <p style="margin-top: 30px; color: #666; font-size: 12px;">
+            Report generated on 2025-12-22 00:43:29
+        </p>
+    </div>
+    
+    <script>
+        // Date formatting function for DD/MM/YYYY
+        function formatDateDDMMYYYY(timestamp) {
+            const date = new Date(timestamp * 1000);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+        
+        // Equity Chart
+        const equityData = [{"time": 1748803380, "value": 973.6537030630044}, {"time": 1748955600, "value": 1044.0099158720293}, {"time": 1748964780, "value": 1017.5970252335264}, {"time": 1749058380, "value": 991.4737520718952}, {"time": 1749560400, "value": 1110.8397629775393}, {"time": 1750078800, "value": 1125.7689385787244}, {"time": 1750113180, "value": 1098.8458829200238}, {"time": 1750187880, "value": 1072.80064246088}, {"time": 1750510800, "value": 1104.0322805618753}, {"time": 1750597200, "value": 1156.178930338816}, {"time": 1750932180, "value": 1129.0990439405473}, {"time": 1751266020, "value": 1101.9253708795718}, {"time": 1751329800, "value": 1075.3175333491165}, {"time": 1751421840, "value": 1049.3596805715144}, {"time": 1751547600, "value": 1110.3296743372937}, {"time": 1751696880, "value": 1083.5764346627125}, {"time": 1751826180, "value": 1056.5119808751515}, {"time": 1752008400, "value": 1028.8762402102873}, {"time": 1752152400, "value": 1090.6777371263777}, {"time": 1752238800, "value": 1229.4489178303008}, {"time": 1752411600, "value": 1221.4947700422606}, {"time": 1752498000, "value": 1226.9018130290208}, {"time": 1752757200, "value": 1365.290105001924}, {"time": 1753016400, "value": 1429.666047016473}, {"time": 1753030980, "value": 1394.601880085343}, {"time": 1753621200, "value": 1388.8250387471674}, {"time": 1753702380, "value": 1355.264284378072}, {"time": 1753772760, "value": 1322.6303453048345}, {"time": 1753843260, "value": 1290.8521913539412}, {"time": 1753904520, "value": 1259.8435768519594}, {"time": 1754053200, "value": 1300.9169805994688}, {"time": 1754218020, "value": 1269.800206855546}, {"time": 1754312400, "value": 1270.9299341690994}, {"time": 1754379480, "value": 1240.0444455431702}, {"time": 1754571600, "value": 1338.1173493815606}, {"time": 1754618280, "value": 1305.2215606753743}, {"time": 1754795460, "value": 1272.9914888286846}, {"time": 1755469200, "value": 1242.2506216083743}, {"time": 1756064220, "value": 1212.6803251377437}, {"time": 1756472400, "value": 1233.7843068023344}, {"time": 1756645200, "value": 1233.032653243161}, {"time": 1756713060, "value": 1204.1259460261924}, {"time": 1756956840, "value": 1175.4993836085443}, {"time": 1757056860, "value": 1147.4609458099103}, {"time": 1757163600, "value": 1167.4882930721255}, {"time": 1757516280, "value": 1137.3575968874295}, {"time": 1757768400, "value": 1202.2482956883302}, {"time": 1757773140, "value": 1170.7277215510435}, {"time": 1757941200, "value": 1192.9284509427291}, {"time": 1758031140, "value": 1161.4910535632057}, {"time": 1758132000, "value": 1130.8444835444704}, {"time": 1758373200, "value": 1117.3359070101017}, {"time": 1758546000, "value": 1243.143812368272}, {"time": 1758692580, "value": 1211.724450479654}, {"time": 1758805200, "value": 1277.0492775071525}, {"time": 1759150800, "value": 1300.1430787493257}, {"time": 1759237200, "value": 1287.0184350703692}, {"time": 1759323600, "value": 1310.310716450693}, {"time": 1759410000, "value": 1328.645688209496}, {"time": 1759417800, "value": 1294.9739184355658}, {"time": 1759510860, "value": 1262.1492035325257}, {"time": 1759669200, "value": 1240.9534550994454}, {"time": 1759842000, "value": 1285.444057911142}, {"time": 1759928400, "value": 1387.667884884283}, {"time": 1759950480, "value": 1352.764738067277}, {"time": 1760187600, "value": 1604.2559849173008}, {"time": 1761051600, "value": 1607.3676781063248}, {"time": 1761077820, "value": 1570.9495087474409}, {"time": 1761310800, "value": 1557.7397616678336}, {"time": 1761483600, "value": 1560.1480122494472}, {"time": 1761570000, "value": 1538.7410089448026}, {"time": 1761742800, "value": 1540.828050868298}, {"time": 1761759360, "value": 1503.869416981934}, {"time": 1762174800, "value": 1550.337170159661}, {"time": 1762779600, "value": 1575.0195237341795}, {"time": 1764248400, "value": 1572.1090798753112}, {"time": 1764594000, "value": 1653.2082710550358}, {"time": 1764766800, "value": 1780.0878986949847}, {"time": 1764853200, "value": 1790.551424534037}, {"time": 1764882360, "value": 1747.935429171635}, {"time": 1765122900, "value": 1705.639922992459}, {"time": 1765371600, "value": 1795.8670331501544}, {"time": 1765393380, "value": 1752.2672063673128}, {"time": 1765630800, "value": 1787.328346516585}, {"time": 1765803600, "value": 1765.5411942651274}, {"time": 1765890000, "value": 1858.83549053847}];
+        const equityLabels = equityData.map(d => formatDateDDMMYYYY(d.time));
+        const equityValues = equityData.map(d => d.value);
+        
+        const equityCtx = document.getElementById('equityChart').getContext('2d');
+        new Chart(equityCtx, {
+            type: 'line',
+            data: {
+                labels: equityLabels,
+                datasets: [{
+                    label: 'Portfolio Equity ($)',
+                    data: equityValues,
+                    borderColor: '#2E86AB',
+                    backgroundColor: 'rgba(46, 134, 171, 0.1)',
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Portfolio Equity Over Time'
+                    },
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Equity ($)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Drawdown Chart
+        const drawdownData = [{"time": 1748803380, "value": 0.0}, {"time": 1748955600, "value": 0.0}, {"time": 1748964780, "value": -2.5299463383392276}, {"time": 1749058380, "value": -5.032151802528834}, {"time": 1749560400, "value": 0.0}, {"time": 1750078800, "value": 0.0}, {"time": 1750113180, "value": -2.3915258927547582}, {"time": 1750187880, "value": -4.705077063568345}, {"time": 1750510800, "value": -1.9308276567207023}, {"time": 1750597200, "value": 0.0}, {"time": 1750932180, "value": -2.342188193165994}, {"time": 1751266020, "value": -4.6924881638645}, {"time": 1751329800, "value": -6.99384799946174}, {"time": 1751421840, "value": -9.23898948201714}, {"time": 1751547600, "value": -3.965584806850459}, {"time": 1751696880, "value": -6.2795207360185525}, {"time": 1751826180, "value": -8.620374134863123}, {"time": 1752008400, "value": -11.010639165619706}, {"time": 1752152400, "value": -5.66531628398065}, {"time": 1752238800, "value": 0.0}, {"time": 1752411600, "value": -0.6469685460439882}, {"time": 1752498000, "value": -0.2071745124453906}, {"time": 1752757200, "value": 0.0}, {"time": 1753016400, "value": 0.0}, {"time": 1753030980, "value": -2.452612412829152}, {"time": 1753621200, "value": -2.856681695318669}, {"time": 1753702380, "value": -5.204135804558533}, {"time": 1753772760, "value": -7.486762515974137}, {"time": 1753843260, "value": -9.709530134832411}, {"time": 1753904520, "value": -11.878471235916315}, {"time": 1754053200, "value": -9.005534312414193}, {"time": 1754218020, "value": -11.182040763613715}, {"time": 1754312400, "value": -11.10302039966852}, {"time": 1754379480, "value": -13.263349288389293}, {"time": 1754571600, "value": -6.403502260262983}, {"time": 1754618280, "value": -8.704444412091764}, {"time": 1754795460, "value": -10.958822063008892}, {"time": 1755469200, "value": -13.109035204354905}, {"time": 1756064220, "value": -15.177371130240536}, {"time": 1756472400, "value": -13.701223486626002}, {"time": 1756645200, "value": -13.753798950717222}, {"time": 1756713060, "value": -15.775719194070067}, {"time": 1756956840, "value": -17.778044315897503}, {"time": 1757056860, "value": -19.739232235072517}, {"time": 1757163600, "value": -18.338391297147908}, {"time": 1757516280, "value": -20.445925168262416}, {"time": 1757768400, "value": -15.90705408460486}, {"time": 1757773140, "value": -18.11180492156193}, {"time": 1757941200, "value": -16.558943717505525}, {"time": 1758031140, "value": -18.757876639297237}, {"time": 1758132000, "value": -20.9014940304139}, {"time": 1758373200, "value": -21.846370392453792}, {"time": 1758546000, "value": -13.046559721932868}, {"time": 1758692580, "value": -15.244231125977613}, {"time": 1758805200, "value": -10.67499433366357}, {"time": 1759150800, "value": -9.05966596447085}, {"time": 1759237200, "value": -9.977687603604407}, {"time": 1759323600, "value": -8.34847626233126}, {"time": 1759410000, "value": -7.066010906378678}, {"time": 1759417800, "value": -9.421230144060013}, {"time": 1759510860, "value": -11.717200938885911}, {"time": 1759669200, "value": -13.199767338032975}, {"time": 1759842000, "value": -10.08780962563275}, {"time": 1759928400, "value": -2.937620447784615}, {"time": 1759950480, "value": -5.378970082536335}, {"time": 1760187600, "value": 0.0}, {"time": 1761051600, "value": 0.0}, {"time": 1761077820, "value": -2.265702480828093}, {"time": 1761310800, "value": -3.087527335186864}, {"time": 1761483600, "value": -2.9377015912443927}, {"time": 1761570000, "value": -4.269506603639856}, {"time": 1761742800, "value": -4.139664380735744}, {"time": 1761759360, "value": -6.438991061853653}, {"time": 1762174800, "value": -3.548068604555541}, {"time": 1762779600, "value": -2.012492525061554}, {"time": 1764248400, "value": -2.193561480130826}, {"time": 1764594000, "value": 0.0}, {"time": 1764766800, "value": 0.0}, {"time": 1764853200, "value": 0.0}, {"time": 1764882360, "value": -2.380048669838806}, {"time": 1765122900, "value": -4.742198429943159}, {"time": 1765371600, "value": 0.0}, {"time": 1765393380, "value": -2.4277870230939373}, {"time": 1765630800, "value": -0.4754631871932922}, {"time": 1765803600, "value": -1.688646114953847}, {"time": 1765890000, "value": 0.0}];
+        const drawdownLabels = drawdownData.map(d => formatDateDDMMYYYY(d.time));
+        const drawdownValues = drawdownData.map(d => d.value);
+        
+        const drawdownCtx = document.getElementById('drawdownChart').getContext('2d');
+        new Chart(drawdownCtx, {
+            type: 'line',
+            data: {
+                labels: drawdownLabels,
+                datasets: [{
+                    label: 'Drawdown (%)',
+                    data: drawdownValues,
+                    borderColor: '#ef5350',
+                    backgroundColor: 'rgba(239, 83, 80, 0.1)',
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Portfolio Drawdown Over Time'
+                    },
+                    legend: {
+                        display: true
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Drawdown (%)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // PnL Histogram
+        const histogramData = {"labels": ["-44 to -29", "-29 to -14", "-14 to 1", "1 to 15", "15 to 30", "30 to 45", "45 to 60", "60 to 74", "74 to 89", "89 to 104", "104 to 119", "119 to 133", "133 to 148", "148 to 163", "163 to 178", "178 to 192", "192 to 207", "207 to 222", "222 to 237", "237 to 251"], "values": [25, 17, 7, 7, 7, 4, 2, 6, 1, 4, 0, 3, 2, 0, 0, 0, 0, 0, 0, 0]};
+        const pnlCtx = document.getElementById('pnlHistogram').getContext('2d');
+        
+        // Helper function to determine if a bin represents positive PnL
+        function isPositiveBin(label) {
+            // Parse label like "-14 to 1" or "1 to 16"
+            const match = label.match(/^(-?\d+(?:\.\d+)?)\s+to\s+(-?\d+(?:\.\d+)?)$/);
+            if (!match) return false;
+            const startValue = parseFloat(match[1]);
+            const endValue = parseFloat(match[2]);
+            // If bin starts at or above 0, it's positive (green)
+            // If bin ends below 0, it's negative (red)
+            // If bin spans zero, use the midpoint
+            if (startValue >= 0) return true;
+            if (endValue <= 0) return false;
+            // Bin spans zero, use midpoint
+            return (startValue + endValue) / 2 >= 0;
+        }
+        
+        new Chart(pnlCtx, {
+            type: 'bar',
+            data: {
+                labels: histogramData.labels,
+                datasets: [{
+                    label: 'Number of Trades',
+                    data: histogramData.values,
+                    backgroundColor: histogramData.values.map((v, i) => {
+                        if (histogramData.values[i] === 0) return 'rgba(158, 158, 158, 0.6)';
+                        const label = histogramData.labels[i];
+                        return isPositiveBin(label) ? 'rgba(76, 175, 80, 0.6)' : 'rgba(239, 83, 80, 0.6)';
+                    }),
+                    borderColor: histogramData.values.map((v, i) => {
+                        if (histogramData.values[i] === 0) return '#9e9e9e';
+                        const label = histogramData.labels[i];
+                        return isPositiveBin(label) ? '#4caf50' : '#ef5350';
+                    }),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Distribution of Trade PnL'
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Trades'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'PnL Range ($)'
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -454,7 +454,7 @@ class PortfolioBuilder:
         with open(json_file, "w", encoding="utf-8") as f:
             json.dump(chart_data, f, indent=2)
 
-        print(f"  Exported chart data for {symbol}: {json_file}")
+        print(f"  Exported chart data for {symbol}: {Path(json_file).resolve()}")
         return str(json_file)
 
 

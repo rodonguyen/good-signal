@@ -2,94 +2,186 @@
 #
 # This config is intentionally separate from config/assets.yaml (live bot).
 
-version: 1
+version: 1  # Config version (for future migrations)
 
 engine:
-  # Total round-trip fee rate on notional (entry + exit).
-  # Example: 0.003 = 0.30% round trip.
-  fee_rate: 0.003
+  # fee_rate: Total round-trip fee rate on notional (entry + exit).
+  #           Example: 0.0014 = 0.14% round trip (0.07% per side).
+  #           Applied to all trades for PnL calculation.
+  fee_rate: 0.0014
 
-  # Enable debug logging (progress prints, verbose strategy output).
+  # debug: Enable verbose logging (progress prints, strategy details).
+  #        Set to false for cleaner output.
   debug: true
 
   cache:
+    # enabled: Enable Parquet caching for resampled OHLCV data (e.g., 1m->1h).
+    #          Speeds up subsequent runs. Set to false to always recompute.
     enabled: true
+    
+    # dir: Directory for cached Parquet files.
     dir: data/cache/backtest
-    # Bump this to invalidate all cached artifacts after logic changes.
+    
+    # version: Cache version string. Bump this to invalidate all cached artifacts
+    #          after logic changes (e.g., resampling algorithm updates).
     version: v1
 
-  # Output locations (shared across strategies unless overridden per strategy).
+  # outputs: Output directory paths for backtest artifacts.
   outputs:
+    # trades_dir: Directory for per-symbol trade CSVs.
+    #             Files: {trades_dir}/{strategy_id}/{SYMBOL}_trades.csv
     trades_dir: data/trades
+    
+    # portfolio_dir: Directory for portfolio-level trade CSVs.
+    #                Files: {portfolio_dir}/{strategy_id}/portfolio_trades.csv
     portfolio_dir: data/portfolio
+    
+    # reports_dir: Directory for HTML analysis reports.
+    #               Files: {reports_dir}/{strategy_id}/portfolio_report.html
     reports_dir: outputs/reports
 
 data:
-  # By default, use already-downloaded 1-minute CSV files at:
-  # data/raw/crypto/{SYMBOL}/{SYMBOL}_1min.csv
+  # source: Data provider name (currently only 'bybit' supported).
+  source: bybit
+  
+  # raw_dir: Directory where raw 1-minute CSV files are stored.
+  #          Expected structure: {raw_dir}/{SYMBOL}/{SYMBOL}_1min.csv
+  #          CSV format: timestamp,open,high,low,close,volume,turnover
+  raw_dir: data/raw/crypto
+  
+  # raw_1m_dir: Alias for raw_dir (for compatibility).
   raw_1m_dir: data/raw/crypto
 
-  # Optional: enable downloader step (Block 1) later. For now we keep it off.
+  # download: Optional data download configuration (Block 1).
   download:
+    # enabled: Enable automatic data download when files are missing.
+    #          If false, backtest will fail if CSV files don't exist.
     enabled: false
+    
+    # provider: Data provider (must match 'source' above).
     provider: bybit
+    
+    # crypto_config_path: Path to crypto symbols config (for Bybit API).
+    #                      Defines symbol categories and API rate limits.
     crypto_config_path: breakout/src/config/crypto_symbols.yaml
-    start_date: null   # YYYY-MM-DD
-    end_date: null     # YYYY-MM-DD
+    
+    # start_date: Start date for data download (YYYY-MM-DD format).
+    #             null = use config default or 1 year ago.
+    start_date: null
+    
+    # end_date: End date for data download (YYYY-MM-DD format).
+    #           null = use config default or now.
+    end_date: null
 
 universe:
+  # symbols: List of trading symbols to backtest (e.g., ['ETHUSDT', 'BTCUSDT']).
+  #          Each symbol must have a CSV file at {raw_dir}/{SYMBOL}/{SYMBOL}_1min.csv
   symbols:
     - ETHUSDT
 
 steps:
-  # Run the 5-block pipeline: 1=data, 2=strategy, 3=filters, 4=portfolio, 5=analysis
-  enabled_blocks: [1, 2, 3, 4, 5]
+  # enabled_blocks: List of pipeline steps to execute (1-5).
+  #                 1 = Data download (if download.enabled=true)
+  #                 2 = Strategy execution (generate trades)
+  #                 3 = Pre-entry filters
+  #                 4 = Portfolio building (position sizing, equity curve)
+  #                 5 = Analysis report generation
+  #                 Example: [1, 2, 3, 4, 5] runs all steps.
+  #                 Example: [1] downloads data only.
+  enabled_blocks: [2, 3, 4, 5]
 
   filters:
+    # enabled: Enable pre-entry filter pipeline (filters trading days).
     enabled: true
+    
+    # config_path: Path to filter rules configuration.
     config_path: config/backtest/filters.yaml
 
   portfolio:
+    # enabled: Enable portfolio building step (combines trades, applies position sizing).
     enabled: true
-    # Reuse breakout portfolio builder config for now (per your requirement).
+    
+    # config_path: Path to portfolio builder configuration.
+    #              Defines position sizing method (risk-based, fixed-dollar, equal-weight).
     config_path: breakout/src/config/portfolio_config.yaml
 
   analysis:
+    # enabled: Enable analysis report generation (HTML with charts and statistics).
     enabled: true
-    # Reuse breakout portfolio analysis defaults for now.
+    
+    # breakout_config_path: Path to breakout config (legacy, for display in report).
+    #                       Actual values come from strategy params in this file.
     breakout_config_path: breakout/src/config/breakout_config.yaml
 
 strategies:
-  # BBTrendline: 1h signals, 1m execution
+  # List of strategies to backtest. Each strategy must have:
+  # - id: Unique identifier (used in output paths)
+  # - type: Strategy type (bb_trendline_rr4, atr_breakout)
+  # - enabled: true/false to enable/disable this strategy
+  
+  # BBTrendline: Bollinger Bands trendline strategy
+  #              Generates signals on 1h timeframe, executes on 1m bars.
   - id: bb_trendline_rr4
     type: bb_trendline_rr4
-    enabled: true
+    enabled: false
+    
+    # signal_timeframe: Timeframe for signal generation (1h = hourly bars).
     signal_timeframe: 1h
+    
+    # execution_timeframe: Timeframe for trade execution (1m = minute bars).
     execution_timeframe: 1m
+    
     indicator:
+      # name: Indicator name (BollingerBands).
       name: BollingerBands
       params:
+        # period: Moving average period for Bollinger Bands.
         period: 20
+        
+        # std_dev: Standard deviation multiplier for band width.
         std_dev: 2.0
+    
     execution:
+      # entry_fill: Entry fill method (next_1m_open = enter at next 1m candle open).
       entry_fill: next_1m_open
+      
+      # rr_take_profit: Risk-reward ratio for take profit (4.0 = 4:1).
       rr_take_profit: 4.0
+      
+      # stop_source: Stop loss source (bb_middle_signal_hour = BB middle from signal hour).
       stop_source: bb_middle_signal_hour
+      
+      # exit_on: List of exit conditions.
       exit_on:
-        - stop_touch_bb_middle
-        - take_profit_rr
+        - stop_touch_bb_middle  # Exit when price touches BB middle
+        - take_profit_rr        # Exit when TP target is hit
+      
+      # conflict_resolution: What to do if stop and TP hit in same candle (stop_first = exit at stop).
       conflict_resolution: stop_first
+      
+      # ignore_signals_while_in_trade: If true, ignore new signals when already in a position.
       ignore_signals_while_in_trade: true
 
-  # ATR breakout moved from breakout engine into indicator+strategy later.
-  # Enabled: false for now (will be added in Phase 4).
+  # ATR breakout: 24-hour crypto trading day breakout strategy
+  #               Attempts one breakout per day, exits at EOD or stop loss.
   - id: atr_breakout
     type: atr_breakout
-    enabled: false
+    enabled: true
+    
     params:
+      # atr_period: Number of 24-hour periods for ATR calculation.
       atr_period: 14
+      
+      # breakout_multiplier: Multiplier for breakout levels (k × ATR from previous day).
+      #                       Example: 0.42 = breakout at prev_close ± 0.42 × ATR
       breakout_multiplier: 0.42
-      stop_multiplier: 0.25
+      
+      # stop_multiplier: Multiplier for stop loss (k × ATR from previous day).
+      #                   Example: 0.26 = stop at entry ± 0.26 × ATR
+      stop_multiplier: 0.26
+      
+      # day_start_hour: Hour when trading day starts (13 = 13:00 UTC).
+      #                 Day boundaries are calculated from this hour.
       day_start_hour: 13
 
 

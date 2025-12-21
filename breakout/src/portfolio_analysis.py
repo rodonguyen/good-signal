@@ -445,11 +445,30 @@ class PortfolioAnalysis:
         # Load breakout config
         try:
             breakout_config = load_config(self.breakout_config_path)
-            strategy = breakout_config.get("strategy", {})
-            paths = breakout_config.get("paths", {})
+            strategy = breakout_config.get("strategy", {}).copy()
+            paths = breakout_config.get("paths", {}).copy()
         except Exception:
             strategy = {}
             paths = {}
+
+        # Override with values from backtest.yaml if provided (via monkey-patch)
+        if hasattr(self, "_strategy_config_override") and self._strategy_config_override:
+            strategy.update(
+                {
+                    k: v
+                    for k, v in self._strategy_config_override.items()
+                    if v is not None and k in ["atr_period", "breakout_multiplier", "stop_multiplier", "day_start_hour"]
+                }
+            )
+
+        if hasattr(self, "_fee_rate_override") and self._fee_rate_override is not None:
+            strategy["fee_rate"] = self._fee_rate_override
+
+        if hasattr(self, "_raw_data_dir_override"):
+            paths["data_dir"] = self._raw_data_dir_override
+
+        if hasattr(self, "_trades_dir_override"):
+            paths["output_dir"] = self._trades_dir_override
 
         # Calculate equity curve data
         if len(equity_curve) > 0:
@@ -975,7 +994,7 @@ class PortfolioAnalysis:
                     # Generate HTML file for this symbol with embedded data
                     html_file = self.output_dir / f"{symbol}_chart.html"
                     self.generate_symbol_chart_html(html_file, symbol, chart_data)
-                    print(f"  Generated chart file: {html_file}")
+                    print(f"  Generated chart file: {Path(html_file).resolve()}")
 
             except Exception as e:
                 print(f"  Error generating chart for {symbol}: {e}")
@@ -1153,7 +1172,7 @@ class PortfolioAnalysis:
             f.write(html_content)
 
     def _create_basic_chart_html(self, symbol: str, chart_data: dict) -> str:
-        """Create basic HTML chart template with embedded data.
+        """Create basic HTML chart template with embedded data and JSON upload.
 
         Args:
             symbol: Symbol name
@@ -1192,6 +1211,27 @@ class PortfolioAnalysis:
             padding-bottom: 10px;
             margin-bottom: 20px;
         }}
+        .controls {{
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }}
+        .upload-btn {{
+            background-color: #2E86AB;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }}
+        .upload-btn:hover {{
+            background-color: #1e5f7a;
+        }}
+        .upload-btn input[type="file"] {{
+            display: none;
+        }}
         #chart-container {{
             width: 100%;
             height: 700px;
@@ -1204,37 +1244,257 @@ class PortfolioAnalysis:
             border-radius: 4px;
             margin: 20px 0;
         }}
+        .success {{
+            color: #2e7d32;
+            padding: 10px;
+            background-color: #e8f5e9;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: none;
+        }}
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Portfolio Trading Chart - {symbol}</h1>
+        <div class="controls">
+            <label class="upload-btn">
+                <input type="file" id="json-file-input" accept=".json" />
+                Upload JSON to Replace Chart Data
+            </label>
+            <span id="status-message" class="success"></span>
+        </div>
         <div id="chart-container"></div>
         <div id="error-message" class="error" style="display: none;"></div>
     </div>
 
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
-    <script src="portfolio-chart.js"></script>
     <script>
+        // Inline PortfolioChart module (avoids loading external file)
+        (function() {{
+            'use strict';
+            const PortfolioChart = {{
+                init(containerId, chartData, options = {{}}) {{
+                    if (typeof LightweightCharts === 'undefined') {{
+                        console.error('LightweightCharts library not loaded');
+                        return;
+                    }}
+                    const container = document.getElementById(containerId);
+                    if (!container) {{
+                        console.error(`Container not found: ${{containerId}}`);
+                        return;
+                    }}
+                    // Clear existing chart if any
+                    container.innerHTML = '';
+                    const chart = LightweightCharts.createChart(container, {{
+                        layout: {{
+                            background: {{ color: '#131722' }},
+                            textColor: '#d1d4dc'
+                        }},
+                        grid: {{
+                            vertLines: {{ color: '#2a2e39' }},
+                            horzLines: {{ color: '#2a2e39' }}
+                        }},
+                        crosshair: {{
+                            mode: LightweightCharts.CrosshairMode.Normal
+                        }},
+                        timeScale: {{
+                            timeVisible: true,
+                            secondsVisible: true
+                        }},
+                        width: container.clientWidth,
+                        height: options.height || 700
+                    }});
+                    const {{ CandlestickSeries }} = LightweightCharts;
+                    const candlestickSeries = chart.addSeries(CandlestickSeries, {{
+                        upColor: '#26a69a',
+                        downColor: '#ef5350',
+                        borderVisible: false,
+                        wickUpColor: '#26a69a',
+                        wickDownColor: '#ef5350'
+                    }});
+                    if (chartData.candlestickData && chartData.candlestickData.length > 0) {{
+                        candlestickSeries.setData(chartData.candlestickData);
+                    }}
+                    
+                    // Add Bollinger Bands if available (for BB strategies)
+                    if (chartData.bollingerBands && chartData.bollingerBands.length > 0) {{
+                        const {{ LineSeries }} = LightweightCharts;
+                        // Upper band
+                        const bbUpperSeries = chart.addSeries(LineSeries, {{
+                            color: '#9b59b6',
+                            lineWidth: 1,
+                            lineStyle: LightweightCharts.LineStyle.Solid,
+                            priceLineVisible: false,
+                            lastValueVisible: false,
+                            crosshairMarkerVisible: true,
+                            title: 'BB Upper'
+                        }});
+                        bbUpperSeries.setData(chartData.bollingerBands.map(bb => ({{
+                            time: bb.time,
+                            value: bb.upper
+                        }})));
+                        
+                        // Middle band (SMA)
+                        const bbMiddleSeries = chart.addSeries(LineSeries, {{
+                            color: '#3498db',
+                            lineWidth: 1,
+                            lineStyle: LightweightCharts.LineStyle.Solid,
+                            priceLineVisible: false,
+                            lastValueVisible: false,
+                            crosshairMarkerVisible: true,
+                            title: 'BB Middle'
+                        }});
+                        bbMiddleSeries.setData(chartData.bollingerBands.map(bb => ({{
+                            time: bb.time,
+                            value: bb.middle
+                        }})));
+                        
+                        // Lower band
+                        const bbLowerSeries = chart.addSeries(LineSeries, {{
+                            color: '#9b59b6',
+                            lineWidth: 1,
+                            lineStyle: LightweightCharts.LineStyle.Solid,
+                            priceLineVisible: false,
+                            lastValueVisible: false,
+                            crosshairMarkerVisible: true,
+                            title: 'BB Lower'
+                        }});
+                        bbLowerSeries.setData(chartData.bollingerBands.map(bb => ({{
+                            time: bb.time,
+                            value: bb.lower
+                        }})));
+                    }}
+                    
+                    if (chartData.trades && chartData.trades.length > 0) {{
+                        const markers = [];
+                        const {{ LineSeries }} = LightweightCharts;
+                        const processedDays = new Set();
+                        chartData.trades.forEach(trade => {{
+                            const isFiltered = trade.isFiltered === true;
+                            const longColor = isFiltered ? '#80cc80' : '#00ff00';
+                            const shortColor = isFiltered ? '#cc8080' : '#ff0000';
+                            const profitColor = isFiltered ? '#80cc80' : '#00ff00';
+                            const lossColor = isFiltered ? '#cc8080' : '#ff0000';
+                            if (trade.entryTime && trade.direction) {{
+                                const isLong = trade.direction === 'long';
+                                markers.push({{
+                                    time: trade.entryTime,
+                                    position: 'aboveBar',
+                                    color: isLong ? longColor : shortColor,
+                                    shape: isLong ? 'arrowUp' : 'arrowDown',
+                                    size: 2
+                                }});
+                            }}
+                            if (trade.exitTime) {{
+                                const isProfit = trade.portfolioPnl !== undefined 
+                                    ? trade.portfolioPnl >= 0 
+                                    : (trade.entryPrice - trade.exitPrice) >= 0;
+                                markers.push({{
+                                    time: trade.exitTime,
+                                    position: 'belowBar',
+                                    color: isProfit ? profitColor : lossColor,
+                                    shape: 'circle',
+                                    size: 2
+                                }});
+                            }}
+                            if (trade.entryTime) {{
+                                const entryDate = new Date(trade.entryTime * 1000);
+                                let start13UTC = new Date(Date.UTC(
+                                    entryDate.getUTCFullYear(),
+                                    entryDate.getUTCMonth(),
+                                    entryDate.getUTCDate(),
+                                    13, 0, 0, 0
+                                ));
+                                if (start13UTC.getTime() > entryDate.getTime()) {{
+                                    start13UTC.setUTCDate(start13UTC.getUTCDate() - 1);
+                                }}
+                                const dayKey = start13UTC.getTime() / 1000;
+                                if (!processedDays.has(dayKey)) {{
+                                    processedDays.add(dayKey);
+                                    const endTime = dayKey + 86400;
+                                    if (trade.upperLevel != null) {{
+                                        const upperSeries = chart.addSeries(LineSeries, {{
+                                            color: '#00ff00',
+                                            lineWidth: 1,
+                                            lineStyle: LightweightCharts.LineStyle.Dotted,
+                                            priceLineVisible: false,
+                                            lastValueVisible: false,
+                                            crosshairMarkerVisible: false
+                                        }});
+                                        upperSeries.setData([
+                                            {{ time: dayKey, value: trade.upperLevel }},
+                                            {{ time: endTime, value: trade.upperLevel }}
+                                        ]);
+                                    }}
+                                    if (trade.lowerLevel != null) {{
+                                        const lowerSeries = chart.addSeries(LineSeries, {{
+                                            color: '#ffa500',
+                                            lineWidth: 1,
+                                            lineStyle: LightweightCharts.LineStyle.Dotted,
+                                            priceLineVisible: false,
+                                            lastValueVisible: false,
+                                            crosshairMarkerVisible: false
+                                        }});
+                                        lowerSeries.setData([
+                                            {{ time: dayKey, value: trade.lowerLevel }},
+                                            {{ time: endTime, value: trade.lowerLevel }}
+                                        ]);
+                                    }}
+                                    if (trade.stopLevel != null) {{
+                                        const stopSeries = chart.addSeries(LineSeries, {{
+                                            color: '#ffff00',
+                                            lineWidth: 1,
+                                            lineStyle: LightweightCharts.LineStyle.Dotted,
+                                            priceLineVisible: false,
+                                            lastValueVisible: false,
+                                            crosshairMarkerVisible: false
+                                        }});
+                                        stopSeries.setData([
+                                            {{ time: dayKey, value: trade.stopLevel }},
+                                            {{ time: endTime, value: trade.stopLevel }}
+                                        ]);
+                                    }}
+                                }}
+                            }}
+                        }});
+                        if (markers.length > 0) {{
+                            try {{
+                                const {{ createSeriesMarkers }} = LightweightCharts;
+                                if (typeof createSeriesMarkers === 'function') {{
+                                    createSeriesMarkers(candlestickSeries, markers);
+                                }}
+                            }} catch (error) {{
+                                console.error('Error adding markers:', error);
+                            }}
+                        }}
+                    }}
+                    chart.timeScale().fitContent();
+                    window.addEventListener('resize', () => {{
+                        chart.applyOptions({{ width: container.clientWidth }});
+                    }});
+                    return chart;
+                }}
+            }};
+            window.PortfolioChart = PortfolioChart;
+        }})();
+
         // Embedded chart data (avoids CORS issues when opening from file://)
-        const chartData = {chart_data_json};
-        
+        let chartData = {chart_data_json};
+        let currentChart = null;
+
         function initChart() {{
-            // Wait for libraries to load
             if (typeof LightweightCharts === 'undefined') {{
                 setTimeout(initChart, 100);
                 return;
             }}
-            
             if (typeof PortfolioChart === 'undefined') {{
                 setTimeout(initChart, 100);
                 return;
             }}
-
             try {{
-                // Initialize chart with embedded data
-                PortfolioChart.init('chart-container', chartData, {{ height: 700 }});
-                
+                currentChart = PortfolioChart.init('chart-container', chartData, {{ height: 700 }});
+                showSuccess('Chart loaded successfully');
             }} catch (error) {{
                 console.error('Error initializing chart:', error);
                 showError(`Error loading chart: ${{error.message}}`);
@@ -1247,7 +1507,61 @@ class PortfolioAnalysis:
                 errorDiv.textContent = message;
                 errorDiv.style.display = 'block';
             }}
+            const statusDiv = document.getElementById('status-message');
+            if (statusDiv) {{
+                statusDiv.style.display = 'none';
+            }}
         }}
+
+        function showSuccess(message) {{
+            const statusDiv = document.getElementById('status-message');
+            if (statusDiv) {{
+                statusDiv.textContent = message;
+                statusDiv.style.display = 'block';
+                setTimeout(() => {{
+                    statusDiv.style.display = 'none';
+                }}, 3000);
+            }}
+            const errorDiv = document.getElementById('error-message');
+            if (errorDiv) {{
+                errorDiv.style.display = 'none';
+            }}
+        }}
+
+        // JSON file upload handler
+        document.getElementById('json-file-input').addEventListener('change', function(e) {{
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            if (!file.name.endsWith('.json')) {{
+                showError('Please select a JSON file');
+                return;
+            }}
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {{
+                try {{
+                    const newData = JSON.parse(e.target.result);
+                    // Validate structure
+                    if (!newData.candlestickData || !newData.trades) {{
+                        showError('Invalid JSON structure. Expected candlestickData and trades properties.');
+                        return;
+                    }}
+                    // Replace chart data and re-render
+                    chartData = newData;
+                    initChart();
+                    showSuccess('Chart data replaced successfully');
+                }} catch (error) {{
+                    showError(`Error parsing JSON: ${{error.message}}`);
+                }}
+            }};
+            reader.onerror = function() {{
+                showError('Error reading file');
+            }};
+            reader.readAsText(file);
+            // Reset input so same file can be selected again
+            e.target.value = '';
+        }});
 
         // Initialize when DOM is ready
         if (document.readyState === 'loading') {{
@@ -1287,7 +1601,7 @@ class PortfolioAnalysis:
         with open(report_file, "w", encoding="utf-8") as f:
             f.write(html)
 
-        print(f"  Saved report to: {report_file}")
+        print(f"  Saved report to: {Path(report_file).resolve()}")
 
         # Print summary
         print(f"\nPerformance Summary:")
