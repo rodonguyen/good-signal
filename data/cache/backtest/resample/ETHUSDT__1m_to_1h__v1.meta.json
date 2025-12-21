@@ -1,0 +1,16 @@
+{
+  "artifact": "1m_to_1h",
+  "dependencies": [
+    {
+      "mtime_ns": 1766055124639266900,
+      "path": "data\\raw\\crypto\\ETHUSDT\\ETHUSDT_1min.csv",
+      "size": 22405755
+    }
+  ],
+  "namespace": "resample",
+  "params": {
+    "timeframe": "1h"
+  },
+  "symbol": "ETHUSDT",
+  "version": "v1"
+}

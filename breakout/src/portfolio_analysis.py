@@ -59,7 +59,7 @@ class PortfolioAnalysis:
         equity_curve = pd.Series(df["equity"].values, index=df["exit_time"]).sort_index()
 
         # Get initial capital (from first equity value or calculate)
-        initial_capital = df["equity"].iloc[0] - df["portfolio_pnl"].iloc[0] if len(df) > 0 else 10000
+        initial_capital = df["equity"].iloc[0] - df["portfolio_pnl"].iloc[0]
 
         return df, equity_curve, initial_capital
 

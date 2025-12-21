@@ -1,0 +1,95 @@
+# Backtest master configuration (Good Signal)
+#
+# This config is intentionally separate from config/assets.yaml (live bot).
+
+version: 1
+
+engine:
+  # Total round-trip fee rate on notional (entry + exit).
+  # Example: 0.003 = 0.30% round trip.
+  fee_rate: 0.003
+
+  # Enable debug logging (progress prints, verbose strategy output).
+  debug: true
+
+  cache:
+    enabled: true
+    dir: data/cache/backtest
+    # Bump this to invalidate all cached artifacts after logic changes.
+    version: v1
+
+  # Output locations (shared across strategies unless overridden per strategy).
+  outputs:
+    trades_dir: data/trades
+    portfolio_dir: data/portfolio
+    reports_dir: outputs/reports
+
+data:
+  # By default, use already-downloaded 1-minute CSV files at:
+  # data/raw/crypto/{SYMBOL}/{SYMBOL}_1min.csv
+  raw_1m_dir: data/raw/crypto
+
+  # Optional: enable downloader step (Block 1) later. For now we keep it off.
+  download:
+    enabled: false
+    provider: bybit
+    crypto_config_path: breakout/src/config/crypto_symbols.yaml
+    start_date: null   # YYYY-MM-DD
+    end_date: null     # YYYY-MM-DD
+
+universe:
+  symbols:
+    - ETHUSDT
+
+steps:
+  # Run the 5-block pipeline: 1=data, 2=strategy, 3=filters, 4=portfolio, 5=analysis
+  enabled_blocks: [1, 2, 3, 4, 5]
+
+  filters:
+    enabled: true
+    config_path: config/backtest/filters.yaml
+
+  portfolio:
+    enabled: true
+    # Reuse breakout portfolio builder config for now (per your requirement).
+    config_path: breakout/src/config/portfolio_config.yaml
+
+  analysis:
+    enabled: true
+    # Reuse breakout portfolio analysis defaults for now.
+    breakout_config_path: breakout/src/config/breakout_config.yaml
+
+strategies:
+  # BBTrendline: 1h signals, 1m execution
+  - id: bb_trendline_rr4
+    type: bb_trendline_rr4
+    enabled: true
+    signal_timeframe: 1h
+    execution_timeframe: 1m
+    indicator:
+      name: BollingerBands
+      params:
+        period: 20
+        std_dev: 2.0
+    execution:
+      entry_fill: next_1m_open
+      rr_take_profit: 4.0
+      stop_source: bb_middle_signal_hour
+      exit_on:
+        - stop_touch_bb_middle
+        - take_profit_rr
+      conflict_resolution: stop_first
+      ignore_signals_while_in_trade: true
+
+  # ATR breakout moved from breakout engine into indicator+strategy later.
+  # Enabled: false for now (will be added in Phase 4).
+  - id: atr_breakout
+    type: atr_breakout
+    enabled: false
+    params:
+      atr_period: 14
+      breakout_multiplier: 0.42
+      stop_multiplier: 0.25
+      day_start_hour: 13
+
+

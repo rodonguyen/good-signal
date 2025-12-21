@@ -10,6 +10,9 @@ numpy>=1.24.0
 # Configuration
 pyyaml>=6.0
 
+# Parquet caching for backtests
+pyarrow>=14.0.0
+
 # HTTP requests (Discord webhook)
 requests>=2.31.0
 
