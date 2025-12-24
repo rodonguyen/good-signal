@@ -118,20 +118,38 @@ def calculate_statistics(equity_curve: pd.Series, trades_df: pd.DataFrame, initi
 
     # Risk-adjusted returns
     if len(equity_curve) > 1 and stats["years"] > 0:
-        # Calculate returns
-        returns = equity_curve.pct_change().dropna()
+        # Resample equity curve to daily frequency for consistent return calculation
+        # Forward fill to handle irregular trade timestamps
+        equity_daily = equity_curve.resample("D").last().ffill()
+        
+        # Calculate daily returns
+        daily_returns = equity_daily.pct_change().dropna()
 
-        if len(returns) > 0:
-            # Sharpe ratio (assuming risk-free rate = 0 for crypto)
-            mean_return = returns.mean()
-            std_return = returns.std()
-            annualised_us_treasury_return = 0.05
-            stats["sharpe_ratio"] = (mean_return - annualised_us_treasury_return) / std_return * np.sqrt(252) if std_return > 0 else 0
+        if len(daily_returns) > 0:
+            # Annualized risk-free rate (5% = 0.05)
+            annual_risk_free_rate = 0.05
+            # Convert to daily risk-free rate
+            daily_risk_free_rate = (1 + annual_risk_free_rate) ** (1 / 252) - 1
+            
+            # Calculate mean and std of daily returns
+            mean_daily_return = daily_returns.mean()
+            std_daily_return = daily_returns.std()
+            
+            # Sharpe ratio: (Mean Daily Return - Daily Risk-Free Rate) / Std Daily Return * sqrt(252)
+            # This annualizes the Sharpe ratio
+            if std_daily_return > 0:
+                excess_return = mean_daily_return - daily_risk_free_rate
+                stats["sharpe_ratio"] = excess_return / std_daily_return * np.sqrt(252)
+            else:
+                stats["sharpe_ratio"] = 0
 
             # Sortino ratio (downside deviation only)
-            downside_returns = returns[returns < 0]
+            downside_returns = daily_returns[daily_returns < 0]
             downside_std = downside_returns.std() if len(downside_returns) > 0 else 0
-            stats["sortino_ratio"] = (mean_return / downside_std * np.sqrt(252)) if downside_std > 0 else 0
+            if downside_std > 0:
+                stats["sortino_ratio"] = (mean_daily_return - daily_risk_free_rate) / downside_std * np.sqrt(252)
+            else:
+                stats["sortino_ratio"] = 0
         else:
             stats["sharpe_ratio"] = 0
             stats["sortino_ratio"] = 0

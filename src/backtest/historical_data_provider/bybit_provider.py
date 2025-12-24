@@ -6,8 +6,8 @@ from typing import Union
 
 import pandas as pd
 
-from src.backtest.data.base import HistoricalDataProvider
-from src.backtest.data.bybit_downloader import BybitDownloader
+from src.backtest.historical_data_provider.base import HistoricalDataProvider
+from src.backtest.historical_data_provider.bybit_downloader import BybitDownloader
 
 
 class BybitDataProvider(HistoricalDataProvider):
@@ -15,7 +15,7 @@ class BybitDataProvider(HistoricalDataProvider):
 
     def __init__(
         self,
-        crypto_config_path: str = "breakout/src/config/crypto_symbols.yaml",
+        crypto_config_path: str = "config/backtest/crypto_symbols.yaml",
         raw_data_dir: str = "data/raw/crypto",
     ):
         """Initialize Bybit data provider.

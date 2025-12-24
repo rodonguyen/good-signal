@@ -174,11 +174,11 @@ strategies:
       
       # breakout_multiplier: Multiplier for breakout levels (k × ATR from previous day).
       #                       Example: 0.42 = breakout at prev_close ± 0.42 × ATR
-      breakout_multiplier: 0.42
+      breakout_multiplier: 0.40
       
       # stop_multiplier: Multiplier for stop loss (k × ATR from previous day).
       #                   Example: 0.26 = stop at entry ± 0.26 × ATR
-      stop_multiplier: 0.26
+      stop_multiplier: 0.24
       
       # day_start_hour: Hour when trading day starts (13 = 13:00 UTC).
       #                 Day boundaries are calculated from this hour.
