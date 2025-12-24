@@ -52,7 +52,7 @@ def run_analysis_step(
             breakout_config_path=breakout_config_path or "breakout/src/config/breakout_config.yaml",
             trades_dir=str(Path(trades_dir) / strategy_id),
         )
-        
+
         # Override config values from backtest.yaml if provided
         # These will be used by _generate_html to override breakout_config.yaml values
         if strategy_config is not None:
@@ -77,7 +77,7 @@ def run_analysis_step(
 
             # Create PortfolioBuilder with a minimal config that has paths
             # We'll use the portfolio config path if available
-            portfolio_config_path = "breakout/src/config/portfolio_config.yaml"
+            portfolio_config_path = "config/backtest/portfolio_config.yaml"
             try:
                 builder = PortfolioBuilder(config_path=portfolio_config_path)
             except Exception:

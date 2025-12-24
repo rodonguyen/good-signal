@@ -303,7 +303,7 @@ class BacktestRunner:
                 portfolio_file = run_portfolio_step(
                     trades_dir=str(self.config.outputs["trades_dir"]),
                     portfolio_dir=str(self.config.outputs["portfolio_dir"]),
-                    portfolio_config_path=str(portfolio_cfg.get("config_path", "breakout/src/config/portfolio_config.yaml")),
+                    portfolio_config_path=str(portfolio_cfg.get("config_path", "config/backtest/portfolio_config.yaml")),
                     symbols=self.config.symbols,
                     strategy_id=strategy_id,
                 )

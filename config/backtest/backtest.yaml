@@ -8,7 +8,7 @@ engine:
   # fee_rate: Total round-trip fee rate on notional (entry + exit).
   #           Example: 0.0014 = 0.14% round trip (0.07% per side).
   #           Applied to all trades for PnL calculation.
-  fee_rate: 0.0014
+  fee_rate: 0.0015
 
   # debug: Enable verbose logging (progress prints, strategy details).
   #        Set to false for cleaner output.
@@ -103,7 +103,7 @@ steps:
     
     # config_path: Path to portfolio builder configuration.
     #              Defines position sizing method (risk-based, fixed-dollar, equal-weight).
-    config_path: breakout/src/config/portfolio_config.yaml
+    config_path: config/backtest/portfolio_config.yaml
 
   analysis:
     # enabled: Enable analysis report generation (HTML with charts and statistics).
