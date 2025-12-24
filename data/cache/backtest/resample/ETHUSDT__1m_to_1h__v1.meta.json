@@ -2,9 +2,9 @@
   "artifact": "1m_to_1h",
   "dependencies": [
     {
-      "mtime_ns": 1766370092673169900,
+      "mtime_ns": 1766370090919426700,
       "path": "data\\raw\\crypto\\ETHUSDT\\ETHUSDT_1min.csv",
-      "size": 22405755
+      "size": 103727930
     }
   ],
   "namespace": "resample",

@@ -1,0 +1,75 @@
+# Walk-Forward Optimization Configuration
+
+# Strategy to optimize
+strategy: atr_breakout  # Strategy type (e.g., 'atr_breakout', 'bb_trendline_rr4')
+
+# Trading symbol
+symbol: ETHUSDT
+
+# Data directory (where CSV files are stored)
+data:
+  raw_dir: data/raw/crypto  # Directory containing symbol subdirectories
+
+# Engine configuration
+engine:
+  fee_rate: 0.0015  # Round-trip fee rate (0.15%)
+  cache_dir: data/cache/backtest
+  cache_enabled: true
+  cache_version: v1
+
+# Strategy-specific parameters
+atr_period: 14  # ATR period for ATR breakout strategy
+day_start_hour: 13  # Trading day start hour (UTC)
+
+# Strategy configuration (optional - will use defaults if not specified)
+# strategy_config:
+#   type: atr_breakout
+#   params:
+#     atr_period: 14
+#     day_start_hour: 13
+
+# Time window configuration
+windows:
+  train_months: 6    # Training period in months
+  test_months: 3     # Testing period in months
+  step_months: 3     # Step forward in months between cycles
+
+# Parameter grid configuration
+parameters:
+  # Breakout multiplier range: [start, end, step]
+  breakout_multiplier:
+    start: 0.24
+    end: 0.60
+    step: 0.02
+  
+  # Stop multiplier range: [start, end, step]
+  stop_multiplier:
+    start: 0.16
+    end: 0.50
+    step: 0.02
+
+# Optimization target
+optimization_target: sharpe  # Options: 'sharpe', 'pnl', 'return'
+
+# Output configuration
+output:
+  # Output directory for reports (relative to project root)
+  dir: outputs/reports/wfo_atr_breakout  # Default: outputs/reports/wfo_{strategy}
+  trades_dir: data/trades  # Optional: directory for trade CSVs
+  portfolio_dir: data/portfolio  # Optional: directory for portfolio CSVs
+
+# Filters configuration (optional)
+filters:
+  enabled: false
+  config_path: config/backtest/filters.yaml
+
+# Portfolio configuration (optional)
+portfolio:
+  enabled: true
+  config_path: config/backtest/portfolio_config.yaml
+
+# Data file selection
+# If your data file has a different name pattern, specify it here
+# The system will try: {symbol}_1min.csv first, then {symbol}_1min_from202305.csv
+data_file_pattern: null  # Optional: e.g., "{symbol}_1min_from202305.csv"
+
