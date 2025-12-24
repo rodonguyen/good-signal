@@ -17,6 +17,7 @@ from src.backtest.optimization.metrics import (
 from src.backtest.optimization.wfo_config import calculate_wfo_windows
 from src.backtest.optimization.walk_forward import WalkForwardOptimizer, BacktestResult, CycleResult
 from src.backtest.optimization.wfo_report import WFOReportGenerator
+from src.backtest.optimization.checkpoint import CheckpointManager
 
 __all__ = [
     "generate_parameter_grid",
@@ -31,5 +32,5 @@ __all__ = [
     "BacktestResult",
     "CycleResult",
     "WFOReportGenerator",
+    "CheckpointManager",
 ]
-

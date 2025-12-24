@@ -2,7 +2,10 @@
 Parameter grid generation for walk-forward optimization.
 """
 
+import logging
 from typing import Iterator
+
+logger = logging.getLogger(__name__)
 
 
 def generate_parameter_grid(
@@ -29,18 +32,22 @@ def generate_parameter_grid(
     breakout_start, breakout_end, breakout_step = breakout_range
     stop_start, stop_end, stop_step = stop_range
 
+    logger.debug(f"Generating parameter grid: breakout={breakout_range}, stop={stop_range}")
     grid = []
     breakout_val = breakout_start
     while breakout_val <= breakout_end + 1e-9:  # Add small epsilon for float comparison
         stop_val = stop_start
         while stop_val <= stop_end + 1e-9:
-            grid.append({
-                "breakout_multiplier": round(breakout_val, 2),
-                "stop_multiplier": round(stop_val, 2),
-            })
+            grid.append(
+                {
+                    "breakout_multiplier": round(breakout_val, 2),
+                    "stop_multiplier": round(stop_val, 2),
+                }
+            )
             stop_val += stop_step
         breakout_val += breakout_step
 
+    logger.debug(f"Generated {len(grid)} parameter combinations")
     return grid
 
 
@@ -71,4 +78,3 @@ def iterate_parameter_grid(
             }
             stop_val += stop_step
         breakout_val += breakout_step
-

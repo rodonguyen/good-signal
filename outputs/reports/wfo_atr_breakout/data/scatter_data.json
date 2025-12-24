@@ -1,0 +1,452 @@
+{
+  "cycle_1": [
+    {
+      "x": 0.4,
+      "y": 0.24,
+      "sharpe": -3.345066868293733,
+      "pnl": 982.8442033096962,
+      "total_return": -75.35002452574972,
+      "max_drawdown": -78.02583302587188,
+      "win_rate": 21.768707482993197,
+      "total_trades": 147,
+      "is_top_10": true,
+      "is_best": true
+    },
+    {
+      "x": 0.4,
+      "y": 0.26,
+      "sharpe": -3.3730790442624463,
+      "pnl": 1021.551341323097,
+      "total_return": -73.3998748265862,
+      "max_drawdown": -76.0461232768093,
+      "win_rate": 22.448979591836736,
+      "total_trades": 147,
+      "is_top_10": false,
+      "is_best": false
+    },
+    {
+      "x": 0.42,
+      "y": 0.24,
+      "sharpe": -3.761410596914781,
+      "pnl": 1078.3073003985717,
+      "total_return": -78.04049364036644,
+      "max_drawdown": -80.29794867982187,
+      "win_rate": 20.97902097902098,
+      "total_trades": 143,
+      "is_top_10": false,
+      "is_best": false
+    },
+    {
+      "x": 0.42,
+      "y": 0.26,
+      "sharpe": -3.693664171798373,
+      "pnl": 1046.6901960048292,
+      "total_return": -75.03054670809861,
+      "max_drawdown": -77.38034175952988,
+      "win_rate": 21.678321678321677,
+      "total_trades": 143,
+      "is_top_10": false,
+      "is_best": false
+    }
+  ],
+  "cycle_2": [
+    {
+      "x": 0.4,
+      "y": 0.24,
+      "sharpe": -2.8884842508177067,
+      "pnl": 935.327276191246,
+      "total_return": -70.27231084859783,
+      "max_drawdown": -72.41166078712361,
+      "win_rate": 25.0,
+      "total_trades": 156,
+      "is_top_10": true,
+      "is_best": true
+    },
+    {
+      "x": 0.4,
+      "y": 0.26,
+      "sharpe": -2.9228352482505287,
+      "pnl": 1016.0487850071379,
+      "total_return": -68.44791162115956,
+      "max_drawdown": -70.12495809133426,
+      "win_rate": 25.64102564102564,
+      "total_trades": 156,
+      "is_top_10": false,
+      "is_best": false
+    },
+    {
+      "x": 0.42,
+      "y": 0.24,
+      "sharpe": -3.573200674611069,
+      "pnl": 1136.1612300041324,
+      "total_return": -75.52308665160668,
+      "max_drawdown": -77.06519494119328,
+      "win_rate": 24.342105263157894,
+      "total_trades": 152,
+      "is_top_10": false,
+      "is_best": false
+    },
+    {
+      "x": 0.42,
+      "y": 0.26,
+      "sharpe": -3.332765898980088,
+      "pnl": 1071.3331850128811,
+      "total_return": -71.30634332422423,
+      "max_drawdown": -72.58852400039062,
+      "win_rate": 25.657894736842106,
+      "total_trades": 152,
+      "is_top_10": false,
+      "is_best": false
+    }
+  ],
+  "cycle_3": [
+    {
+      "x": 0.4,
+      "y": 0.24,
+      "sharpe": -0.7483838001678408,
+      "pnl": 1195.2268976134906,
+      "total_return": -42.4938182282551,
+      "max_drawdown": -61.254629957084894,
+      "win_rate": 26.0,
+      "total_trades": 150,
+      "is_top_10": true,
+      "is_best": true
+    },
+    {
+      "x": 0.4,
+      "y": 0.26,
+      "sharpe": -1.0390755990155909,
+      "pnl": 1469.8285838783513,
+      "total_return": -47.506984571038025,
+      "max_drawdown": -63.01990872269892,
+      "win_rate": 26.0,
+      "total_trades": 150,
+      "is_top_10": false,
+      "is_best": false
+    },
+    {
+      "x": 0.42,
+      "y": 0.24,
+      "sharpe": -0.777343693766269,
+      "pnl": 1101.851638422043,
+      "total_return": -42.33876747208212,
+      "max_drawdown": -60.397847432428456,
+      "win_rate": 26.89655172413793,
+      "total_trades": 145,
+      "is_top_10": false,
+      "is_best": false
+    },
+    {
+      "x": 0.42,
+      "y": 0.26,
+      "sharpe": -0.855926767282115,
+      "pnl": 1230.5977943012203,
+      "total_return": -41.8199450405618,
+      "max_drawdown": -59.36452787403863,
+      "win_rate": 27.586206896551722,
+      "total_trades": 145,
+      "is_top_10": false,
+      "is_best": false
+    }
+  ],
+  "cycle_4": [
+    {
+      "x": 0.4,
+      "y": 0.24,
+      "sharpe": 0.16074784574913098,
+      "pnl": 577.9832569408791,
+      "total_return": -14.168133585288622,
+      "max_drawdown": -39.01209903112271,
+      "win_rate": 26.89655172413793,
+      "total_trades": 145,
+      "is_top_10": true,
+      "is_best": true
+    },
+    {
+      "x": 0.4,
+      "y": 0.26,
+      "sharpe": 0.11339345396261917,
+      "pnl": 703.4063136889729,
+      "total_return": -14.554325085365216,
+      "max_drawdown": -36.839804186903805,
+      "win_rate": 27.586206896551722,
+      "total_trades": 145,
+      "is_top_10": false,
+      "is_best": false
+    },
+    {
+      "x": 0.42,
+      "y": 0.24,
+      "sharpe": -0.11102204597586937,
+      "pnl": 832.8650973340661,
+      "total_return": -24.935724775393552,
+      "max_drawdown": -37.25949387696254,
+      "win_rate": 26.95035460992908,
+      "total_trades": 141,
+      "is_top_10": false,
+      "is_best": false
+    },
+    {
+      "x": 0.42,
+      "y": 0.26,
+      "sharpe": 0.14765553382636154,
+      "pnl": 607.9112243643037,
+      "total_return": -12.708633025712125,
+      "max_drawdown": -35.23432833925158,
+      "win_rate": 29.078014184397162,
+      "total_trades": 141,
+      "is_top_10": false,
+      "is_best": false
+    }
+  ],
+  "cycle_5": [
+    {
+      "x": 0.4,
+      "y": 0.24,
+      "sharpe": -1.2216166336004233,
+      "pnl": 712.2156115754283,
+      "total_return": -47.3132604276894,
+      "max_drawdown": -58.41586431570018,
+      "win_rate": 29.13907284768212,
+      "total_trades": 151,
+      "is_top_10": false,
+      "is_best": false
+    },
+    {
+      "x": 0.4,
+      "y": 0.26,
+      "sharpe": -0.9512696371721249,
+      "pnl": 610.0956955897606,
+      "total_return": -39.12344240832142,
+      "max_drawdown": -55.95035296904878,
+      "win_rate": 31.125827814569533,
+      "total_trades": 151,
+      "is_top_10": true,
+      "is_best": true
+    },
+    {
+      "x": 0.42,
+      "y": 0.24,
+      "sharpe": -1.077923601605181,
+      "pnl": 701.1846071427434,
+      "total_return": -43.32570660821936,
+      "max_drawdown": -55.67576450002106,
+      "win_rate": 29.931972789115648,
+      "total_trades": 147,
+      "is_top_10": false,
+      "is_best": false
+    },
+    {
+      "x": 0.42,
+      "y": 0.26,
+      "sharpe": -1.0507321500090887,
+      "pnl": 643.8134866713604,
+      "total_return": -40.326439606778564,
+      "max_drawdown": -53.35803160935796,
+      "win_rate": 31.97278911564626,
+      "total_trades": 147,
+      "is_top_10": false,
+      "is_best": false
+    }
+  ],
+  "cycle_6": [
+    {
+      "x": 0.4,
+      "y": 0.24,
+      "sharpe": -2.2395325447507988,
+      "pnl": 1322.1896377277164,
+      "total_return": -57.71661770071073,
+      "max_drawdown": -57.109418423923195,
+      "win_rate": 30.612244897959183,
+      "total_trades": 147,
+      "is_top_10": false,
+      "is_best": false
+    },
+    {
+      "x": 0.4,
+      "y": 0.26,
+      "sharpe": -2.0745756773558037,
+      "pnl": 1262.8744515365352,
+      "total_return": -53.212097086674206,
+      "max_drawdown": -52.518614895793,
+      "win_rate": 32.6530612244898,
+      "total_trades": 147,
+      "is_top_10": false,
+      "is_best": false
+    },
+    {
+      "x": 0.42,
+      "y": 0.24,
+      "sharpe": -1.3611021247166706,
+      "pnl": 835.1097622059556,
+      "total_return": -43.966489000643186,
+      "max_drawdown": -47.102645691000404,
+      "win_rate": 32.41379310344827,
+      "total_trades": 145,
+      "is_top_10": true,
+      "is_best": true
+    },
+    {
+      "x": 0.42,
+      "y": 0.26,
+      "sharpe": -1.569800194128537,
+      "pnl": 1013.5978341504865,
+      "total_return": -45.31656883904943,
+      "max_drawdown": -48.19836419130538,
+      "win_rate": 33.10344827586207,
+      "total_trades": 145,
+      "is_top_10": false,
+      "is_best": false
+    }
+  ],
+  "cycle_7": [
+    {
+      "x": 0.4,
+      "y": 0.24,
+      "sharpe": -0.6063805391299735,
+      "pnl": 659.9871525794263,
+      "total_return": -32.64004597060713,
+      "max_drawdown": -41.173298845161135,
+      "win_rate": 30.434782608695656,
+      "total_trades": 138,
+      "is_top_10": false,
+      "is_best": false
+    },
+    {
+      "x": 0.4,
+      "y": 0.26,
+      "sharpe": -0.9016736368440308,
+      "pnl": 888.2509344599225,
+      "total_return": -37.589730630511376,
+      "max_drawdown": -44.062333268409795,
+      "win_rate": 30.434782608695656,
+      "total_trades": 138,
+      "is_top_10": false,
+      "is_best": false
+    },
+    {
+      "x": 0.42,
+      "y": 0.24,
+      "sharpe": -0.16964232911862007,
+      "pnl": 345.29133665010045,
+      "total_return": -20.14990110637077,
+      "max_drawdown": -35.28932712235463,
+      "win_rate": 31.61764705882353,
+      "total_trades": 136,
+      "is_top_10": true,
+      "is_best": true
+    },
+    {
+      "x": 0.42,
+      "y": 0.26,
+      "sharpe": -0.4012458829127686,
+      "pnl": 528.8156368963107,
+      "total_return": -25.087438090947998,
+      "max_drawdown": -35.40414621758427,
+      "win_rate": 31.61764705882353,
+      "total_trades": 136,
+      "is_top_10": false,
+      "is_best": false
+    }
+  ],
+  "cycle_8": [
+    {
+      "x": 0.4,
+      "y": 0.24,
+      "sharpe": -0.30898655734942887,
+      "pnl": 561.7691379761904,
+      "total_return": -24.327127806618233,
+      "max_drawdown": -38.16790411132615,
+      "win_rate": 27.27272727272727,
+      "total_trades": 143,
+      "is_top_10": true,
+      "is_best": true
+    },
+    {
+      "x": 0.4,
+      "y": 0.26,
+      "sharpe": -0.5028762680525592,
+      "pnl": 660.6648566019865,
+      "total_return": -27.889367796971896,
+      "max_drawdown": -40.20882728887473,
+      "win_rate": 27.27272727272727,
+      "total_trades": 143,
+      "is_top_10": false,
+      "is_best": false
+    },
+    {
+      "x": 0.42,
+      "y": 0.24,
+      "sharpe": -0.8965373517247776,
+      "pnl": 874.8134212409533,
+      "total_return": -39.101926761697534,
+      "max_drawdown": -51.23886270781737,
+      "win_rate": 25.71428571428571,
+      "total_trades": 140,
+      "is_top_10": false,
+      "is_best": false
+    },
+    {
+      "x": 0.42,
+      "y": 0.26,
+      "sharpe": -0.6937605430972235,
+      "pnl": 854.6731489524609,
+      "total_return": -32.63713481033419,
+      "max_drawdown": -43.846320386898,
+      "win_rate": 27.142857142857142,
+      "total_trades": 140,
+      "is_top_10": false,
+      "is_best": false
+    }
+  ],
+  "cycle_9": [
+    {
+      "x": 0.4,
+      "y": 0.24,
+      "sharpe": 0.24450897501270047,
+      "pnl": 381.43582290127847,
+      "total_return": -2.4153985709916337,
+      "max_drawdown": -32.660595338603535,
+      "win_rate": 34.0,
+      "total_trades": 150,
+      "is_top_10": true,
+      "is_best": true
+    },
+    {
+      "x": 0.4,
+      "y": 0.26,
+      "sharpe": 0.01334451045616226,
+      "pnl": 569.1561852485814,
+      "total_return": -9.483000255712382,
+      "max_drawdown": -31.5078151136152,
+      "win_rate": 34.0,
+      "total_trades": 150,
+      "is_top_10": false,
+      "is_best": false
+    },
+    {
+      "x": 0.42,
+      "y": 0.24,
+      "sharpe": -0.500256224300983,
+      "pnl": 855.9963301008193,
+      "total_return": -25.29802775871651,
+      "max_drawdown": -39.942650533438915,
+      "win_rate": 31.506849315068493,
+      "total_trades": 146,
+      "is_top_10": false,
+      "is_best": false
+    },
+    {
+      "x": 0.42,
+      "y": 0.26,
+      "sharpe": -0.11607085795621457,
+      "pnl": 732.5102196671676,
+      "total_return": -13.375640734482296,
+      "max_drawdown": -31.382768465521416,
+      "win_rate": 33.56164383561644,
+      "total_trades": 146,
+      "is_top_10": false,
+      "is_best": false
+    }
+  ]
+}

@@ -5,6 +5,7 @@ Walk-forward optimization report generator.
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import List
 from datetime import datetime
@@ -12,6 +13,8 @@ from datetime import datetime
 import pandas as pd
 
 from src.backtest.optimization.walk_forward import CycleResult, BacktestResult
+
+logger = logging.getLogger(__name__)
 
 
 class WFOReportGenerator:
@@ -28,6 +31,7 @@ class WFOReportGenerator:
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.data_dir = self.output_dir / "data"
         self.data_dir.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Report generator initialized: output_dir={self.output_dir}")
 
     def _generate_scatter_plot_data(self, cycle_result: CycleResult) -> dict:
         """Generate scatter plot data for a cycle."""
@@ -35,16 +39,18 @@ class WFOReportGenerator:
         for result in cycle_result.grid_results:
             sharpe = result.sharpe
             pnl = abs(result.total_pnl)
-            data.append({
-                "x": result.params["breakout_multiplier"],
-                "y": result.params["stop_multiplier"],
-                "sharpe": sharpe,
-                "pnl": pnl,
-                "total_return": result.total_return,
-                "max_drawdown": result.max_drawdown,
-                "win_rate": result.win_rate,
-                "total_trades": result.total_trades,
-            })
+            data.append(
+                {
+                    "x": result.params["breakout_multiplier"],
+                    "y": result.params["stop_multiplier"],
+                    "sharpe": sharpe,
+                    "pnl": pnl,
+                    "total_return": result.total_return,
+                    "max_drawdown": result.max_drawdown,
+                    "win_rate": result.win_rate,
+                    "total_trades": result.total_trades,
+                }
+            )
 
         # Find top 10% by Sharpe for robustness zone
         if data:
@@ -59,7 +65,7 @@ class WFOReportGenerator:
         best_x = cycle_result.best_config.params["breakout_multiplier"]
         best_y = cycle_result.best_config.params["stop_multiplier"]
         for d in data:
-            d["is_best"] = (d["x"] == best_x and d["y"] == best_y)
+            d["is_best"] = d["x"] == best_x and d["y"] == best_y
 
         return data
 
@@ -76,11 +82,13 @@ class WFOReportGenerator:
         # Convert to heatmap format
         heatmap_data = []
         for (breakout, stop), count in param_counts.items():
-            heatmap_data.append({
-                "x": breakout,
-                "y": stop,
-                "count": count,
-            })
+            heatmap_data.append(
+                {
+                    "x": breakout,
+                    "y": stop,
+                    "count": count,
+                }
+            )
 
         return heatmap_data
 
@@ -100,11 +108,13 @@ class WFOReportGenerator:
                 for timestamp, equity in equity_curve.items():
                     # Convert to cumulative
                     normalized_equity = cumulative_equity + (equity - first_equity)
-                    equity_data.append({
-                        "time": int(pd.Timestamp(timestamp).timestamp()),
-                        "value": float(normalized_equity),
-                        "cycle": cycle.cycle_num,
-                    })
+                    equity_data.append(
+                        {
+                            "time": int(pd.Timestamp(timestamp).timestamp()),
+                            "value": float(normalized_equity),
+                            "cycle": cycle.cycle_num,
+                        }
+                    )
                 # Update cumulative for next cycle
                 cumulative_equity = normalized_equity
 
@@ -173,7 +183,7 @@ class WFOReportGenerator:
                     <h3>Parameter Optimization</h3>
                     <div id="scatter-plot-{cycle_result.cycle_num}"></div>
                     <p class="plot-legend">
-                        <strong>Legend:</strong> Color = Sharpe Ratio (yellow → red), Size = PnL magnitude<br>
+                        <strong>Legend:</strong> Color = Sharpe Ratio (yellow = low, dark red = high), Size = PnL magnitude<br>
                         ★ = Selected best config, ○ = Top 10% robustness zone
                     </p>
                 </div>
@@ -212,14 +222,19 @@ class WFOReportGenerator:
         equity_data = self._generate_combined_oos_equity_curve(cycle_results)
 
         # Save data as JSON
+        logger.debug("Saving scatter plot data...")
         with open(self.data_dir / "scatter_data.json", "w") as f:
             json.dump(scatter_data, f, indent=2)
 
+        logger.debug("Saving stability heatmap data...")
         with open(self.data_dir / "stability_heatmap.json", "w") as f:
             json.dump(stability_data, f, indent=2)
 
+        logger.debug("Saving equity curve data...")
         with open(self.data_dir / "oos_equity_curve.json", "w") as f:
             json.dump(equity_data, f, indent=2)
+
+        logger.debug("All data files saved successfully")
 
         # Generate summary
         summary_html = self._generate_summary_section(cycle_results)
@@ -288,10 +303,13 @@ class WFOReportGenerator:
                     marker: {{
                         size: data.map(d => {{
                             const maxPnl = Math.max(...data.map(dd => Math.abs(dd.pnl)));
-                            return maxPnl > 0 ? 1 + (Math.abs(d.pnl) / maxPnl) : 1;
+                            const minSize = 8;
+                            const maxSize = 25;
+                            return maxPnl > 0 ? minSize + (Math.abs(d.pnl) / maxPnl) * (maxSize - minSize) : minSize;
                         }}),
                         color: data.map(d => d.sharpe),
                         colorscale: 'YlOrRd',
+                        reversescale: true,
                         showscale: true,
                         colorbar: {{ title: 'Sharpe Ratio' }},
                         line: {{
@@ -491,8 +509,12 @@ class WFOReportGenerator:
         Returns:
             Path to generated HTML report
         """
+        logger.info(f"Generating report for {len(cycle_results)} cycles...")
+        logger.debug("Generating scatter plot data...")
         html_content = self._generate_html_template(cycle_results)
         report_path = self.output_dir / "wfo_report.html"
+        logger.info(f"Writing report to {report_path}...")
         report_path.write_text(html_content, encoding="utf-8")
+        logger.info(f"Report generated successfully: {report_path}")
+        logger.debug(f"Report size: {len(html_content):,} characters")
         return report_path
-

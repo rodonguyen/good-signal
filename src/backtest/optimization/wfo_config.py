@@ -2,9 +2,12 @@
 Walk-forward optimization configuration and date window calculation.
 """
 
+import logging
 from datetime import datetime, timedelta
 from typing import List, Tuple
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 
 def calculate_wfo_windows(
@@ -35,6 +38,10 @@ def calculate_wfo_windows(
         >>> len(windows) > 0
         True
     """
+    logger.debug(
+        f"Calculating WFO windows: data_range={data_start.date()} to {data_end.date()}, "
+        f"train={train_months}mo, test={test_months}mo, step={step_months}mo"
+    )
     windows = []
     current_train_start = data_start
 
@@ -48,24 +55,31 @@ def calculate_wfo_windows(
 
         # Check if we have enough data
         if train_end > data_end:
+            logger.debug(f"Training period extends beyond data end, stopping")
             break
 
         # Check if test period extends beyond data
         if test_end > data_end:
             # Use available data for test period
             test_end = data_end
+            logger.debug(f"Test period truncated to data end: {test_end.date()}")
 
         # Only add window if we have complete training period
         if train_end <= data_end:
             windows.append((current_train_start, train_end, test_start, test_end))
+            logger.debug(
+                f"Window {len(windows)}: Train {current_train_start.date()} to {train_end.date()}, " f"Test {test_start.date()} to {test_end.date()}"
+            )
 
         # Step forward
         current_train_start = current_train_start + pd.DateOffset(months=step_months)
 
         # Stop if next training start would be beyond data
         if current_train_start >= data_end:
+            logger.debug(f"Next training start would be beyond data end, stopping")
             break
 
+    logger.info(f"Calculated {len(windows)} walk-forward windows")
     return windows
 
 
@@ -106,4 +120,3 @@ def get_data_date_range(data_file: str) -> Tuple[datetime, datetime]:
     end_date = pd.to_datetime(df_end["timestamp"].iloc[0], utc=True) if len(df_end) > 0 else start_date
 
     return start_date, end_date
-

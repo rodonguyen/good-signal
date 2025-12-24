@@ -4,12 +4,15 @@ Walk-forward optimization orchestrator.
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Mapping, Optional
 
 import pandas as pd
+
+logger = logging.getLogger(__name__)
 
 from src.backtest.contracts import BacktestContext, BaseBacktestStrategy
 from src.backtest.runner import BacktestConfig, _strategy_factory
@@ -27,6 +30,7 @@ from src.backtest.optimization.metrics import (
     calculate_total_return,
     calculate_total_pnl,
 )
+from src.backtest.optimization.checkpoint import CheckpointManager
 
 
 @dataclass
@@ -75,6 +79,7 @@ class WalkForwardOptimizer:
         breakout_range: tuple[float, float, float] = (0.24, 0.60, 0.02),
         stop_range: tuple[float, float, float] = (0.16, 0.50, 0.02),
         optimization_target: str = "sharpe",
+        checkpoint_dir: Optional[Path] = None,
     ):
         """
         Initialize walk-forward optimizer.
@@ -87,6 +92,7 @@ class WalkForwardOptimizer:
             breakout_range: (start, end, step) for breakout_multiplier
             stop_range: (start, end, step) for stop_multiplier
             optimization_target: Metric to optimize ('sharpe', 'pnl', 'return')
+            checkpoint_dir: Optional directory for checkpoint files (enables resume)
         """
         self.config = config
         self.strategy_type = strategy_type
@@ -96,7 +102,14 @@ class WalkForwardOptimizer:
         self.stop_range = stop_range
         self.optimization_target = optimization_target
 
+        # Initialize checkpoint manager if directory provided
+        self.checkpoint_manager = None
+        if checkpoint_dir is not None:
+            self.checkpoint_manager = CheckpointManager(checkpoint_dir)
+            logger.info(f"Checkpoint/resume enabled: {checkpoint_dir}")
+
         # Initialize data store
+        logger.info(f"Initializing data store for {symbol}...")
         cache_cfg = self.config.cache
         store_cfg = OhlcvStoreConfig(
             raw_1m_dir=self.config.raw_1m_dir,
@@ -105,13 +118,16 @@ class WalkForwardOptimizer:
             cache_version=str(cache_cfg.get("version", "v1")),
         )
         self.store = OhlcvStore(store_cfg)
+        logger.debug(f"Data store initialized: cache_enabled={store_cfg.cache_enabled}, cache_dir={store_cfg.cache_dir}")
 
         # Load full dataset once
-        print(f"Loading data for {symbol}...")
+        logger.info(f"Loading data for {symbol}...")
         self.full_minute_df = self.store.load_1m(symbol)
-        print(f"Loaded {len(self.full_minute_df):,} 1m rows")
+        logger.info(f"Loaded {len(self.full_minute_df):,} 1m rows")
+        logger.debug(f"Data date range: {self.full_minute_df['timestamp'].min()} to {self.full_minute_df['timestamp'].max()}")
 
         # Initialize strategy
+        logger.info(f"Initializing strategy: {strategy_type}")
         self.strategy = _strategy_factory(strategy_type)
 
         # Get strategy config from backtest config
@@ -119,12 +135,13 @@ class WalkForwardOptimizer:
         if not strategy_configs:
             raise ValueError(f"Strategy type '{strategy_type}' not found in config")
         self.strategy_cfg = strategy_configs[0]
+        logger.debug(f"Strategy config loaded: {self.strategy_cfg}")
 
     def _filter_data_by_date(self, df: pd.DataFrame, start: datetime, end: datetime) -> pd.DataFrame:
         """Filter DataFrame by date range."""
         if "timestamp" not in df.columns:
             return df
-        
+
         # Convert to Timestamp and ensure UTC timezone
         # Handle both timezone-aware and naive datetime objects
         start_ts = pd.Timestamp(start)
@@ -132,13 +149,13 @@ class WalkForwardOptimizer:
             start_ts = start_ts.tz_localize("UTC")
         else:
             start_ts = start_ts.tz_convert("UTC")
-        
+
         end_ts = pd.Timestamp(end)
         if end_ts.tz is None:
             end_ts = end_ts.tz_localize("UTC")
         else:
             end_ts = end_ts.tz_convert("UTC")
-        
+
         mask = (df["timestamp"] >= start_ts) & (df["timestamp"] <= end_ts)
         return df[mask].copy()
 
@@ -173,13 +190,19 @@ class WalkForwardOptimizer:
         Returns:
             BacktestResult or None if no trades generated
         """
+        logger.debug(f"Running backtest: params={params}, period={start.date()} to {end.date()}")
         # Filter data to date range
         minute_df = self._filter_data_by_date(self.full_minute_df, start, end)
         if len(minute_df) == 0:
+            logger.debug(f"No data available for period {start.date()} to {end.date()}")
             return None
+        logger.debug(f"Filtered data: {len(minute_df):,} rows")
 
         # Build filter allow map
+        logger.debug("Building filter allow map...")
         filter_allow_map = self._build_filter_allow_map(minute_df)
+        if filter_allow_map:
+            logger.debug(f"Filter allow map created: {len(filter_allow_map)} entries")
 
         # Create context
         ctx = BacktestContext(
@@ -213,15 +236,20 @@ class WalkForwardOptimizer:
             strategy_params["_signal_bars"] = hourly_df
 
         # Generate trades
+        logger.debug("Generating trades...")
         trades_df = self.strategy.generate_trades(minute_df, context=ctx, params=strategy_params)
 
         if len(trades_df) == 0:
+            logger.debug("No trades generated")
             return None
+        logger.debug(f"Generated {len(trades_df)} trades")
 
         # Build portfolio to get equity curve
+        logger.debug("Building portfolio and equity curve...")
         portfolio_cfg = self.config.portfolio_config
         if not portfolio_cfg.get("enabled", False):
             # If portfolio building disabled, use simple equity curve
+            logger.debug("Portfolio building disabled, using simple equity curve")
             initial_capital = 1000.0
             trades_df = trades_df.copy()
             trades_df["portfolio_pnl"] = trades_df["net_pnl"]
@@ -231,6 +259,7 @@ class WalkForwardOptimizer:
             )
         else:
             # Use PortfolioBuilder
+            logger.debug("Using PortfolioBuilder for equity curve")
             portfolio_config_path = portfolio_cfg.get("config_path", "config/backtest/portfolio_config.yaml")
             builder = PortfolioBuilder(config_path=portfolio_config_path)
             builder.paths["trades_dir"] = str(Path(self.config.outputs["trades_dir"]) / "wfo_temp")
@@ -243,6 +272,7 @@ class WalkForwardOptimizer:
             temp_dir.mkdir(parents=True, exist_ok=True)
             temp_file = temp_dir / f"{self.symbol}_trades.csv"
             trades_df.to_csv(temp_file, index=False)
+            logger.debug(f"Saved temporary trades file: {temp_file}")
 
             # Build portfolio
             try:
@@ -252,8 +282,9 @@ class WalkForwardOptimizer:
                     portfolio_df["equity"].values,
                     index=pd.to_datetime(portfolio_df["exit_time"], utc=True),
                 ).sort_index()
+                logger.debug(f"Portfolio built successfully: initial_capital={initial_capital}")
             except Exception as e:
-                print(f"Warning: Portfolio building failed: {e}, using simple equity curve")
+                logger.warning(f"Portfolio building failed: {e}, using simple equity curve")
                 initial_capital = 1000.0
                 trades_df = trades_df.copy()
                 trades_df["portfolio_pnl"] = trades_df["net_pnl"]
@@ -263,6 +294,7 @@ class WalkForwardOptimizer:
                 )
 
         # Calculate metrics
+        logger.debug("Calculating performance metrics...")
         sharpe = calculate_sharpe_ratio(equity_curve)
         total_pnl = calculate_total_pnl(trades_df)
         max_dd = calculate_max_drawdown(equity_curve)
@@ -271,6 +303,8 @@ class WalkForwardOptimizer:
         win_rate = calculate_win_rate(trades_df)
         avg_win, avg_loss = calculate_avg_win_loss(trades_df)
         final_equity = equity_curve.iloc[-1] if len(equity_curve) > 0 else initial_capital
+
+        logger.debug(f"Metrics: Sharpe={sharpe:.2f}, PnL=${total_pnl:.2f}, Return={total_ret:.2f}%, WinRate={win_rate:.1f}%")
 
         return BacktestResult(
             params=params,
@@ -324,40 +358,55 @@ class WalkForwardOptimizer:
         Returns:
             CycleResult or None if no valid results
         """
-        print(f"\n=== Cycle {cycle_num} ===")
-        print(f"Training: {train_start.date()} to {train_end.date()}")
-        print(f"Testing: {test_start.date()} to {test_end.date()}")
+        logger.info("=" * 60)
+        logger.info(f"Cycle {cycle_num}")
+        logger.info(f"Training: {train_start.date()} to {train_end.date()}")
+        logger.info(f"Testing: {test_start.date()} to {test_end.date()}")
 
         # Generate parameter grid
+        logger.info("Generating parameter grid...")
         param_grid = generate_parameter_grid(self.breakout_range, self.stop_range)
-        print(f"Testing {len(param_grid)} parameter combinations...")
+        total_combinations = len(param_grid)
+        logger.info(f"Testing {total_combinations} parameter combinations...")
 
         # Run grid search on training period
+        logger.info("Starting grid search on training period...")
         grid_results = []
         for i, params in enumerate(param_grid, 1):
-            if i % 50 == 0:
-                print(f"  Progress: {i}/{len(param_grid)}")
+            if i % 20 == 0:
+                logger.info(f"  Progress: {i}/{len(param_grid)} ({i/len(param_grid)*100:.1f}%)")
             result = self._run_single_backtest(params, train_start, train_end)
             if result is not None:
                 grid_results.append(result)
 
+        logger.info(f"Grid search completed: {len(grid_results)} valid results out of {len(param_grid)} combinations")
+
         if not grid_results:
-            print("  No valid results from training period")
+            logger.warning("No valid results from training period")
             return None
 
         # Select best config
+        logger.info("Selecting best configuration...")
         best_config = self._select_best_config(grid_results)
-        print(f"  Best config: breakout_mult={best_config.params['breakout_multiplier']:.2f}, "
-              f"stop_mult={best_config.params['stop_multiplier']:.2f}, "
-              f"Sharpe={best_config.sharpe:.2f}")
+        logger.info(
+            f"Best config: breakout_mult={best_config.params['breakout_multiplier']:.2f}, "
+            f"stop_mult={best_config.params['stop_multiplier']:.2f}, "
+            f"Sharpe={best_config.sharpe:.2f}, PnL=${best_config.total_pnl:.2f}, "
+            f"Return={best_config.total_return:.2f}%"
+        )
 
         # Run test period with best config
-        print(f"  Running test period with best config...")
+        logger.info("Running test period with best config...")
         test_result = self._run_single_backtest(best_config.params, test_start, test_end)
 
         if test_result is None:
-            print("  No trades in test period")
+            logger.warning("No trades in test period")
             return None
+
+        logger.info(
+            f"Test period results: Sharpe={test_result.sharpe:.2f}, PnL=${test_result.total_pnl:.2f}, "
+            f"Return={test_result.total_return:.2f}%, Trades={test_result.total_trades}"
+        )
 
         return CycleResult(
             cycle_num=cycle_num,
@@ -371,11 +420,52 @@ class WalkForwardOptimizer:
         )
 
     def run_all_cycles(self) -> list[CycleResult]:
-        """Run all walk-forward cycles."""
-        cycle_results = []
+        """
+        Run all walk-forward cycles with checkpoint/resume support.
+
+        Returns:
+            List of all cycle results (from checkpoints + newly completed)
+        """
+        total_cycles = len(self.date_windows)
+        logger.info(f"Starting walk-forward optimization: {total_cycles} cycles to process")
+
+        # Load existing checkpoints if checkpoint manager is enabled
+        completed_cycles = {}
+        if self.checkpoint_manager is not None:
+            completed_cycles = self.checkpoint_manager.get_completed_cycles(total_cycles)
+            if completed_cycles:
+                logger.info(f"Resuming: {len(completed_cycles)} cycles already completed")
+
+        # Run cycles, skipping completed ones
+        cycle_results = list(completed_cycles.values())
         for i, (train_start, train_end, test_start, test_end) in enumerate(self.date_windows, 1):
-            result = self.run_cycle(i, train_start, train_end, test_start, test_end)
+            cycle_num = i
+
+            # Skip if already completed
+            if cycle_num in completed_cycles:
+                logger.info(f"Skipping cycle {cycle_num}/{total_cycles} (already completed)")
+                continue
+
+            logger.info(f"Processing cycle {cycle_num}/{total_cycles}")
+            result = self.run_cycle(cycle_num, train_start, train_end, test_start, test_end)
+
             if result is not None:
                 cycle_results.append(result)
-        return cycle_results
 
+                # Save checkpoint if checkpoint manager is enabled
+                if self.checkpoint_manager is not None:
+                    try:
+                        self.checkpoint_manager.save_cycle(result)
+                        logger.info(f"Cycle {cycle_num} completed and checkpointed")
+                    except Exception as e:
+                        logger.error(f"Failed to save checkpoint for cycle {cycle_num}: {e}")
+                else:
+                    logger.info(f"Cycle {cycle_num} completed successfully")
+            else:
+                logger.warning(f"Cycle {cycle_num} produced no results")
+
+        # Sort results by cycle number to ensure correct order
+        cycle_results.sort(key=lambda x: x.cycle_num)
+
+        logger.info(f"All cycles completed: {len(cycle_results)} successful out of {total_cycles}")
+        return cycle_results
