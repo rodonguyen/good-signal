@@ -535,10 +535,8 @@ The maximum single loss of -$223 suggests:
 ✅ **Transferable Across Markets:** ETH perpetuals behave similarly to spot BTC
 ✅ **Parameter Sensitivity:** Same cluster counts (100/20) work well
 ✅ **Robust to Resolution:** 1-min intervals sufficient (vs 10-sec)
-
 ❌ **Requires Adaptation:** Cannot directly port parameters without tuning
 ❌ **Order Book Matters:** Real depth data likely improves performance
-❌ **Market Dependent:** Volatility regime affects returns (2014 vs 2024-25)
 
 ---
 

@@ -347,13 +347,15 @@ class PortfolioAnalysis:
                 borderColor: '#cccccc',
                 timeVisible: true,
                 secondsVisible: false,
+                minBarSpacing: 0.5,
             }},
             width: chartContainer.clientWidth,
             height: 700,
         }});
         
         // Add candlestick series
-        const candlestickSeries = chart.addCandlestickSeries({{
+        const {{ CandlestickSeries }} = LightweightCharts;
+        const candlestickSeries = chart.addSeries(CandlestickSeries, {{
             upColor: '#26a69a',
             downColor: '#ef5350',
             borderVisible: false,
@@ -403,7 +405,10 @@ class PortfolioAnalysis:
         }});
         
         // Add trade markers
-        candlestickSeries.setMarkers(markers);
+        const {{ createSeriesMarkers }} = LightweightCharts;
+        if (typeof createSeriesMarkers === 'function' && markers.length > 0) {{
+            createSeriesMarkers(candlestickSeries, markers);
+        }}
         
         // Fit content
         chart.timeScale().fitContent();
@@ -473,6 +478,41 @@ class PortfolioAnalysis:
         else:
             equity_data = []
 
+        # Prepare symbol price data for comparison
+        price_data = []
+        primary_symbol = None
+        if len(trades_df) > 0 and len(equity_curve) > 0:
+            # Get the most traded symbol
+            symbol_counts = trades_df["symbol"].value_counts()
+            if len(symbol_counts) > 0:
+                primary_symbol = symbol_counts.index[0]
+                # Load price data for the primary symbol
+                price_df = self.load_price_data(primary_symbol)
+                if price_df is not None:
+                    # Get date range from equity curve
+                    min_date = equity_curve.index.min()
+                    max_date = equity_curve.index.max()
+
+                    # Filter price data to relevant range
+                    price_filtered = price_df[
+                        (price_df["timestamp"] >= min_date - pd.Timedelta(days=1)) & (price_df["timestamp"] <= max_date + pd.Timedelta(days=1))
+                    ].copy()
+
+                    if len(price_filtered) > 0:
+                        # Resample to daily close prices to match equity curve frequency
+                        price_daily = price_filtered.set_index("timestamp").resample("D").agg({"close": "last"}).reset_index()
+                        price_daily = price_daily.dropna()
+
+                        # Align price data with equity curve timestamps (use closest available price)
+                        for equity_time in equity_curve.index:
+                            # Find closest price timestamp
+                            time_diff = abs(price_daily["timestamp"] - equity_time)
+                            closest_idx = time_diff.idxmin()
+                            if time_diff.iloc[closest_idx] <= pd.Timedelta(days=1):
+                                price_data.append(
+                                    {"time": int(pd.Timestamp(equity_time).timestamp()), "value": float(price_daily.iloc[closest_idx]["close"])}
+                                )
+
         # Calculate drawdown series
         if len(equity_curve) > 0:
             running_max = equity_curve.expanding().max()
@@ -497,20 +537,59 @@ class PortfolioAnalysis:
         else:
             histogram_data = {"labels": [], "values": []}
 
-        # Format config for display
+        # Load symbol chart data
+        symbols = trades_df["symbol"].unique() if len(trades_df) > 0 else []
+        symbol_chart_html = ""
+        symbol_chart_script = ""
+
+        if len(symbols) > 0:
+            chart_data_dir = self.output_dir / "chart_data"
+            for symbol in symbols:
+                json_file = chart_data_dir / f"{symbol}_chart_data.json"
+                if json_file.exists():
+                    try:
+                        with open(json_file, "r", encoding="utf-8") as f:
+                            chart_data = json.load(f)
+                            html_part, script_part = self._create_basic_chart_html_v2(symbol, chart_data)
+                            symbol_chart_html += html_part
+                            symbol_chart_script += script_part
+
+                    except Exception as e:
+                        print(f"  Warning: Could not load chart data for {symbol}: {e}")
+
+        # Format config as plain table
         config_html = f"""
-        <div class="config-section">
-            <h3>Breakout Strategy Configuration</h3>
-            <div class="config-grid">
-                <div class="config-item"><strong>ATR Period:</strong> {strategy.get('atr_period', 'N/A')}</div>
-                <div class="config-item"><strong>Breakout Multiplier:</strong> {strategy.get('breakout_multiplier', 'N/A')}</div>
-                <div class="config-item"><strong>Stop Multiplier:</strong> {strategy.get('stop_multiplier', 'N/A')}</div>
-                <div class="config-item"><strong>Day Start Hour:</strong> {strategy.get('day_start_hour', 'N/A')} UTC</div>
-                <div class="config-item"><strong>Fee Rate:</strong> {strategy.get('fee_rate', 'N/A')} ({strategy.get('fee_rate', 0) * 100 if strategy.get('fee_rate') else 0:.2f}%)</div>
-                <div class="config-item"><strong>Data Directory:</strong> {paths.get('data_dir', 'N/A')}</div>
-                <div class="config-item"><strong>Output Directory:</strong> {paths.get('output_dir', 'N/A')}</div>
-            </div>
-        </div>
+        <h2>Configuration</h2>
+        <table>
+            <tr>
+                <td>ATR Period</td>
+                <td>{strategy.get('atr_period', 'N/A')}</td>
+            </tr>
+            <tr>
+                <td>Breakout Multiplier</td>
+                <td>{strategy.get('breakout_multiplier', 'N/A')}</td>
+            </tr>
+            <tr>
+                <td>Stop Multiplier</td>
+                <td>{strategy.get('stop_multiplier', 'N/A')}</td>
+            </tr>
+            <tr>
+                <td>Day Start Hour</td>
+                <td>{strategy.get('day_start_hour', 'N/A')} UTC</td>
+            </tr>
+            <tr>
+                <td>Fee Rate</td>
+                <td>{strategy.get('fee_rate', 'N/A')} ({strategy.get('fee_rate', 0) * 100 if strategy.get('fee_rate') else 0:.2f}%)</td>
+            </tr>
+            <tr>
+                <td>Data Directory</td>
+                <td>{paths.get('data_dir', 'N/A')}</td>
+            </tr>
+            <tr>
+                <td>Output Directory</td>
+                <td>{paths.get('output_dir', 'N/A')}</td>
+            </tr>
+        </table>
         """
         html = f"""
 <!DOCTYPE html>
@@ -518,6 +597,7 @@ class PortfolioAnalysis:
 <head>
     <title>Portfolio Performance Report</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <style>
         body {{
             font-family: Arial, sans-serif;
@@ -541,73 +621,10 @@ class PortfolioAnalysis:
             color: #333;
             margin-top: 30px;
         }}
-        h3 {{
-            color: #555;
-            margin-top: 20px;
-            font-size: 18px;
-        }}
-        .config-section {{
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 5px;
-            margin: 20px 0;
-            border-left: 4px solid #2E86AB;
-        }}
-        .config-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 10px;
-            margin-top: 10px;
-        }}
-        .config-item {{
-            padding: 8px;
-            background-color: white;
-            border-radius: 3px;
-        }}
-        .stats-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }}
-        .stat-card {{
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            border-left: 4px solid #2E86AB;
-        }}
-        .stat-label {{
-            font-size: 12px;
-            color: #666;
-            text-transform: uppercase;
-        }}
-        .stat-value {{
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-            margin-top: 5px;
-        }}
         .chart-container {{
             margin: 30px 0;
             position: relative;
             height: 400px;
-        }}
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }}
-        th, td {{
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }}
-        th {{
-            background-color: #2E86AB;
-            color: white;
-        }}
-        tr:hover {{
-            background-color: #f5f5f5;
         }}
     </style>
 </head>
@@ -618,40 +635,40 @@ class PortfolioAnalysis:
         {config_html}
         
         <h2>Summary Statistics</h2>
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Total Return</div>
-                <div class="stat-value">{stats['total_return']:.2f}%</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Annualized Return</div>
-                <div class="stat-value">{stats['annualized_return']:.2f}%</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Sharpe Ratio</div>
-                <div class="stat-value">{stats['sharpe_ratio']:.2f}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Max Drawdown</div>
-                <div class="stat-value">{stats['max_drawdown']:.2f}%</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Win Rate</div>
-                <div class="stat-value">{stats['win_rate']:.1f}%</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Profit Factor</div>
-                <div class="stat-value">{stats['profit_factor']:.2f}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Total Trades</div>
-                <div class="stat-value">{stats['total_trades']}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Avg Trade</div>
-                <div class="stat-value">${stats['avg_trade']:.2f}</div>
-            </div>
-        </div>
+        <table>
+            <tr>
+                <td>Total Return</td>
+                <td>{stats['total_return']:.2f}%</td>
+            </tr>
+            <tr>
+                <td>Annualized Return</td>
+                <td>{stats['annualized_return']:.2f}%</td>
+            </tr>
+            <tr>
+                <td>Sharpe Ratio</td>
+                <td>{stats['sharpe_ratio']:.2f}</td>
+            </tr>
+            <tr>
+                <td>Max Drawdown</td>
+                <td>{stats['max_drawdown']:.2f}%</td>
+            </tr>
+            <tr>
+                <td>Win Rate</td>
+                <td>{stats['win_rate']:.1f}%</td>
+            </tr>
+            <tr>
+                <td>Profit Factor</td>
+                <td>{stats['profit_factor']:.2f}</td>
+            </tr>
+            <tr>
+                <td>Total Trades</td>
+                <td>{stats['total_trades']}</td>
+            </tr>
+            <tr>
+                <td>Avg Trade</td>
+                <td>${stats['avg_trade']:.2f}</td>
+            </tr>
+        </table>
         
         <h2>Portfolio Equity Chart</h2>
         <div class="chart-container">
@@ -670,10 +687,6 @@ class PortfolioAnalysis:
         
         <h2>Detailed Statistics</h2>
         <table>
-            <tr>
-                <th>Metric</th>
-                <th>Value</th>
-            </tr>
             <tr>
                 <td>Initial Capital</td>
                 <td>${stats['initial_capital']:,.2f}</td>
@@ -748,12 +761,234 @@ class PortfolioAnalysis:
             </tr>
         </table>
         
+        {symbol_chart_html}
+        
         <p style="margin-top: 30px; color: #666; font-size: 12px;">
             Report generated on {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}
         </p>
     </div>
     
     <script>
+        // PortfolioChart module for symbol charts
+        (function() {{
+            'use strict';
+            const PortfolioChart = {{
+                init(containerId, chartData, options = {{}}) {{
+                    if (typeof LightweightCharts === 'undefined') {{
+                        console.error('LightweightCharts library not loaded');
+                        return;
+                    }}
+                    const container = document.getElementById(containerId);
+                    if (!container) {{
+                        console.error(`Container not found: ${{containerId}}`);
+                        return;
+                    }}
+                    container.innerHTML = '';
+                    const chart = LightweightCharts.createChart(container, {{
+                        layout: {{
+                            background: {{ color: '#131722' }},
+                            textColor: '#d1d4dc'
+                        }},
+                        grid: {{
+                            vertLines: {{ color: '#2a2e39' }},
+                            horzLines: {{ color: '#2a2e39' }}
+                        }},
+                        crosshair: {{
+                            mode: LightweightCharts.CrosshairMode.Normal
+                        }},
+                        timeScale: {{
+                            timeVisible: true,
+                            secondsVisible: true,
+                            minBarSpacing: 0.5,
+                        }},
+                    width: container.clientWidth,
+                    height: options.height || 700
+                }});
+                const {{ CandlestickSeries }} = LightweightCharts;
+                const candlestickSeries = chart.addSeries(CandlestickSeries, {{
+                    upColor: '#26a69a',
+                    downColor: '#ef5350',
+                    borderVisible: false,
+                    wickUpColor: '#26a69a',
+                    wickDownColor: '#ef5350'
+                }});
+                    if (chartData.candlestickData && chartData.candlestickData.length > 0) {{
+                        candlestickSeries.setData(chartData.candlestickData);
+                    }}
+                    
+                    if (chartData.bollingerBands && chartData.bollingerBands.length > 0) {{
+                        const {{ LineSeries }} = LightweightCharts;
+                        const bbUpperSeries = chart.addSeries(LineSeries, {{
+                            color: '#9b59b6',
+                            lineWidth: 1,
+                            lineStyle: LightweightCharts.LineStyle.Solid,
+                            priceLineVisible: false,
+                            lastValueVisible: false,
+                            crosshairMarkerVisible: true,
+                            title: 'BB Upper'
+                        }});
+                        bbUpperSeries.setData(chartData.bollingerBands.map(bb => ({{
+                            time: bb.time,
+                            value: bb.upper
+                        }})));
+                        
+                        const bbMiddleSeries = chart.addSeries(LineSeries, {{
+                            color: '#3498db',
+                            lineWidth: 1,
+                            lineStyle: LightweightCharts.LineStyle.Solid,
+                            priceLineVisible: false,
+                            lastValueVisible: false,
+                            crosshairMarkerVisible: true,
+                            title: 'BB Middle'
+                        }});
+                        bbMiddleSeries.setData(chartData.bollingerBands.map(bb => ({{
+                            time: bb.time,
+                            value: bb.middle
+                        }})));
+                        
+                        const bbLowerSeries = chart.addSeries(LineSeries, {{
+                            color: '#9b59b6',
+                            lineWidth: 1,
+                            lineStyle: LightweightCharts.LineStyle.Solid,
+                            priceLineVisible: false,
+                            lastValueVisible: false,
+                            crosshairMarkerVisible: true,
+                            title: 'BB Lower'
+                        }});
+                        bbLowerSeries.setData(chartData.bollingerBands.map(bb => ({{
+                            time: bb.time,
+                            value: bb.lower
+                        }})));
+                    }}
+                    
+                    // Detect strategy type from trade data
+                    const hasStopLevel = chartData.trades && chartData.trades.some(t => t.stopLevel != null);
+                    const hasUpperLower = chartData.trades && chartData.trades.some(t => t.upperLevel != null || t.lowerLevel != null);
+                    const isSupertrend = hasStopLevel || (hasUpperLower && !chartData.bollingerBands);
+                    
+                    if (chartData.trades && chartData.trades.length > 0) {{
+                        const markers = [];
+                        const {{ LineSeries }} = LightweightCharts;
+                        const processedDays = new Set();
+                        chartData.trades.forEach(trade => {{
+                            const isFiltered = trade.isFiltered === true;
+                            const longColor = isFiltered ? '#80cc80' : '#00ff00';
+                            const shortColor = isFiltered ? '#cc8080' : '#ff0000';
+                            const profitColor = isFiltered ? '#80cc80' : '#00ff00';
+                            const lossColor = isFiltered ? '#cc8080' : '#ff0000';
+                            if (trade.entryTime && trade.direction) {{
+                                const isLong = trade.direction === 'long';
+                                markers.push({{
+                                    time: trade.entryTime,
+                                    position: 'aboveBar',
+                                    color: isLong ? longColor : shortColor,
+                                    shape: isLong ? 'arrowUp' : 'arrowDown',
+                                    size: 2
+                                }});
+                            }}
+                            if (trade.exitTime) {{
+                                const isProfit = trade.portfolioPnl !== undefined 
+                                    ? trade.portfolioPnl >= 0 
+                                    : (trade.entryPrice - trade.exitPrice) >= 0;
+                                markers.push({{
+                                    time: trade.exitTime,
+                                    position: 'belowBar',
+                                    color: isProfit ? profitColor : lossColor,
+                                    shape: 'circle',
+                                    size: 2
+                                }});
+                            }}
+                            
+                            // Strategy-specific rendering: Supertrend (stopLevel, upperLevel, lowerLevel)
+                            if (isSupertrend && trade.entryTime) {{
+                                const entryDate = new Date(trade.entryTime * 1000);
+                                let start13UTC = new Date(Date.UTC(
+                                    entryDate.getUTCFullYear(),
+                                    entryDate.getUTCMonth(),
+                                    entryDate.getUTCDate(),
+                                    13, 0, 0, 0
+                                ));
+                                if (start13UTC.getTime() > entryDate.getTime()) {{
+                                    start13UTC.setUTCDate(start13UTC.getUTCDate() - 1);
+                                }}
+                                const dayKey = start13UTC.getTime() / 1000;
+                                if (!processedDays.has(dayKey)) {{
+                                    processedDays.add(dayKey);
+                                    const endTime = dayKey + 86400;
+                                    
+                                    // Upper level (for breakout strategies)
+                                    if (trade.upperLevel != null) {{
+                                        const upperSeries = chart.addSeries(LineSeries, {{
+                                            color: '#00ff00',
+                                            lineWidth: 1,
+                                            lineStyle: LightweightCharts.LineStyle.Dotted,
+                                            priceLineVisible: false,
+                                            lastValueVisible: false,
+                                            crosshairMarkerVisible: false
+                                        }});
+                                        upperSeries.setData([
+                                            {{ time: dayKey, value: trade.upperLevel }},
+                                            {{ time: endTime, value: trade.upperLevel }}
+                                        ]);
+                                    }}
+                                    
+                                    // Lower level (for breakout strategies)
+                                    if (trade.lowerLevel != null) {{
+                                        const lowerSeries = chart.addSeries(LineSeries, {{
+                                            color: '#ffa500',
+                                            lineWidth: 1,
+                                            lineStyle: LightweightCharts.LineStyle.Dotted,
+                                            priceLineVisible: false,
+                                            lastValueVisible: false,
+                                            crosshairMarkerVisible: false
+                                        }});
+                                        lowerSeries.setData([
+                                            {{ time: dayKey, value: trade.lowerLevel }},
+                                            {{ time: endTime, value: trade.lowerLevel }}
+                                        ]);
+                                    }}
+                                    
+                                    // Stop level (for supertrend strategies)
+                                    if (trade.stopLevel != null) {{
+                                        const stopSeries = chart.addSeries(LineSeries, {{
+                                            color: '#ffff00',
+                                            lineWidth: 1,
+                                            lineStyle: LightweightCharts.LineStyle.Dotted,
+                                            priceLineVisible: false,
+                                            lastValueVisible: false,
+                                            crosshairMarkerVisible: false
+                                        }});
+                                        stopSeries.setData([
+                                            {{ time: dayKey, value: trade.stopLevel }},
+                                            {{ time: endTime, value: trade.stopLevel }}
+                                        ]);
+                                    }}
+                                }}
+                            }}
+                        }});
+                        if (markers.length > 0) {{
+                            try {{
+                                const {{ createSeriesMarkers }} = LightweightCharts;
+                                if (typeof createSeriesMarkers === 'function') {{
+                                    createSeriesMarkers(candlestickSeries, markers);
+                                }}
+                            }} catch (error) {{
+                                console.error('Error adding markers:', error);
+                            }}
+                        }}
+                    }}
+                    chart.timeScale().fitContent();
+                    window.addEventListener('resize', () => {{
+                        chart.applyOptions({{ width: container.clientWidth }});
+                    }});
+                    return chart;
+                }}
+            }};
+            window.PortfolioChart = PortfolioChart;
+        }})();
+        
+        {symbol_chart_script}
+        
         // Date formatting function for DD/MM/YYYY
         function formatDateDDMMYYYY(timestamp) {{
             const date = new Date(timestamp * 1000);
@@ -765,26 +1000,56 @@ class PortfolioAnalysis:
         
         // Equity Chart
         const equityData = {json.dumps(equity_data)};
+        const priceData = {json.dumps(price_data)};
         const equityLabels = equityData.map(d => formatDateDDMMYYYY(d.time));
         const equityValues = equityData.map(d => d.value);
         
+        // Align price data with equity labels
+        const priceValues = [];
+        if (priceData.length > 0) {{
+            const priceMap = new Map(priceData.map(d => [formatDateDDMMYYYY(d.time), d.value]));
+            equityLabels.forEach(label => {{
+                priceValues.push(priceMap.get(label) || null);
+            }});
+        }}
+        
         const equityCtx = document.getElementById('equityChart').getContext('2d');
+        const datasets = [{{
+            label: 'Portfolio Equity ($)',
+            data: equityValues,
+            borderColor: '#2E86AB',
+            backgroundColor: 'rgba(46, 134, 171, 0.1)',
+            fill: true,
+            tension: 0.1,
+            yAxisID: 'y'
+        }}];
+        
+        if (priceData.length > 0) {{
+            const symbolName = '{primary_symbol if primary_symbol else "Symbol"}';
+            datasets.push({{
+                label: symbolName + ' Price ($)',
+                data: priceValues,
+                borderColor: '#ff9800',
+                backgroundColor: 'rgba(255, 152, 0, 0.1)',
+                fill: false,
+                tension: 0.1,
+                yAxisID: 'y1'
+            }});
+        }}
+        
         new Chart(equityCtx, {{
             type: 'line',
             data: {{
                 labels: equityLabels,
-                datasets: [{{
-                    label: 'Portfolio Equity ($)',
-                    data: equityValues,
-                    borderColor: '#2E86AB',
-                    backgroundColor: 'rgba(46, 134, 171, 0.1)',
-                    fill: true,
-                    tension: 0.1
-                }}]
+                datasets: datasets
             }},
             options: {{
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {{
+                    mode: 'index',
+                    intersect: false
+                }},
                 plugins: {{
                     title: {{
                         display: true,
@@ -796,6 +1061,9 @@ class PortfolioAnalysis:
                 }},
                 scales: {{
                     y: {{
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
                         beginAtZero: false,
                         title: {{
                             display: true,
@@ -805,6 +1073,24 @@ class PortfolioAnalysis:
                             callback: function(value) {{
                                 return '$' + value.toLocaleString();
                             }}
+                        }}
+                    }},
+                    y1: {{
+                        type: 'linear',
+                        display: priceData.length > 0,
+                        position: 'right',
+                        beginAtZero: false,
+                        title: {{
+                            display: true,
+                            text: 'Price ($)'
+                        }},
+                        ticks: {{
+                            callback: function(value) {{
+                                return '$' + value.toLocaleString();
+                            }}
+                        }},
+                        grid: {{
+                            drawOnChartArea: false
                         }}
                     }},
                     x: {{
@@ -1559,6 +1845,49 @@ class PortfolioAnalysis:
     </script>
 </body>
 </html>"""
+
+    def _create_basic_chart_html_v2(self, symbol: str, chart_data: dict) -> tuple[str, str]:
+        """Create trimmed HTML chart section for embedding in portfolio report.
+
+        Args:
+            symbol: Symbol name
+            chart_data: Chart data dictionary to embed
+
+        Returns:
+            Tuple of (HTML content with chart container, JavaScript initialization code)
+        """
+        chart_data_json = json.dumps(chart_data)
+        chart_id = f"chart-{symbol.replace('/', '-').replace(' ', '-')}"
+        chart_id_var = chart_id.replace("-", "_")
+
+        html_part = f"""
+        <h2>Symbol Chart - {symbol}</h2>
+        <div id="{chart_id}" style="width: 100%; height: 700px; margin: 20px 0;"></div>
+"""
+
+        script_part = f"""
+            (function() {{
+                const chartData_{chart_id_var} = {chart_data_json};
+                function initChart_{chart_id_var}() {{
+                    if (typeof PortfolioChart === 'undefined') {{
+                        setTimeout(initChart_{chart_id_var}, 100);
+                        return;
+                    }}
+                    try {{
+                        PortfolioChart.init('{chart_id}', chartData_{chart_id_var}, {{ height: 700 }});
+                    }} catch (error) {{
+                        console.error('Error initializing chart for {symbol}:', error);
+                    }}
+                }}
+                if (document.readyState === 'loading') {{
+                    document.addEventListener('DOMContentLoaded', initChart_{chart_id_var});
+                }} else {{
+                    initChart_{chart_id_var}();
+                }}
+            }})();
+"""
+
+        return html_part, script_part
 
     def analyze(self) -> str:
         """Run complete analysis and generate report.

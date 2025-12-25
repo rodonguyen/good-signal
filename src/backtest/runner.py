@@ -22,6 +22,7 @@ from src.backtest.data.ohlcv_store import OhlcvStore, OhlcvStoreConfig
 from src.backtest.data.bybit_provider import BybitDataProvider
 from src.backtest.strategies.bb_trendline_rr4 import BBTrendlineRR4BacktestStrategy
 from src.backtest.strategies.atr_breakout import AtrBreakoutStrategy
+from src.backtest.strategies.supertrend import SupertrendStrategy
 from src.backtest.filters.factory import load_filter_pipeline
 from src.backtest.utils.crypto_day_utils import aggregate_24h_periods
 from src.backtest.steps.portfolio import run_portfolio_step
@@ -98,6 +99,8 @@ def _strategy_factory(strategy_type: str):
         return BBTrendlineRR4BacktestStrategy()
     if strategy_type == "atr_breakout":
         return AtrBreakoutStrategy()
+    if strategy_type == "supertrend":
+        return SupertrendStrategy()
     raise ValueError(f"Unknown backtest strategy type: {strategy_type}")
 
 

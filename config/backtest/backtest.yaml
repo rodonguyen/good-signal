@@ -92,7 +92,7 @@ steps:
 
   filters:
     # enabled: Enable pre-entry filter pipeline (filters trading days).
-    enabled: true
+    enabled: false
     
     # config_path: Path to filter rules configuration.
     config_path: config/backtest/filters.yaml
@@ -166,7 +166,7 @@ strategies:
   #               Attempts one breakout per day, exits at EOD or stop loss.
   - id: atr_breakout
     type: atr_breakout
-    enabled: true
+    enabled: false
     
     params:
       # atr_period: Number of 24-hour periods for ATR calculation.
@@ -184,4 +184,19 @@ strategies:
       #                 Day boundaries are calculated from this hour.
       day_start_hour: 13
 
+  # Supertrend: Trend-following strategy using ATR-based Supertrend indicator
+  #             Enters on trend changes, exits on trend reversals.
+  - id: supertrend
+    type: supertrend
+    enabled: true
+
+    # signal_timeframe: Timeframe for Supertrend calculation (4h = 4-hour bars).
+    signal_timeframe: 4h
+
+    params:
+      # atr_period: Number of periods for ATR calculation (default 10).
+      atr_period: 12
+
+      # multiplier: ATR multiplier for Supertrend bands (default 3.0).
+      multiplier: 5
 
