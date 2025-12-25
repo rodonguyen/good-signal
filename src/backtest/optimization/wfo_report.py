@@ -38,7 +38,8 @@ class WFOReportGenerator:
         data = []
         for result in cycle_result.grid_results:
             sharpe = result.sharpe
-            pnl = abs(result.total_pnl)
+            # Use actual PnL value, not absolute value, to match return calculation
+            pnl = result.total_pnl
             data.append(
                 {
                     "x": result.params["breakout_multiplier"],
@@ -102,21 +103,25 @@ class WFOReportGenerator:
             # Get equity curve for test period
             equity_curve = test_result.equity_curve
 
+            # MEMORY OPTIMIZATION: Handle optional equity_curve
+            if equity_curve is None or len(equity_curve) == 0:
+                logger.warning(f"Cycle {cycle.cycle_num}: No equity curve data available")
+                continue
+
             # Normalize to cumulative
-            if len(equity_curve) > 0:
-                first_equity = equity_curve.iloc[0]
-                for timestamp, equity in equity_curve.items():
-                    # Convert to cumulative
-                    normalized_equity = cumulative_equity + (equity - first_equity)
-                    equity_data.append(
-                        {
-                            "time": int(pd.Timestamp(timestamp).timestamp()),
-                            "value": float(normalized_equity),
-                            "cycle": cycle.cycle_num,
-                        }
-                    )
-                # Update cumulative for next cycle
-                cumulative_equity = normalized_equity
+            first_equity = equity_curve.iloc[0]
+            for timestamp, equity in equity_curve.items():
+                # Convert to cumulative
+                normalized_equity = cumulative_equity + (equity - first_equity)
+                equity_data.append(
+                    {
+                        "time": int(pd.Timestamp(timestamp).timestamp()),
+                        "value": float(normalized_equity),
+                        "cycle": cycle.cycle_num,
+                    }
+                )
+            # Update cumulative for next cycle
+            cumulative_equity = normalized_equity
 
         return equity_data
 
@@ -305,6 +310,7 @@ class WFOReportGenerator:
                             const maxPnl = Math.max(...data.map(dd => Math.abs(dd.pnl)));
                             const minSize = 8;
                             const maxSize = 25;
+                            // Use absolute value for size calculation only (visualization)
                             return maxPnl > 0 ? minSize + (Math.abs(d.pnl) / maxPnl) * (maxSize - minSize) : minSize;
                         }}),
                         color: data.map(d => d.sharpe),

@@ -38,18 +38,18 @@ windows:
 parameters:
   # Breakout multiplier range: [start, end, step]
   breakout_multiplier:
-    start: 0.4
-    end: 0.42
+    start: 0.22
+    end: 0.6
     step: 0.02
   
   # Stop multiplier range: [start, end, step]
   stop_multiplier:
-    start: 0.24
-    end: 0.26
+    start: 0.12
+    end: 0.4
     step: 0.02
 
 # Optimization target
-optimization_target: sharpe  # Options: 'sharpe', 'pnl', 'return'
+optimization_target: pnl  # Options: 'sharpe', 'pnl', 'return'
 
 # Output configuration
 output:
@@ -60,7 +60,7 @@ output:
 
 # Filters configuration (optional)
 filters:
-  enabled: false
+  enabled: true
   config_path: config/backtest/filters.yaml
 
 # Portfolio configuration (optional)

@@ -4,7 +4,9 @@ Walk-forward optimization orchestrator.
 
 from __future__ import annotations
 
+import gc
 import logging
+import shutil
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -35,11 +37,14 @@ from src.backtest.optimization.checkpoint import CheckpointManager
 
 @dataclass
 class BacktestResult:
-    """Result of a single backtest run with specific parameters."""
+    """Result of a single backtest run with specific parameters.
+
+    MEMORY OPTIMIZATION: By default, only stores summary metrics.
+    Full trades_df and equity_curve are optional and should only be stored
+    for best configurations or final test results to minimize memory usage.
+    """
 
     params: dict[str, float]
-    trades_df: pd.DataFrame
-    equity_curve: pd.Series
     sharpe: float
     total_pnl: float
     max_drawdown: float
@@ -51,6 +56,9 @@ class BacktestResult:
     total_trades: int
     initial_capital: float
     final_equity: float
+    # Optional: Only store for best configs or final results
+    trades_df: Optional[pd.DataFrame] = None
+    equity_curve: Optional[pd.Series] = None
 
 
 @dataclass
@@ -137,8 +145,21 @@ class WalkForwardOptimizer:
         self.strategy_cfg = strategy_configs[0]
         logger.debug(f"Strategy config loaded: {self.strategy_cfg}")
 
+    def _cleanup_temp_files(self) -> None:
+        """Clean up temporary files to free disk space and reduce I/O."""
+        temp_dir = Path(self.config.outputs["trades_dir"]) / "wfo_temp"
+        if temp_dir.exists():
+            try:
+                shutil.rmtree(temp_dir)
+                logger.debug(f"Cleaned up temporary directory: {temp_dir}")
+            except Exception as e:
+                logger.warning(f"Failed to clean up temp directory {temp_dir}: {e}")
+
     def _filter_data_by_date(self, df: pd.DataFrame, start: datetime, end: datetime) -> pd.DataFrame:
-        """Filter DataFrame by date range."""
+        """Filter DataFrame by date range.
+
+        MEMORY OPTIMIZATION: Uses views where possible to avoid copying.
+        """
         if "timestamp" not in df.columns:
             return df
 
@@ -156,8 +177,10 @@ class WalkForwardOptimizer:
         else:
             end_ts = end_ts.tz_convert("UTC")
 
+        # Use boolean indexing - pandas will handle the view/copy decision
         mask = (df["timestamp"] >= start_ts) & (df["timestamp"] <= end_ts)
-        return df[mask].copy()
+        # Reset index to avoid issues with non-contiguous indices
+        return df.loc[mask].reset_index(drop=True)
 
     def _build_filter_allow_map(self, minute_df: pd.DataFrame) -> dict[str, bool]:
         """Build filter allow map if filters are enabled."""
@@ -178,6 +201,7 @@ class WalkForwardOptimizer:
         params: dict[str, float],
         start: datetime,
         end: datetime,
+        store_full_data: bool = False,
     ) -> Optional[BacktestResult]:
         """
         Run a single backtest with given parameters and date range.
@@ -186,11 +210,19 @@ class WalkForwardOptimizer:
             params: Strategy parameters (breakout_multiplier, stop_multiplier, etc.)
             start: Start date
             end: End date
+            store_full_data: If True, store full trades_df and equity_curve.
+                           If False (default), store only summary metrics to save memory.
 
         Returns:
             BacktestResult or None if no trades generated
         """
         logger.debug(f"Running backtest: params={params}, period={start.date()} to {end.date()}")
+
+        # Print parameter combination being tested
+        breakout_mult = params.get("breakout_multiplier", "N/A")
+        stop_mult = params.get("stop_multiplier", "N/A")
+        print(f"  Testing: breakout_multiplier={breakout_mult}, stop_multiplier={stop_mult}")
+
         # Filter data to date range
         minute_df = self._filter_data_by_date(self.full_minute_df, start, end)
         if len(minute_df) == 0:
@@ -283,6 +315,8 @@ class WalkForwardOptimizer:
                     index=pd.to_datetime(portfolio_df["exit_time"], utc=True),
                 ).sort_index()
                 logger.debug(f"Portfolio built successfully: initial_capital={initial_capital}")
+                # MEMORY OPTIMIZATION: Delete portfolio_df immediately after extracting equity curve
+                del portfolio_df
             except Exception as e:
                 logger.warning(f"Portfolio building failed: {e}, using simple equity curve")
                 initial_capital = 1000.0
@@ -292,24 +326,27 @@ class WalkForwardOptimizer:
                     initial_capital + trades_df.sort_values("exit_time")["portfolio_pnl"].cumsum().values,
                     index=trades_df.sort_values("exit_time")["exit_time"],
                 )
+            finally:
+                # MEMORY OPTIMIZATION: Clean up temp files after portfolio building
+                self._cleanup_temp_files()
 
         # Calculate metrics
         logger.debug("Calculating performance metrics...")
         sharpe = calculate_sharpe_ratio(equity_curve)
-        total_pnl = calculate_total_pnl(trades_df)
+        final_equity = equity_curve.iloc[-1] if len(equity_curve) > 0 else initial_capital
+        # Calculate total_pnl from equity curve to ensure consistency with return calculation
+        total_pnl = final_equity - initial_capital
         max_dd = calculate_max_drawdown(equity_curve)
         total_ret = calculate_total_return(equity_curve, initial_capital)
         annual_ret = calculate_annualized_return(equity_curve, initial_capital)
         win_rate = calculate_win_rate(trades_df)
         avg_win, avg_loss = calculate_avg_win_loss(trades_df)
-        final_equity = equity_curve.iloc[-1] if len(equity_curve) > 0 else initial_capital
 
         logger.debug(f"Metrics: Sharpe={sharpe:.2f}, PnL=${total_pnl:.2f}, Return={total_ret:.2f}%, WinRate={win_rate:.1f}%")
 
+        # MEMORY OPTIMIZATION: Only store full data when explicitly requested
         return BacktestResult(
             params=params,
-            trades_df=trades_df,
-            equity_curve=equity_curve,
             sharpe=sharpe,
             total_pnl=total_pnl,
             max_drawdown=max_dd,
@@ -321,6 +358,8 @@ class WalkForwardOptimizer:
             total_trades=len(trades_df),
             initial_capital=initial_capital,
             final_equity=final_equity,
+            trades_df=trades_df if store_full_data else None,
+            equity_curve=equity_curve if store_full_data else None,
         )
 
     def _select_best_config(self, results: list[BacktestResult]) -> Optional[BacktestResult]:
@@ -375,10 +414,17 @@ class WalkForwardOptimizer:
         for i, params in enumerate(param_grid, 1):
             if i % 20 == 0:
                 logger.info(f"  Progress: {i}/{len(param_grid)} ({i/len(param_grid)*100:.1f}%)")
-            result = self._run_single_backtest(params, train_start, train_end)
+            # MEMORY OPTIMIZATION: Don't store full data during grid search
+            result = self._run_single_backtest(params, train_start, train_end, store_full_data=False)
             if result is not None:
                 grid_results.append(result)
 
+            # MEMORY OPTIMIZATION: Force garbage collection every 50 iterations
+            if i % 50 == 0:
+                gc.collect()
+
+        # Final garbage collection after grid search
+        gc.collect()
         logger.info(f"Grid search completed: {len(grid_results)} valid results out of {len(param_grid)} combinations")
 
         if not grid_results:
@@ -397,7 +443,8 @@ class WalkForwardOptimizer:
 
         # Run test period with best config
         logger.info("Running test period with best config...")
-        test_result = self._run_single_backtest(best_config.params, test_start, test_end)
+        # Store full data for test results (needed for reporting)
+        test_result = self._run_single_backtest(best_config.params, test_start, test_end, store_full_data=True)
 
         if test_result is None:
             logger.warning("No trades in test period")
@@ -408,7 +455,7 @@ class WalkForwardOptimizer:
             f"Return={test_result.total_return:.2f}%, Trades={test_result.total_trades}"
         )
 
-        return CycleResult(
+        cycle_result = CycleResult(
             cycle_num=cycle_num,
             train_start=train_start,
             train_end=train_end,
@@ -418,6 +465,11 @@ class WalkForwardOptimizer:
             best_config=best_config,
             test_result=test_result,
         )
+
+        # MEMORY OPTIMIZATION: Force garbage collection after each cycle
+        gc.collect()
+
+        return cycle_result
 
     def run_all_cycles(self) -> list[CycleResult]:
         """

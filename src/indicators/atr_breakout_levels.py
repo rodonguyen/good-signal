@@ -83,13 +83,10 @@ class AtrBreakoutLevels(BaseIndicator):
             - upper_level: Upper breakout level
             - lower_level: Lower breakout level
         """
-        df = df.copy()
+        # MEMORY OPTIMIZATION: Don't copy, pass directly to aggregation
+        # aggregate_24h_periods will handle the necessary data transformations
 
-        # Ensure timestamp is datetime
-        if "timestamp" in df.columns:
-            df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
-
-        # Aggregate into 24-hour periods
+        # Aggregate into 24-hour periods (this function already handles timestamp conversion)
         daily_bars = aggregate_24h_periods(df, day_start_hour=self.day_start_hour)
 
         # Calculate ATR

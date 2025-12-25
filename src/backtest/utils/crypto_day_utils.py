@@ -43,19 +43,39 @@ def aggregate_24h_periods(df: pd.DataFrame, day_start_hour: int = 13) -> pd.Data
     """
     # Ensure timestamp is datetime and UTC
     if df["timestamp"].dtype == "object":
-        df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
+        timestamps = pd.to_datetime(df["timestamp"], utc=True)
     elif df["timestamp"].dt.tz is None:
-        df["timestamp"] = df["timestamp"].dt.tz_localize("UTC")
+        timestamps = df["timestamp"].dt.tz_localize("UTC")
     else:
-        df["timestamp"] = df["timestamp"].dt.tz_convert("UTC")
+        timestamps = df["timestamp"].dt.tz_convert("UTC")
 
-    # Add day identifier
-    df = df.copy()
-    df["day"] = df["timestamp"].apply(lambda x: define_crypto_day(x, day_start_hour))
+    # OPTIMIZED: Vectorized crypto day calculation (replaces .apply() bottleneck)
+    # Create day identifier using pure vectorized operations
+    # If hour < day_start_hour, belongs to previous day
+    hour_values = timestamps.dt.hour
+    date_values = timestamps.dt.date
+
+    # Calculate day offset: -1 day if hour < day_start_hour, else 0
+    day_offset = pd.to_timedelta((hour_values < day_start_hour).astype(int) * -1, unit='D')
+
+    # Apply offset and format as string
+    day_series = (pd.to_datetime(date_values) + day_offset).dt.strftime("%Y-%m-%d")
+
+    # Create working DataFrame without full copy (use view where possible)
+    # Only create necessary columns
+    work_df = pd.DataFrame({
+        'timestamp': timestamps,
+        'day': day_series,
+        'open': df['open'].values,
+        'high': df['high'].values,
+        'low': df['low'].values,
+        'close': df['close'].values,
+        'volume': df['volume'].values
+    })
 
     # Aggregate by day
     daily = (
-        df.groupby("day")
+        work_df.groupby("day", sort=True)
         .agg(
             {
                 "open": "first",
