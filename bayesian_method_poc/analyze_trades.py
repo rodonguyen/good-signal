@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 # Load latest trade log
-df = pd.read_csv('results/trades_20251225_185112.csv')
+df = pd.read_csv('results/trades_20251225_190718.csv')
 
 # Filter to only closing trades (which have PnL)
 closes = df[df['type'].str.contains('CLOSE')]

@@ -14,19 +14,14 @@ from pathlib import Path
 from datetime import datetime
 import matplotlib.pyplot as plt
 
-from bayesian_trader import (
-    BayesianBitcoinTrader,
-    run_backtest,
-    calculate_metrics,
-    print_performance_report
-)
+from bayesian_trader import BayesianBitcoinTrader, run_backtest, calculate_metrics, print_performance_report
 
 
 def load_data(data_path: str) -> pd.DataFrame:
     """Load and validate data."""
     print(f"Loading data from: {data_path}")
     df = pd.read_csv(data_path)
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df["timestamp"] = pd.to_datetime(df["timestamp"])
 
     print(f"[OK] Loaded {len(df)} rows")
     print(f"  Date range: {df['timestamp'].min()} to {df['timestamp'].max()}")
@@ -36,12 +31,12 @@ def load_data(data_path: str) -> pd.DataFrame:
     if df.isnull().any().any():
         print(f"  WARNING: Found {df.isnull().sum().sum()} null values")
         print("  Filling nulls with forward fill...")
-        df = df.fillna(method='ffill').fillna(method='bfill')
+        df = df.fillna(method="ffill").fillna(method="bfill")
 
     return df
 
 
-def split_data(df: pd.DataFrame, train_ratio: float = 2/3) -> tuple:
+def split_data(df: pd.DataFrame, train_ratio: float = 2 / 3) -> tuple:
     """
     Split data into train and test sets.
 
@@ -90,8 +85,8 @@ def plot_results(test_df: pd.DataFrame, results: list, metrics: dict, output_pat
     results_df = pd.DataFrame(results)
 
     # Calculate cumulative P&L
-    positions = results_df['position'].values
-    prices = results_df['price'].values
+    positions = results_df["position"].values
+    prices = results_df["price"].values
     price_changes = np.diff(prices, prepend=prices[0])
     pnl = positions[:-1] * price_changes[1:]  # P&L from position changes
     cumulative_pnl = np.cumsum(np.concatenate([[0], pnl]))
@@ -100,7 +95,7 @@ def plot_results(test_df: pd.DataFrame, results: list, metrics: dict, output_pat
 
     # Plot 1: Price and Position
     ax1 = axes[0]
-    ax1.plot(prices, label='Price', color='black', linewidth=1)
+    ax1.plot(prices, label="Price", color="black", linewidth=1)
     ax1_twin = ax1.twinx()
 
     # Color-code positions
@@ -108,35 +103,31 @@ def plot_results(test_df: pd.DataFrame, results: list, metrics: dict, output_pat
     short_mask = positions == -1
     neutral_mask = positions == 0
 
-    ax1_twin.fill_between(range(len(positions)), 0, positions,
-                           where=long_mask, color='green', alpha=0.3, label='Long')
-    ax1_twin.fill_between(range(len(positions)), 0, positions,
-                           where=short_mask, color='red', alpha=0.3, label='Short')
+    ax1_twin.fill_between(range(len(positions)), 0, positions, where=long_mask, color="green", alpha=0.3, label="Long")
+    ax1_twin.fill_between(range(len(positions)), 0, positions, where=short_mask, color="red", alpha=0.3, label="Short")
 
-    ax1.set_xlabel('Time Step')
-    ax1.set_ylabel('Price')
-    ax1_twin.set_ylabel('Position')
-    ax1.set_title('Price and Trading Positions')
-    ax1.legend(loc='upper left')
-    ax1_twin.legend(loc='upper right')
+    ax1.set_xlabel("Time Step")
+    ax1.set_ylabel("Price")
+    ax1_twin.set_ylabel("Position")
+    ax1.set_title("Price and Trading Positions")
+    ax1.legend(loc="upper left")
+    ax1_twin.legend(loc="upper right")
     ax1.grid(True, alpha=0.3)
 
     # Plot 2: Cumulative P&L
     ax2 = axes[1]
-    ax2.plot(cumulative_pnl, color='blue', linewidth=2)
-    ax2.axhline(y=0, color='black', linestyle='--', alpha=0.5)
-    ax2.fill_between(range(len(cumulative_pnl)), 0, cumulative_pnl,
-                     where=cumulative_pnl >= 0, color='green', alpha=0.3)
-    ax2.fill_between(range(len(cumulative_pnl)), 0, cumulative_pnl,
-                     where=cumulative_pnl < 0, color='red', alpha=0.3)
-    ax2.set_xlabel('Time Step')
-    ax2.set_ylabel('Cumulative P&L ($)')
+    ax2.plot(cumulative_pnl, color="blue", linewidth=2)
+    ax2.axhline(y=0, color="black", linestyle="--", alpha=0.5)
+    ax2.fill_between(range(len(cumulative_pnl)), 0, cumulative_pnl, where=cumulative_pnl >= 0, color="green", alpha=0.3)
+    ax2.fill_between(range(len(cumulative_pnl)), 0, cumulative_pnl, where=cumulative_pnl < 0, color="red", alpha=0.3)
+    ax2.set_xlabel("Time Step")
+    ax2.set_ylabel("Cumulative P&L ($)")
     ax2.set_title(f'Cumulative Profit/Loss - Total: ${metrics.get("total_profit", 0):.2f}')
     ax2.grid(True, alpha=0.3)
 
     # Plot 3: Predictions vs Actual
     ax3 = axes[2]
-    predictions = results_df['prediction'].values
+    predictions = results_df["prediction"].values
     actual_changes = np.diff(prices, prepend=prices[0])[1:]  # Skip first
 
     # Sample to avoid overplotting
@@ -144,19 +135,18 @@ def plot_results(test_df: pd.DataFrame, results: list, metrics: dict, output_pat
     sample_indices = np.random.choice(len(predictions), sample_size, replace=False)
     sample_indices = np.sort(sample_indices)
 
-    ax3.scatter(actual_changes[sample_indices], predictions[sample_indices],
-               alpha=0.5, s=10)
-    ax3.axhline(y=0, color='black', linestyle='--', alpha=0.5)
-    ax3.axvline(x=0, color='black', linestyle='--', alpha=0.5)
-    ax3.set_xlabel('Actual Price Change')
-    ax3.set_ylabel('Predicted Price Change')
-    ax3.set_title('Prediction Accuracy (Sample)')
+    ax3.scatter(actual_changes[sample_indices], predictions[sample_indices], alpha=0.5, s=10)
+    ax3.axhline(y=0, color="black", linestyle="--", alpha=0.5)
+    ax3.axvline(x=0, color="black", linestyle="--", alpha=0.5)
+    ax3.set_xlabel("Actual Price Change")
+    ax3.set_ylabel("Predicted Price Change")
+    ax3.set_title("Prediction Accuracy (Sample)")
     ax3.grid(True, alpha=0.3)
 
     plt.tight_layout()
 
     if output_path:
-        plt.savefig(output_path, dpi=150, bbox_inches='tight')
+        plt.savefig(output_path, dpi=150, bbox_inches="tight")
         print(f"[OK] Plot saved to: {output_path}")
 
     plt.show()
@@ -165,6 +155,7 @@ def plot_results(test_df: pd.DataFrame, results: list, metrics: dict, output_pat
 def main():
     """Main execution function."""
     import sys
+
     print(f"\n{'='*60}")
     print("BAYESIAN REGRESSION TRADING - PROOF OF CONCEPT")
     print("Based on Shah & Zhang (2014)")
@@ -174,9 +165,9 @@ def main():
     # Configuration
     data_path = "E:/Personal/GitHub/good-signal/bayesian_method_poc/ETHUSDT_1min_with_imbalance.csv"
     window_sizes = [180, 360, 720]  # Same bar counts as paper: 180, 360, 720 bars (3hr, 6hr, 12hr for 1-min intervals)
-    n_clusters = 50  # Increased for full dataset (paper uses 100)
-    n_select = 15    # Increased for full dataset (paper uses 20)
-    threshold = 0.05  # Trading threshold (adjusted based on prediction scale)
+    n_clusters = 100  # Increased for full dataset (paper uses 100)
+    n_select = 20  # Increased for full dataset (paper uses 20)
+    threshold = 0.10  # Trading threshold (adjusted based on prediction scale)
     use_sample = False  # USE FULL DATASET
     sample_size = 50000  # Not used when use_sample=False
 
@@ -201,23 +192,19 @@ def main():
         print(f"  Date range: {df['timestamp'].min()} to {df['timestamp'].max()}")
 
     # Split data
-    train_df, test_df = split_data(df, train_ratio=2/3)
+    train_df, test_df = split_data(df, train_ratio=2 / 3)
 
     # Extract price and imbalance series
-    train_prices = train_df['close'].values
-    train_imbalance = train_df['imbalance_ratio'].values if 'imbalance_ratio' in train_df.columns else None
+    train_prices = train_df["close"].values
+    train_imbalance = train_df["imbalance_ratio"].values if "imbalance_ratio" in train_df.columns else None
 
-    test_prices = test_df['close'].values
-    test_imbalance = test_df['imbalance_ratio'].values if 'imbalance_ratio' in test_df.columns else None
+    test_prices = test_df["close"].values
+    test_imbalance = test_df["imbalance_ratio"].values if "imbalance_ratio" in test_df.columns else None
 
     # Initialize and train model
     print(f"\n[LOG] Initializing Bayesian model...")
     sys.stdout.flush()
-    model = BayesianBitcoinTrader(
-        window_sizes=window_sizes,
-        n_clusters=n_clusters,
-        n_select=n_select
-    )
+    model = BayesianBitcoinTrader(window_sizes=window_sizes, n_clusters=n_clusters, n_select=n_select)
 
     print(f"[LOG] Starting model training...")
     sys.stdout.flush()
@@ -226,12 +213,7 @@ def main():
     # Run backtest on test set
     print(f"[LOG] Running backtest on test set...")
     sys.stdout.flush()
-    results, trades = run_backtest(
-        test_data=test_prices,
-        test_imbalance=test_imbalance,
-        model=model,
-        threshold=threshold
-    )
+    results, trades = run_backtest(test_data=test_prices, test_imbalance=test_imbalance, model=model, threshold=threshold)
 
     # Calculate metrics
     print(f"\n[LOG] Calculating performance metrics...")
@@ -242,14 +224,14 @@ def main():
     metrics = calculate_metrics(trades, start_price, end_price)
 
     # Calculate test period duration
-    test_duration = (test_df['timestamp'].max() - test_df['timestamp'].min()).total_seconds() / 86400  # days
+    test_duration = (test_df["timestamp"].max() - test_df["timestamp"].min()).total_seconds() / 86400  # days
 
     # Print performance report
     print_performance_report(metrics, test_duration)
 
     # Save detailed results
     results_df = pd.DataFrame(results)
-    results_df['timestamp'] = test_df.iloc[max(window_sizes):]['timestamp'].values
+    results_df["timestamp"] = test_df.iloc[max(window_sizes) :]["timestamp"].values
 
     output_dir = Path("E:/Personal/GitHub/good-signal/bayesian_method_poc/results")
     output_dir.mkdir(exist_ok=True)
@@ -264,13 +246,11 @@ def main():
     print(f"[OK] Trade log saved to: {trades_csv}")
 
     # Plot results (disabled for POC to avoid blocking)
-    print(f"\n[LOG] Skipping plot generation for POC (can enable later)")
-    sys.stdout.flush()
-    # plot_path = output_dir / f"performance_plot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
-    # try:
-    #     plot_results(test_df, results, metrics, str(plot_path))
-    # except Exception as e:
-    #     print(f"[WARNING] Could not generate plot: {e}")
+    plot_path = output_dir / f"performance_plot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+    try:
+        plot_results(test_df, results, metrics, str(plot_path))
+    except Exception as e:
+        print(f"[WARNING] Could not generate plot: {e}")
 
     # Summary
     print(f"\n{'='*60}")
