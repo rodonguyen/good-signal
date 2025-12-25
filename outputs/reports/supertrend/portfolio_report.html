@@ -4,6 +4,7 @@
 <head>
     <title>Portfolio Performance Report</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <style>
         body {
@@ -206,7 +207,7 @@
 
         
         <p style="margin-top: 30px; color: #666; font-size: 12px;">
-            Report generated on 2025-12-25 23:35:46
+            Report generated on 2025-12-26 00:04:54
         </p>
     </div>
     
@@ -463,22 +464,32 @@
         // Equity Chart
         const equityData = [{"time": 1687276800, "value": 1019.6800414986678}, {"time": 1688673600, "value": 1029.250902765637}, {"time": 1689249600, "value": 1016.1585844957448}, {"time": 1690056000, "value": 1003.2067485470994}, {"time": 1693310400, "value": 1047.8004162119}, {"time": 1693584000, "value": 1025.3671377841952}, {"time": 1695024000, "value": 1017.3162965247892}, {"time": 1695297600, "value": 996.6862908513356}, {"time": 1695801600, "value": 985.6413339118352}, {"time": 1696507200, "value": 980.8324915172471}, {"time": 1697788800, "value": 980.8374141087744}, {"time": 1702310400, "value": 1102.6041886915634}, {"time": 1703232000, "value": 1090.7890573734971}, {"time": 1704283200, "value": 1083.0021627069682}, {"time": 1704729600, "value": 1068.224381522777}, {"time": 1705910400, "value": 1069.942765037074}, {"time": 1706630400, "value": 1069.9371704401256}, {"time": 1710604800, "value": 1220.0126738719318}, {"time": 1712563200, "value": 1218.2521789354892}, {"time": 1712937600, "value": 1189.8032159556897}, {"time": 1715947200, "value": 1193.812538227923}, {"time": 1718064000, "value": 1232.8580208588169}, {"time": 1720886400, "value": 1283.62893727338}, {"time": 1721865600, "value": 1282.9209520566849}, {"time": 1724443200, "value": 1304.5066775089513}, {"time": 1724760000, "value": 1281.8737050063403}, {"time": 1726761600, "value": 1294.5580188857105}, {"time": 1727784000, "value": 1301.030495882887}, {"time": 1728907200, "value": 1287.9690125270818}, {"time": 1729656000, "value": 1283.4724101864022}, {"time": 1730188800, "value": 1277.3817898063355}, {"time": 1730736000, "value": 1253.0707635179388}, {"time": 1730865600, "value": 1226.613374419353}, {"time": 1733760000, "value": 1320.6112693071236}, {"time": 1735905600, "value": 1338.1034777005516}, {"time": 1736265600, "value": 1321.87595541631}, {"time": 1736956800, "value": 1318.0434187086362}, {"time": 1737950400, "value": 1294.8389318046902}, {"time": 1738324800, "value": 1265.6405994744243}, {"time": 1738512000, "value": 1236.713127056585}, {"time": 1740945600, "value": 1262.6521215895611}, {"time": 1741017600, "value": 1236.1049798212923}, {"time": 1742371200, "value": 1239.1189660744103}, {"time": 1743134400, "value": 1224.631981850737}, {"time": 1745323200, "value": 1249.875900221765}, {"time": 1749153600, "value": 1355.285762531}, {"time": 1749499200, "value": 1327.8242587462323}, {"time": 1750435200, "value": 1299.1598203599838}, {"time": 1751299200, "value": 1287.8123671197218}, {"time": 1754064000, "value": 1464.515462455401}, {"time": 1754553600, "value": 1443.7355873302488}, {"time": 1755561600, "value": 1469.1273270816764}, {"time": 1755878400, "value": 1432.1280849165903}, {"time": 1756152000, "value": 1412.433540495089}, {"time": 1757635200, "value": 1405.8107323258005}, {"time": 1758499200, "value": 1388.6445200575986}, {"time": 1759305600, "value": 1388.0762926323264}, {"time": 1760011200, "value": 1388.2513845056644}, {"time": 1761523200, "value": 1394.121874757188}, {"time": 1761753600, "value": 1364.292174584003}, {"time": 1764691200, "value": 1417.5395957736291}, {"time": 1765800000, "value": 1416.4676397731987}, {"time": 1765886400, "value": 1427.9137672306467}];
         const priceData = [{"time": 1687276800, "value": 1888.31}, {"time": 1688673600, "value": 1869.87}, {"time": 1689249600, "value": 2004.59}, {"time": 1690056000, "value": 1887.48}, {"time": 1693310400, "value": 1728.34}, {"time": 1693584000, "value": 1635.97}, {"time": 1695024000, "value": 1635.9}, {"time": 1695297600, "value": 1583.01}, {"time": 1695801600, "value": 1597.74}, {"time": 1696507200, "value": 1610.73}, {"time": 1697788800, "value": 1602.88}, {"time": 1702310400, "value": 2204.25}, {"time": 1703232000, "value": 2327.02}, {"time": 1704283200, "value": 2210.68}, {"time": 1704729600, "value": 2345.83}, {"time": 1705910400, "value": 2314.25}, {"time": 1706630400, "value": 2281.8}, {"time": 1710604800, "value": 3646.36}, {"time": 1712563200, "value": 3697.73}, {"time": 1712937600, "value": 3003.44}, {"time": 1715947200, "value": 3091.49}, {"time": 1718064000, "value": 3496.7}, {"time": 1720886400, "value": 3243.4}, {"time": 1721865600, "value": 3174.01}, {"time": 1724443200, "value": 2766.6}, {"time": 1724760000, "value": 2456.0}, {"time": 1726761600, "value": 2560.85}, {"time": 1727784000, "value": 2446.63}, {"time": 1728907200, "value": 2629.0}, {"time": 1729656000, "value": 2523.61}, {"time": 1730188800, "value": 2639.27}, {"time": 1730736000, "value": 2421.61}, {"time": 1730865600, "value": 2723.73}, {"time": 1733760000, "value": 3627.84}, {"time": 1735905600, "value": 3608.53}, {"time": 1736265600, "value": 3325.76}, {"time": 1736956800, "value": 3306.49}, {"time": 1737950400, "value": 3181.17}, {"time": 1738324800, "value": 3299.52}, {"time": 1738512000, "value": 2878.06}, {"time": 1740945600, "value": 2147.78}, {"time": 1741017600, "value": 2170.7}, {"time": 1742371200, "value": 2055.34}, {"time": 1743134400, "value": 1895.99}, {"time": 1745323200, "value": 1755.55}, {"time": 1749153600, "value": 2475.14}, {"time": 1749499200, "value": 2815.44}, {"time": 1750435200, "value": 2295.0}, {"time": 1751299200, "value": 2403.47}, {"time": 1754064000, "value": 3392.7}, {"time": 1754553600, "value": 3908.31}, {"time": 1755561600, "value": 4074.51}, {"time": 1755878400, "value": 4776.12}, {"time": 1756152000, "value": 4597.94}, {"time": 1757635200, "value": 4710.31}, {"time": 1758499200, "value": 4196.41}, {"time": 1759305600, "value": 4346.0}, {"time": 1760011200, "value": 4367.14}, {"time": 1761523200, "value": 4117.9}, {"time": 1761753600, "value": 3803.06}, {"time": 1764691200, "value": 3186.56}, {"time": 1765800000, "value": 2963.26}, {"time": 1765886400, "value": 2906.79}];
-        const equityLabels = equityData.map(d => formatDateDDMMYYYY(d.time));
-        const equityValues = equityData.map(d => d.value);
         
-        // Align price data with equity labels
-        const priceValues = [];
+        // Convert to Chart.js time scale format (timestamps in milliseconds)
+        const equityChartData = equityData.map(d => ({
+            x: d.time * 1000,  // Convert to milliseconds for Chart.js
+            y: d.value
+        }));
+        
+        // Align price data with equity timestamps
+        const priceChartData = [];
         if (priceData.length > 0) {
-            const priceMap = new Map(priceData.map(d => [formatDateDDMMYYYY(d.time), d.value]));
-            equityLabels.forEach(label => {
-                priceValues.push(priceMap.get(label) || null);
+            const priceMap = new Map(priceData.map(d => [d.time, d.value]));
+            equityData.forEach(d => {
+                const price = priceMap.get(d.time);
+                if (price !== undefined) {
+                    priceChartData.push({
+                        x: d.time * 1000,
+                        y: price
+                    });
+                }
             });
         }
         
         const equityCtx = document.getElementById('equityChart').getContext('2d');
         const datasets = [{
             label: 'Portfolio Equity ($)',
-            data: equityValues,
+            data: equityChartData,
             borderColor: '#2E86AB',
             backgroundColor: 'rgba(46, 134, 171, 0.1)',
             fill: true,
@@ -490,7 +501,7 @@
             const symbolName = 'ETHUSDT';
             datasets.push({
                 label: symbolName + ' Price ($)',
-                data: priceValues,
+                data: priceChartData,
                 borderColor: '#ff9800',
                 backgroundColor: 'rgba(255, 152, 0, 0.1)',
                 fill: false,
@@ -502,7 +513,6 @@
         new Chart(equityCtx, {
             type: 'line',
             data: {
-                labels: equityLabels,
                 datasets: datasets
             },
             options: {
@@ -519,6 +529,17 @@
                     },
                     legend: {
                         display: true
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                const date = new Date(context[0].parsed.x);
+                                const day = String(date.getDate()).padStart(2, '0');
+                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                const year = date.getFullYear();
+                                return day + '/' + month + '/' + year;
+                            }
+                        }
                     }
                 },
                 scales: {
@@ -556,6 +577,21 @@
                         }
                     },
                     x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            displayFormats: {
+                                day: 'dd/MM/yyyy'
+                            },
+                            tooltipFormat: 'dd/MM/yyyy'
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45,
+                            source: 'data',
+                            autoSkip: true,
+                            maxTicksLimit: 15
+                        },
                         title: {
                             display: true,
                             text: 'Date'
@@ -567,17 +603,20 @@
         
         // Drawdown Chart
         const drawdownData = [{"time": 1687276800, "value": 0.0}, {"time": 1688673600, "value": 0.0}, {"time": 1689249600, "value": -1.2720239773132695}, {"time": 1690056000, "value": -2.5303989676915393}, {"time": 1693310400, "value": 0.0}, {"time": 1693584000, "value": -2.140987737799114}, {"time": 1695024000, "value": -2.9093441093791204}, {"time": 1695297600, "value": -4.878231060964524}, {"time": 1695801600, "value": -5.9323399130521235}, {"time": 1696507200, "value": -6.391286323092063}, {"time": 1697788800, "value": -6.390816520689708}, {"time": 1702310400, "value": 0.0}, {"time": 1703232000, "value": -1.0715659743762662}, {"time": 1704283200, "value": -1.7777935351267375}, {"time": 1704729600, "value": -3.1180551934583254}, {"time": 1705910400, "value": -2.96220747113686}, {"time": 1706630400, "value": -2.9627148696218097}, {"time": 1710604800, "value": 0.0}, {"time": 1712563200, "value": -0.14430136457971643}, {"time": 1712937600, "value": -2.4761593517194354}, {"time": 1715947200, "value": -2.147529792527321}, {"time": 1718064000, "value": 0.0}, {"time": 1720886400, "value": 0.0}, {"time": 1721865600, "value": -0.05515497478569977}, {"time": 1724443200, "value": 0.0}, {"time": 1724760000, "value": -1.73498326170551}, {"time": 1726761600, "value": -0.7626376157949987}, {"time": 1727784000, "value": -0.26647480507361865}, {"time": 1728907200, "value": -1.2677332563332957}, {"time": 1729656000, "value": -1.6124307897538364}, {"time": 1730188800, "value": -2.0793214914325056}, {"time": 1730736000, "value": -3.9429398774127447}, {"time": 1730865600, "value": -5.971092707500821}, {"time": 1733760000, "value": 0.0}, {"time": 1735905600, "value": 0.0}, {"time": 1736265600, "value": -1.2127255144817017}, {"time": 1736956800, "value": -1.4991410848425106}, {"time": 1737950400, "value": -3.2332735559591277}, {"time": 1738324800, "value": -5.415341894981863}, {"time": 1738512000, "value": -7.577168158788404}, {"time": 1740945600, "value": -5.638678724656553}, {"time": 1741017600, "value": -7.622616604699169}, {"time": 1742371200, "value": -7.397373467427203}, {"time": 1743134400, "value": -8.480023984752535}, {"time": 1745323200, "value": -6.593479424356643}, {"time": 1749153600, "value": 0.0}, {"time": 1749499200, "value": -2.026251919999756}, {"time": 1750435200, "value": -4.141262582601098}, {"time": 1751299200, "value": -4.978536429488605}, {"time": 1754064000, "value": 0.0}, {"time": 1754553600, "value": -1.4188907975278489}, {"time": 1755561600, "value": 0.0}, {"time": 1755878400, "value": -2.51845034007928}, {"time": 1756152000, "value": -3.8590110973707055}, {"time": 1757635200, "value": -4.3098098843243315}, {"time": 1758499200, "value": -5.478273090457828}, {"time": 1759305600, "value": -5.516950978670617}, {"time": 1760011200, "value": -5.505032891646408}, {"time": 1761523200, "value": -5.105442594515059}, {"time": 1761753600, "value": -7.135879277796935}, {"time": 1764691200, "value": -3.5114540691665503}, {"time": 1765800000, "value": -3.584419562399855}, {"time": 1765886400, "value": -2.805308913074109}];
-        const drawdownLabels = drawdownData.map(d => formatDateDDMMYYYY(d.time));
-        const drawdownValues = drawdownData.map(d => d.value);
+        
+        // Convert to Chart.js time scale format (timestamps in milliseconds)
+        const drawdownChartData = drawdownData.map(d => ({
+            x: d.time * 1000,  // Convert to milliseconds for Chart.js
+            y: d.value
+        }));
         
         const drawdownCtx = document.getElementById('drawdownChart').getContext('2d');
         new Chart(drawdownCtx, {
             type: 'line',
             data: {
-                labels: drawdownLabels,
                 datasets: [{
                     label: 'Drawdown (%)',
-                    data: drawdownValues,
+                    data: drawdownChartData,
                     borderColor: '#ef5350',
                     backgroundColor: 'rgba(239, 83, 80, 0.1)',
                     fill: true,
@@ -587,6 +626,10 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
                 plugins: {
                     title: {
                         display: true,
@@ -594,6 +637,17 @@
                     },
                     legend: {
                         display: true
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                const date = new Date(context[0].parsed.x);
+                                const day = String(date.getDate()).padStart(2, '0');
+                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                const year = date.getFullYear();
+                                return day + '/' + month + '/' + year;
+                            }
+                        }
                     }
                 },
                 scales: {
@@ -605,6 +659,21 @@
                         }
                     },
                     x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            displayFormats: {
+                                day: 'dd/MM/yyyy'
+                            },
+                            tooltipFormat: 'dd/MM/yyyy'
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45,
+                            source: 'data',
+                            autoSkip: true,
+                            maxTicksLimit: 15
+                        },
                         title: {
                             display: true,
                             text: 'Date'

@@ -597,6 +597,7 @@ class PortfolioAnalysis:
 <head>
     <title>Portfolio Performance Report</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <style>
         body {{
@@ -1001,22 +1002,32 @@ class PortfolioAnalysis:
         // Equity Chart
         const equityData = {json.dumps(equity_data)};
         const priceData = {json.dumps(price_data)};
-        const equityLabels = equityData.map(d => formatDateDDMMYYYY(d.time));
-        const equityValues = equityData.map(d => d.value);
         
-        // Align price data with equity labels
-        const priceValues = [];
+        // Convert to Chart.js time scale format (timestamps in milliseconds)
+        const equityChartData = equityData.map(d => ({{
+            x: d.time * 1000,  // Convert to milliseconds for Chart.js
+            y: d.value
+        }}));
+        
+        // Align price data with equity timestamps
+        const priceChartData = [];
         if (priceData.length > 0) {{
-            const priceMap = new Map(priceData.map(d => [formatDateDDMMYYYY(d.time), d.value]));
-            equityLabels.forEach(label => {{
-                priceValues.push(priceMap.get(label) || null);
+            const priceMap = new Map(priceData.map(d => [d.time, d.value]));
+            equityData.forEach(d => {{
+                const price = priceMap.get(d.time);
+                if (price !== undefined) {{
+                    priceChartData.push({{
+                        x: d.time * 1000,
+                        y: price
+                    }});
+                }}
             }});
         }}
         
         const equityCtx = document.getElementById('equityChart').getContext('2d');
         const datasets = [{{
             label: 'Portfolio Equity ($)',
-            data: equityValues,
+            data: equityChartData,
             borderColor: '#2E86AB',
             backgroundColor: 'rgba(46, 134, 171, 0.1)',
             fill: true,
@@ -1028,7 +1039,7 @@ class PortfolioAnalysis:
             const symbolName = '{primary_symbol if primary_symbol else "Symbol"}';
             datasets.push({{
                 label: symbolName + ' Price ($)',
-                data: priceValues,
+                data: priceChartData,
                 borderColor: '#ff9800',
                 backgroundColor: 'rgba(255, 152, 0, 0.1)',
                 fill: false,
@@ -1040,7 +1051,6 @@ class PortfolioAnalysis:
         new Chart(equityCtx, {{
             type: 'line',
             data: {{
-                labels: equityLabels,
                 datasets: datasets
             }},
             options: {{
@@ -1057,6 +1067,17 @@ class PortfolioAnalysis:
                     }},
                     legend: {{
                         display: true
+                    }},
+                    tooltip: {{
+                        callbacks: {{
+                            title: function(context) {{
+                                const date = new Date(context[0].parsed.x);
+                                const day = String(date.getDate()).padStart(2, '0');
+                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                const year = date.getFullYear();
+                                return day + '/' + month + '/' + year;
+                            }}
+                        }}
                     }}
                 }},
                 scales: {{
@@ -1094,6 +1115,21 @@ class PortfolioAnalysis:
                         }}
                     }},
                     x: {{
+                        type: 'time',
+                        time: {{
+                            unit: 'day',
+                            displayFormats: {{
+                                day: 'dd/MM/yyyy'
+                            }},
+                            tooltipFormat: 'dd/MM/yyyy'
+                        }},
+                        ticks: {{
+                            maxRotation: 45,
+                            minRotation: 45,
+                            source: 'data',
+                            autoSkip: true,
+                            maxTicksLimit: 15
+                        }},
                         title: {{
                             display: true,
                             text: 'Date'
@@ -1105,17 +1141,20 @@ class PortfolioAnalysis:
         
         // Drawdown Chart
         const drawdownData = {json.dumps(drawdown_data)};
-        const drawdownLabels = drawdownData.map(d => formatDateDDMMYYYY(d.time));
-        const drawdownValues = drawdownData.map(d => d.value);
+        
+        // Convert to Chart.js time scale format (timestamps in milliseconds)
+        const drawdownChartData = drawdownData.map(d => ({{
+            x: d.time * 1000,  // Convert to milliseconds for Chart.js
+            y: d.value
+        }}));
         
         const drawdownCtx = document.getElementById('drawdownChart').getContext('2d');
         new Chart(drawdownCtx, {{
             type: 'line',
             data: {{
-                labels: drawdownLabels,
                 datasets: [{{
                     label: 'Drawdown (%)',
-                    data: drawdownValues,
+                    data: drawdownChartData,
                     borderColor: '#ef5350',
                     backgroundColor: 'rgba(239, 83, 80, 0.1)',
                     fill: true,
@@ -1125,6 +1164,10 @@ class PortfolioAnalysis:
             options: {{
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {{
+                    mode: 'index',
+                    intersect: false
+                }},
                 plugins: {{
                     title: {{
                         display: true,
@@ -1132,6 +1175,17 @@ class PortfolioAnalysis:
                     }},
                     legend: {{
                         display: true
+                    }},
+                    tooltip: {{
+                        callbacks: {{
+                            title: function(context) {{
+                                const date = new Date(context[0].parsed.x);
+                                const day = String(date.getDate()).padStart(2, '0');
+                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                const year = date.getFullYear();
+                                return day + '/' + month + '/' + year;
+                            }}
+                        }}
                     }}
                 }},
                 scales: {{
@@ -1143,6 +1197,21 @@ class PortfolioAnalysis:
                         }}
                     }},
                     x: {{
+                        type: 'time',
+                        time: {{
+                            unit: 'day',
+                            displayFormats: {{
+                                day: 'dd/MM/yyyy'
+                            }},
+                            tooltipFormat: 'dd/MM/yyyy'
+                        }},
+                        ticks: {{
+                            maxRotation: 45,
+                            minRotation: 45,
+                            source: 'data',
+                            autoSkip: true,
+                            maxTicksLimit: 15
+                        }},
                         title: {{
                             display: true,
                             text: 'Date'
