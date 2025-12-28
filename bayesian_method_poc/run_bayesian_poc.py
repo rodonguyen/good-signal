@@ -14,7 +14,15 @@ from pathlib import Path
 from datetime import datetime
 import matplotlib.pyplot as plt
 
-from bayesian_trader import BayesianBitcoinTrader, run_backtest, calculate_metrics, print_performance_report
+from bayesian_trader import (
+    BayesianBitcoinTrader,
+    run_backtest,
+    run_backtest_with_sl,
+    calculate_metrics,
+    print_performance_report,
+    FeeConfig,
+)
+from stop_loss_strategies import PredictionReversalStop
 
 
 def load_data(data_path: str) -> pd.DataFrame:
@@ -171,10 +179,15 @@ def main():
     use_sample = False  # USE FULL DATASET
     sample_size = 50000  # Not used when use_sample=False
 
+    # Stop-loss configuration
+    use_stop_loss = True
+    stop_threshold = 0.04  # Lower threshold for faster exit on reversal
+
     print(f"[LOG] Configuration:")
     print(f"  Window sizes: {window_sizes}")
     print(f"  Clusters: {n_clusters}, Select: {n_select}")
     print(f"  Threshold: {threshold}")
+    print(f"  Stop-Loss: {'PredictionReversalStop (threshold=' + str(stop_threshold) + ')' if use_stop_loss else 'None'}")
     print(f"  Sample size: {sample_size if use_sample else 'Full dataset'}\n")
     sys.stdout.flush()
 
@@ -213,7 +226,15 @@ def main():
     # Run backtest on test set
     print(f"[LOG] Running backtest on test set...")
     sys.stdout.flush()
-    results, trades = run_backtest(test_data=test_prices, test_imbalance=test_imbalance, model=model, threshold=threshold)
+
+    if use_stop_loss:
+        stop_strategy = PredictionReversalStop(threshold=stop_threshold)
+        results, trades, stop_stats = run_backtest_with_sl(
+            test_data=test_prices, test_imbalance=test_imbalance, model=model, threshold=threshold, stop_strategy=stop_strategy
+        )
+    else:
+        results, trades = run_backtest(test_data=test_prices, test_imbalance=test_imbalance, model=model, threshold=threshold)
+        stop_stats = None
 
     # Calculate metrics
     print(f"\n[LOG] Calculating performance metrics...")
@@ -245,6 +266,15 @@ def main():
     trades_df.to_csv(trades_csv, index=False)
     print(f"[OK] Trade log saved to: {trades_csv}")
 
+    # Save stop-loss stats if available
+    if stop_stats:
+        import json
+
+        stop_stats_file = output_dir / f"stop_stats_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        with open(stop_stats_file, "w") as f:
+            json.dump(stop_stats, f, indent=2)
+        print(f"[OK] Stop-loss stats saved to: {stop_stats_file}")
+
     # Plot results (disabled for POC to avoid blocking)
     plot_path = output_dir / f"performance_plot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
     try:
@@ -262,6 +292,20 @@ def main():
     print(f"Final Return: {metrics.get('return_pct', 0):.2f}%")
     print(f"Sharpe Ratio: {metrics.get('sharpe_ratio', 0):.2f}")
     print(f"Total Trades: {metrics.get('completed_trades', 0)}")
+
+    if stop_stats:
+        print(f"\nSTOP-LOSS STATS:")
+        print(f"  Strategy: PredictionReversalStop (threshold={stop_threshold})")
+        print(f"  Stop Exits: {stop_stats.get('stop_exits', 0)} ({stop_stats.get('stop_exit_pct', 0):.1f}%)")
+        print(f"  Signal Exits: {stop_stats.get('signal_exits', 0)}")
+        print(f"  Avg P&L on Stop Exits: ${stop_stats.get('avg_stop_pnl', 0):.2f}")
+        print(f"  Avg P&L on Signal Exits: ${stop_stats.get('avg_signal_pnl', 0):.2f}")
+        print(f"\nFEE STATS:")
+        print(f"  Total Fees: ${stop_stats.get('total_fees', 0):.2f}")
+        print(f"  Gross P&L: ${stop_stats.get('total_gross_pnl', 0):.2f}")
+        print(f"  Net P&L: ${stop_stats.get('total_net_pnl', 0):.2f}")
+        print(f"  Fees as % of Gross: {stop_stats.get('fee_pct_of_gross', 0):.1f}%")
+
     print(f"{'='*60}\n")
 
 
