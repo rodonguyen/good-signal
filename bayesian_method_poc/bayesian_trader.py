@@ -26,22 +26,16 @@ class FeeConfig:
 
     Attributes:
         round_trip_pct: Total fee for opening + closing a position (default 0.15%)
-        maker_pct: Maker fee percentage (for limit orders)
-        taker_pct: Taker fee percentage (for market orders)
-        use_round_trip: If True, use round_trip_pct; else calculate from maker/taker
+        position_size: Position size in units (default 1.0)
     """
 
     round_trip_pct: float = 0.0015  # 0.15% round trip
-    maker_pct: float = 0.0002  # 0.02%
-    taker_pct: float = 0.00055  # 0.055%
-    use_round_trip: bool = True
+    position_size: float = 1.0  # Units traded
 
     def calculate_fee(self, trade_value: float) -> float:
         """Calculate fee for a round-trip trade (open + close)."""
-        if self.use_round_trip:
-            return trade_value * self.round_trip_pct
-        # Assume taker for both entry and exit
-        return trade_value * self.taker_pct * 2
+        notional = trade_value * self.position_size
+        return notional * self.round_trip_pct
 
 
 class BayesianBitcoinTrader:
@@ -51,12 +45,7 @@ class BayesianBitcoinTrader:
     Uses multiple timeframe patterns and order book imbalance to predict price changes.
     """
 
-    def __init__(
-        self,
-        window_sizes: List[int] = [30, 60, 120],  # Adjusted for 1-minute intervals
-        n_clusters: int = 100,
-        n_select: int = 20
-    ):
+    def __init__(self, window_sizes: List[int] = [30, 60, 120], n_clusters: int = 100, n_select: int = 20):  # Adjusted for 1-minute intervals
         """
         Initialize the Bayesian trader.
 
@@ -97,11 +86,7 @@ class BayesianBitcoinTrader:
 
         return (pattern - mean) / std
 
-    def extract_patterns(
-        self,
-        price_series: np.ndarray,
-        window_size: int
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    def extract_patterns(self, price_series: np.ndarray, window_size: int) -> Tuple[np.ndarray, np.ndarray]:
         """
         Extract all possible patterns of given window size.
         Each pattern is a vector of consecutive prices.
@@ -118,19 +103,15 @@ class BayesianBitcoinTrader:
         labels = []
 
         for i in range(len(price_series) - window_size - 1):
-            window = price_series[i:i+window_size]
+            window = price_series[i : i + window_size]
             # Price change after this window
-            future_change = price_series[i+window_size] - price_series[i+window_size-1]
+            future_change = price_series[i + window_size] - price_series[i + window_size - 1]
             patterns.append(window)
             labels.append(future_change)
 
         return np.array(patterns, dtype=np.float64), np.array(labels, dtype=np.float64)
 
-    def cluster_patterns(
-        self,
-        patterns: np.ndarray,
-        labels: np.ndarray
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    def cluster_patterns(self, patterns: np.ndarray, labels: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
         Cluster patterns using k-means and select top clusters based on effectiveness.
 
@@ -216,13 +197,7 @@ class BayesianBitcoinTrader:
             return 0.0
         return np.dot(a, b) / len(a)
 
-    def predict_single_timeframe(
-        self,
-        current_pattern: np.ndarray,
-        pattern_library: np.ndarray,
-        labels: np.ndarray,
-        c: float
-    ) -> float:
+    def predict_single_timeframe(self, current_pattern: np.ndarray, pattern_library: np.ndarray, labels: np.ndarray, c: float) -> float:
         """
         Generate prediction using one timeframe's pattern library.
 
@@ -257,7 +232,7 @@ class BayesianBitcoinTrader:
 
         return prediction
 
-    def fit(self, price_series: np.ndarray, imbalance_ratios: np.ndarray = None) -> 'BayesianBitcoinTrader':
+    def fit(self, price_series: np.ndarray, imbalance_ratios: np.ndarray = None) -> "BayesianBitcoinTrader":
         """
         Train the model on historical data.
 
@@ -274,6 +249,7 @@ class BayesianBitcoinTrader:
             Self for chaining
         """
         import sys
+
         print(f"\n{'='*60}")
         print("TRAINING BAYESIAN REGRESSION MODEL")
         print(f"{'='*60}")
@@ -323,8 +299,10 @@ class BayesianBitcoinTrader:
         print(f"\n  [LOG] Learning combination weights (generating training predictions)...")
         sys.stdout.flush()
         self.weights = self._optimize_weights(train_data, train_imbalance)
-        print(f"  [OK] Learned weights: w0={self.weights[0]:.4f}, w1={self.weights[1]:.4f}, " +
-              f"w2={self.weights[2]:.4f}, w3={self.weights[3]:.4f}, w4={self.weights[4]:.4f}")
+        print(
+            f"  [OK] Learned weights: w0={self.weights[0]:.4f}, w1={self.weights[1]:.4f}, "
+            + f"w2={self.weights[2]:.4f}, w3={self.weights[3]:.4f}, w4={self.weights[4]:.4f}"
+        )
         sys.stdout.flush()
 
         print(f"\n{'='*60}")
@@ -334,11 +312,7 @@ class BayesianBitcoinTrader:
 
         return self
 
-    def _optimize_weights(
-        self,
-        train_data: np.ndarray,
-        train_imbalance: np.ndarray = None
-    ) -> List[float]:
+    def _optimize_weights(self, train_data: np.ndarray, train_imbalance: np.ndarray = None) -> List[float]:
         """
         Learn optimal combination weights using linear regression.
 
@@ -350,6 +324,7 @@ class BayesianBitcoinTrader:
             List of weights [w0, w1, w2, w3, w4]
         """
         import sys
+
         X = []
         y = []
 
@@ -372,13 +347,8 @@ class BayesianBitcoinTrader:
                 if t < ws:
                     predictions.append(0.0)
                 else:
-                    current = train_data[t-ws:t]
-                    pred = self.predict_single_timeframe(
-                        current,
-                        self.pattern_libs[i],
-                        self.label_libs[i],
-                        self.c_values[i]
-                    )
+                    current = train_data[t - ws : t]
+                    pred = self.predict_single_timeframe(current, self.pattern_libs[i], self.label_libs[i], self.c_values[i])
                     predictions.append(pred)
 
             # Add imbalance ratio
@@ -387,7 +357,7 @@ class BayesianBitcoinTrader:
             X.append(predictions + [r])
 
             # Actual price change
-            actual_change = train_data[t+1] - train_data[t]
+            actual_change = train_data[t + 1] - train_data[t]
             y.append(actual_change)
 
         X = np.array(X)
@@ -405,12 +375,7 @@ class BayesianBitcoinTrader:
 
         return [w0, w1, w2, w3, w4]
 
-    def predict(
-        self,
-        price_series: np.ndarray,
-        t: int,
-        r: float = 0.0
-    ) -> float:
+    def predict(self, price_series: np.ndarray, t: int, r: float = 0.0) -> float:
         """
         Predict price change at time t.
 
@@ -428,18 +393,13 @@ class BayesianBitcoinTrader:
             if t < ws:
                 predictions.append(0.0)
             else:
-                current = price_series[t-ws:t]
-                pred = self.predict_single_timeframe(
-                    current,
-                    self.pattern_libs[i],
-                    self.label_libs[i],
-                    self.c_values[i]
-                )
+                current = price_series[t - ws : t]
+                pred = self.predict_single_timeframe(current, self.pattern_libs[i], self.label_libs[i], self.c_values[i])
                 predictions.append(pred)
 
         # Combine predictions: delta_p = w0 + w1*dp1 + w2*dp2 + w3*dp3 + w4*r
         w0, w1, w2, w3, w4 = self.weights
-        delta_p = w0 + w1*predictions[0] + w2*predictions[1] + w3*predictions[2] + w4*r
+        delta_p = w0 + w1 * predictions[0] + w2 * predictions[1] + w3 * predictions[2] + w4 * r
 
         return delta_p
 
@@ -474,73 +434,69 @@ class TradingStrategy:
         Returns:
             Action string: 'BUY', 'SELL', or 'HOLD'
         """
-        action = 'HOLD'
+        action = "HOLD"
 
         if delta_p > self.threshold and self.position <= 0:
-            action = 'BUY'
+            action = "BUY"
             if self.position == -1:
                 # Close short first
-                self.trades.append({
-                    'type': 'CLOSE_SHORT',
-                    'price': current_price,
-                    'timestamp': timestamp,
-                    'entry_price': self.entry_price,
-                    'pnl': self.entry_price - current_price  # Profit from short
-                })
+                self.trades.append(
+                    {
+                        "type": "CLOSE_SHORT",
+                        "price": current_price,
+                        "timestamp": timestamp,
+                        "entry_price": self.entry_price,
+                        "pnl": self.entry_price - current_price,  # Profit from short
+                    }
+                )
 
             self.position = 1
             self.entry_price = current_price
-            self.trades.append({
-                'type': 'OPEN_LONG',
-                'price': current_price,
-                'timestamp': timestamp,
-                'entry_price': current_price,
-                'pnl': 0.0
-            })
+            self.trades.append({"type": "OPEN_LONG", "price": current_price, "timestamp": timestamp, "entry_price": current_price, "pnl": 0.0})
 
         elif delta_p < -self.threshold and self.position >= 0:
-            action = 'SELL'
+            action = "SELL"
             if self.position == 1:
                 # Close long first
-                self.trades.append({
-                    'type': 'CLOSE_LONG',
-                    'price': current_price,
-                    'timestamp': timestamp,
-                    'entry_price': self.entry_price,
-                    'pnl': current_price - self.entry_price  # Profit from long
-                })
+                self.trades.append(
+                    {
+                        "type": "CLOSE_LONG",
+                        "price": current_price,
+                        "timestamp": timestamp,
+                        "entry_price": self.entry_price,
+                        "pnl": current_price - self.entry_price,  # Profit from long
+                    }
+                )
 
             self.position = -1
             self.entry_price = current_price
-            self.trades.append({
-                'type': 'OPEN_SHORT',
-                'price': current_price,
-                'timestamp': timestamp,
-                'entry_price': current_price,
-                'pnl': 0.0
-            })
+            self.trades.append({"type": "OPEN_SHORT", "price": current_price, "timestamp": timestamp, "entry_price": current_price, "pnl": 0.0})
 
         return action
 
     def close_position(self, current_price: float, timestamp: int):
         """Close any open position at the end."""
         if self.position == 1:
-            self.trades.append({
-                'type': 'CLOSE_LONG',
-                'price': current_price,
-                'timestamp': timestamp,
-                'entry_price': self.entry_price,
-                'pnl': current_price - self.entry_price
-            })
+            self.trades.append(
+                {
+                    "type": "CLOSE_LONG",
+                    "price": current_price,
+                    "timestamp": timestamp,
+                    "entry_price": self.entry_price,
+                    "pnl": current_price - self.entry_price,
+                }
+            )
             self.position = 0
         elif self.position == -1:
-            self.trades.append({
-                'type': 'CLOSE_SHORT',
-                'price': current_price,
-                'timestamp': timestamp,
-                'entry_price': self.entry_price,
-                'pnl': self.entry_price - current_price
-            })
+            self.trades.append(
+                {
+                    "type": "CLOSE_SHORT",
+                    "price": current_price,
+                    "timestamp": timestamp,
+                    "entry_price": self.entry_price,
+                    "pnl": self.entry_price - current_price,
+                }
+            )
             self.position = 0
 
 
@@ -550,12 +506,7 @@ class TradingStrategyWithSL:
     Uses pluggable stop-loss strategies from stop_loss_strategies.py.
     """
 
-    def __init__(
-        self,
-        threshold: float,
-        stop_strategy: 'StopLossStrategy' = None,
-        fee_config: FeeConfig = None
-    ):
+    def __init__(self, threshold: float, stop_strategy: "StopLossStrategy" = None, fee_config: FeeConfig = None):
         """
         Initialize strategy with stop-loss and fees.
 
@@ -576,21 +527,15 @@ class TradingStrategyWithSL:
         # Import here to avoid circular imports
         if stop_strategy is None:
             from stop_loss_strategies import TimeframeDisagreementStop
+
             self.stop_strategy = TimeframeDisagreementStop()
         else:
             self.stop_strategy = stop_strategy
 
-    def _create_stop_context(
-        self,
-        current_price: float,
-        delta_p: float,
-        dp1: float,
-        dp2: float,
-        dp3: float,
-        timestamp
-    ):
+    def _create_stop_context(self, current_price: float, delta_p: float, dp1: float, dp2: float, dp3: float, timestamp):
         """Create context for stop-loss evaluation."""
         from stop_loss_strategies import StopContext
+
         return StopContext(
             position=self.position,
             entry_price=self.entry_price or current_price,
@@ -600,7 +545,7 @@ class TradingStrategyWithSL:
             dp2=dp2,
             dp3=dp3,
             timestamp=timestamp,
-            bars_in_trade=self.bars_in_trade
+            bars_in_trade=self.bars_in_trade,
         )
 
     def _close_position(self, current_price: float, timestamp, exit_reason: str) -> None:
@@ -610,10 +555,10 @@ class TradingStrategyWithSL:
 
         if self.position == 1:
             gross_pnl = current_price - self.entry_price
-            trade_type = 'CLOSE_LONG'
+            trade_type = "CLOSE_LONG"
         else:
             gross_pnl = self.entry_price - current_price
-            trade_type = 'CLOSE_SHORT'
+            trade_type = "CLOSE_SHORT"
 
         # Calculate fee based on trade value (use average of entry and exit price)
         trade_value = (self.entry_price + current_price) / 2
@@ -621,18 +566,20 @@ class TradingStrategyWithSL:
         net_pnl = gross_pnl - fee
         self.total_fees += fee
 
-        self.trades.append({
-            'type': trade_type,
-            'price': current_price,
-            'timestamp': timestamp,
-            'entry_price': self.entry_price,
-            'entry_timestamp': self.entry_timestamp,
-            'gross_pnl': gross_pnl,
-            'fee': fee,
-            'pnl': net_pnl,  # pnl is now net (after fees)
-            'exit_reason': exit_reason,
-            'bars_held': self.bars_in_trade
-        })
+        self.trades.append(
+            {
+                "type": trade_type,
+                "price": current_price,
+                "timestamp": timestamp,
+                "entry_price": self.entry_price,
+                "entry_timestamp": self.entry_timestamp,
+                "gross_pnl": gross_pnl,
+                "fee": fee,
+                "pnl": net_pnl,  # pnl is now net (after fees)
+                "exit_reason": exit_reason,
+                "bars_held": self.bars_in_trade,
+            }
+        )
 
         # Notify stop strategy
         self.stop_strategy.on_exit()
@@ -643,44 +590,21 @@ class TradingStrategyWithSL:
         self.entry_timestamp = None
         self.bars_in_trade = 0
 
-    def _open_position(
-        self,
-        direction: int,
-        current_price: float,
-        timestamp,
-        delta_p: float,
-        dp1: float,
-        dp2: float,
-        dp3: float
-    ) -> None:
+    def _open_position(self, direction: int, current_price: float, timestamp, delta_p: float, dp1: float, dp2: float, dp3: float) -> None:
         """Open a new position."""
         self.position = direction
         self.entry_price = current_price
         self.entry_timestamp = timestamp
         self.bars_in_trade = 0
 
-        trade_type = 'OPEN_LONG' if direction == 1 else 'OPEN_SHORT'
-        self.trades.append({
-            'type': trade_type,
-            'price': current_price,
-            'timestamp': timestamp,
-            'entry_price': current_price,
-            'pnl': 0.0
-        })
+        trade_type = "OPEN_LONG" if direction == 1 else "OPEN_SHORT"
+        self.trades.append({"type": trade_type, "price": current_price, "timestamp": timestamp, "entry_price": current_price, "pnl": 0.0})
 
         # Notify stop strategy of entry
         ctx = self._create_stop_context(current_price, delta_p, dp1, dp2, dp3, timestamp)
         self.stop_strategy.on_entry(ctx)
 
-    def decide(
-        self,
-        delta_p: float,
-        current_price: float,
-        timestamp,
-        dp1: float = 0.0,
-        dp2: float = 0.0,
-        dp3: float = 0.0
-    ) -> str:
+    def decide(self, delta_p: float, current_price: float, timestamp, dp1: float = 0.0, dp2: float = 0.0, dp3: float = 0.0) -> str:
         """
         Make trading decision with stop-loss checking.
 
@@ -706,69 +630,69 @@ class TradingStrategyWithSL:
 
             if should_exit:
                 self._close_position(current_price, timestamp, exit_reason)
-                return 'STOP_EXIT'
+                return "STOP_EXIT"
 
         # Entry/reversal logic
-        action = 'HOLD'
+        action = "HOLD"
 
         if delta_p > self.threshold and self.position <= 0:
             # Close short if exists
             if self.position == -1:
-                self._close_position(current_price, timestamp, 'signal_reversal')
+                self._close_position(current_price, timestamp, "signal_reversal")
 
             # Open long
             self._open_position(1, current_price, timestamp, delta_p, dp1, dp2, dp3)
-            action = 'BUY'
+            action = "BUY"
 
         elif delta_p < -self.threshold and self.position >= 0:
             # Close long if exists
             if self.position == 1:
-                self._close_position(current_price, timestamp, 'signal_reversal')
+                self._close_position(current_price, timestamp, "signal_reversal")
 
             # Open short
             self._open_position(-1, current_price, timestamp, delta_p, dp1, dp2, dp3)
-            action = 'SELL'
+            action = "SELL"
 
         return action
 
     def close_position(self, current_price: float, timestamp) -> None:
         """Close any open position at end of backtest."""
         if self.position != 0:
-            self._close_position(current_price, timestamp, 'end_of_period')
+            self._close_position(current_price, timestamp, "end_of_period")
 
     def get_stop_exit_stats(self) -> Dict:
         """Get statistics on stop-loss exits and fees."""
-        closes = [t for t in self.trades if 'CLOSE' in t['type']]
+        closes = [t for t in self.trades if "CLOSE" in t["type"]]
         if not closes:
             return {}
 
-        stop_exits = [t for t in closes if t.get('exit_reason', '').startswith(self.stop_strategy.name)]
-        signal_exits = [t for t in closes if t.get('exit_reason') == 'signal_reversal']
-        eop_exits = [t for t in closes if t.get('exit_reason') == 'end_of_period']
+        stop_exits = [t for t in closes if t.get("exit_reason", "").startswith(self.stop_strategy.name)]
+        signal_exits = [t for t in closes if t.get("exit_reason") == "signal_reversal"]
+        eop_exits = [t for t in closes if t.get("exit_reason") == "end_of_period"]
 
-        stop_pnls = [t['pnl'] for t in stop_exits]
-        signal_pnls = [t['pnl'] for t in signal_exits]
+        stop_pnls = [t["pnl"] for t in stop_exits]
+        signal_pnls = [t["pnl"] for t in signal_exits]
 
         # Fee stats
-        total_fees = sum(t.get('fee', 0) for t in closes)
-        total_gross_pnl = sum(t.get('gross_pnl', t.get('pnl', 0)) for t in closes)
-        total_net_pnl = sum(t.get('pnl', 0) for t in closes)
+        total_fees = sum(t.get("fee", 0) for t in closes)
+        total_gross_pnl = sum(t.get("gross_pnl", t.get("pnl", 0)) for t in closes)
+        total_net_pnl = sum(t.get("pnl", 0) for t in closes)
 
         return {
-            'total_exits': len(closes),
-            'stop_exits': len(stop_exits),
-            'signal_exits': len(signal_exits),
-            'eop_exits': len(eop_exits),
-            'stop_exit_pct': len(stop_exits) / len(closes) * 100 if closes else 0,
-            'avg_stop_pnl': np.mean(stop_pnls) if stop_pnls else 0,
-            'avg_signal_pnl': np.mean(signal_pnls) if signal_pnls else 0,
-            'stop_win_rate': np.mean([p > 0 for p in stop_pnls]) * 100 if stop_pnls else 0,
-            'signal_win_rate': np.mean([p > 0 for p in signal_pnls]) * 100 if signal_pnls else 0,
+            "total_exits": len(closes),
+            "stop_exits": len(stop_exits),
+            "signal_exits": len(signal_exits),
+            "eop_exits": len(eop_exits),
+            "stop_exit_pct": len(stop_exits) / len(closes) * 100 if closes else 0,
+            "avg_stop_pnl": np.mean(stop_pnls) if stop_pnls else 0,
+            "avg_signal_pnl": np.mean(signal_pnls) if signal_pnls else 0,
+            "stop_win_rate": np.mean([p > 0 for p in stop_pnls]) * 100 if stop_pnls else 0,
+            "signal_win_rate": np.mean([p > 0 for p in signal_pnls]) * 100 if signal_pnls else 0,
             # Fee stats
-            'total_fees': total_fees,
-            'total_gross_pnl': total_gross_pnl,
-            'total_net_pnl': total_net_pnl,
-            'fee_pct_of_gross': (total_fees / total_gross_pnl * 100) if total_gross_pnl > 0 else 0,
+            "total_fees": total_fees,
+            "total_gross_pnl": total_gross_pnl,
+            "total_net_pnl": total_net_pnl,
+            "fee_pct_of_gross": (total_fees / total_gross_pnl * 100) if total_gross_pnl > 0 else 0,
         }
 
 
@@ -777,8 +701,8 @@ def run_backtest_with_sl(
     test_imbalance: np.ndarray,
     model: BayesianBitcoinTrader,
     threshold: float,
-    stop_strategy: 'StopLossStrategy' = None,
-    fee_config: FeeConfig = None
+    stop_strategy: "StopLossStrategy" = None,
+    fee_config: FeeConfig = None,
 ) -> Tuple[List[Dict], List[Dict], Dict]:
     """
     Run backtest with dynamic stop-loss and fees.
@@ -799,6 +723,7 @@ def run_backtest_with_sl(
     # Import stop strategy if not provided
     if stop_strategy is None:
         from stop_loss_strategies import TimeframeDisagreementStop
+
         stop_strategy = TimeframeDisagreementStop()
 
     # Default fee config
@@ -834,24 +759,9 @@ def run_backtest_with_sl(
         r = test_imbalance[t] if test_imbalance is not None else 0.0
 
         # Get per-timeframe predictions for stop-loss evaluation
-        dp1 = model.predict_single_timeframe(
-            test_data[t - model.window_sizes[0]:t],
-            model.pattern_libs[0],
-            model.label_libs[0],
-            model.c_values[0]
-        )
-        dp2 = model.predict_single_timeframe(
-            test_data[t - model.window_sizes[1]:t],
-            model.pattern_libs[1],
-            model.label_libs[1],
-            model.c_values[1]
-        )
-        dp3 = model.predict_single_timeframe(
-            test_data[t - model.window_sizes[2]:t],
-            model.pattern_libs[2],
-            model.label_libs[2],
-            model.c_values[2]
-        )
+        dp1 = model.predict_single_timeframe(test_data[t - model.window_sizes[0] : t], model.pattern_libs[0], model.label_libs[0], model.c_values[0])
+        dp2 = model.predict_single_timeframe(test_data[t - model.window_sizes[1] : t], model.pattern_libs[1], model.label_libs[1], model.c_values[1])
+        dp3 = model.predict_single_timeframe(test_data[t - model.window_sizes[2] : t], model.pattern_libs[2], model.label_libs[2], model.c_values[2])
 
         # Combined prediction
         delta_p = model.predict(test_data, t, r)
@@ -860,16 +770,18 @@ def run_backtest_with_sl(
         current_price = test_data[t]
         action = strategy.decide(delta_p, current_price, t, dp1, dp2, dp3)
 
-        results.append({
-            'timestamp': t,
-            'price': current_price,
-            'prediction': delta_p,
-            'dp1': dp1,
-            'dp2': dp2,
-            'dp3': dp3,
-            'action': action,
-            'position': strategy.position
-        })
+        results.append(
+            {
+                "timestamp": t,
+                "price": current_price,
+                "prediction": delta_p,
+                "dp1": dp1,
+                "dp2": dp2,
+                "dp3": dp3,
+                "action": action,
+                "position": strategy.position,
+            }
+        )
 
     # Close any remaining position
     if strategy.position != 0:
@@ -888,12 +800,7 @@ def run_backtest_with_sl(
     return results, strategy.trades, stop_stats
 
 
-def run_backtest(
-    test_data: np.ndarray,
-    test_imbalance: np.ndarray,
-    model: BayesianBitcoinTrader,
-    threshold: float
-) -> Tuple[List[Dict], List[Dict]]:
+def run_backtest(test_data: np.ndarray, test_imbalance: np.ndarray, model: BayesianBitcoinTrader, threshold: float) -> Tuple[List[Dict], List[Dict]]:
     """
     Run complete backtest on test period.
 
@@ -907,6 +814,7 @@ def run_backtest(
         Tuple of (results, trades)
     """
     import sys
+
     print(f"\n{'='*60}")
     print("RUNNING BACKTEST")
     print(f"{'='*60}")
@@ -940,17 +848,11 @@ def run_backtest(
         current_price = test_data[t]
         action = strategy.decide(delta_p, current_price, t)
 
-        results.append({
-            'timestamp': t,
-            'price': current_price,
-            'prediction': delta_p,
-            'action': action,
-            'position': strategy.position
-        })
+        results.append({"timestamp": t, "price": current_price, "prediction": delta_p, "action": action, "position": strategy.position})
 
     # Close any remaining position
     if strategy.position != 0:
-        strategy.close_position(test_data[-1], len(test_data)-1)
+        strategy.close_position(test_data[-1], len(test_data) - 1)
 
     print(f"\n[OK] Backtest complete")
     print(f"Total trades: {len(strategy.trades)}")
@@ -976,14 +878,22 @@ def calculate_metrics(trades: List[Dict], start_price: float, end_price: float) 
         return {}
 
     # Extract completed trades (close trades with PnL)
-    completed_trades = [t for t in trades if 'CLOSE' in t['type']]
+    completed_trades = [t for t in trades if "CLOSE" in t["type"]]
 
     if len(completed_trades) == 0:
         return {}
 
-    profits = np.array([t['pnl'] for t in completed_trades])
+    # Net profits (after fees if available)
+    profits = np.array([t["pnl"] for t in completed_trades])
+
+    # Gross profits (before fees) - use pnl if gross_pnl not available
+    gross_profits = np.array([t.get("gross_pnl", t["pnl"]) for t in completed_trades])
+
+    # Total fees
+    total_fees = sum(t.get("fee", 0) for t in completed_trades)
 
     total_profit = np.sum(profits)
+    total_gross_profit = np.sum(gross_profits)
     avg_profit = np.mean(profits)
     win_rate = np.mean(profits > 0)
 
@@ -997,25 +907,28 @@ def calculate_metrics(trades: List[Dict], start_price: float, end_price: float) 
     else:
         sharpe = (total_profit - C) / (L * std_profit)
 
-    # Maximum drawdown
+    # Maximum drawdown (on net profits)
     cumulative = np.cumsum(profits)
     running_max = np.maximum.accumulate(cumulative)
     drawdown = running_max - cumulative
     max_drawdown = np.max(drawdown) if len(drawdown) > 0 else 0
 
     metrics = {
-        'total_trades': len(trades),
-        'completed_trades': len(completed_trades),
-        'total_profit': total_profit,
-        'avg_profit_per_trade': avg_profit,
-        'win_rate': win_rate,
-        'max_profit': np.max(profits),
-        'max_loss': np.min(profits),
-        'profit_std': std_profit,
-        'sharpe_ratio': sharpe,
-        'max_drawdown': max_drawdown,
-        'buy_hold_return': C,
-        'return_pct': (total_profit / start_price) * 100 if start_price > 0 else 0
+        "total_trades": len(trades),
+        "completed_trades": len(completed_trades),
+        "total_profit": total_profit,
+        "total_gross_profit": total_gross_profit,
+        "total_fees": total_fees,
+        "avg_profit_per_trade": avg_profit,
+        "win_rate": win_rate,
+        "max_profit": np.max(profits),
+        "max_loss": np.min(profits),
+        "profit_std": std_profit,
+        "sharpe_ratio": sharpe,
+        "max_drawdown": max_drawdown,
+        "buy_hold_return": C,
+        "return_pct": (total_profit / start_price) * 100 if start_price > 0 else 0,
+        "gross_return_pct": (total_gross_profit / start_price) * 100 if start_price > 0 else 0,
     }
 
     return metrics
@@ -1030,9 +943,14 @@ def print_performance_report(metrics: Dict, test_period_days: float):
     print(f"\nTRADING ACTIVITY:")
     print(f"  Total Trades: {metrics.get('total_trades', 0)}")
     print(f"  Completed Trades: {metrics.get('completed_trades', 0)}")
-    print(f"\nPROFITABILITY:")
-    print(f"  Total Profit: ${metrics.get('total_profit', 0):.2f}")
-    print(f"  Return: {metrics.get('return_pct', 0):.2f}%")
+    print(f"\nPROFITABILITY (GROSS - before fees):")
+    print(f"  Gross Profit: ${metrics.get('total_gross_profit', metrics.get('total_profit', 0)):.2f}")
+    print(f"  Gross Return: {metrics.get('gross_return_pct', metrics.get('return_pct', 0)):.2f}%")
+    print(f"\nFEES:")
+    print(f"  Total Fees: ${metrics.get('total_fees', 0):.2f}")
+    print(f"\nPROFITABILITY (NET - after fees):")
+    print(f"  Net Profit: ${metrics.get('total_profit', 0):.2f}")
+    print(f"  Net Return: {metrics.get('return_pct', 0):.2f}%")
     print(f"  Avg Profit/Trade: ${metrics.get('avg_profit_per_trade', 0):.2f}")
     print(f"  Win Rate: {metrics.get('win_rate', 0)*100:.1f}%")
     print(f"\nRISK METRICS:")

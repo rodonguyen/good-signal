@@ -1,0 +1,15 @@
+{
+  "total_exits": 11439,
+  "stop_exits": 11438,
+  "signal_exits": 0,
+  "eop_exits": 1,
+  "stop_exit_pct": 99.9912579770959,
+  "avg_stop_pnl": -5.559631286719707,
+  "avg_signal_pnl": 0,
+  "stop_win_rate": 32.1734568980591,
+  "signal_win_rate": 0,
+  "total_fees": 65365.360560000205,
+  "total_gross_pnl": 1759.6399999999899,
+  "total_net_pnl": -63605.72055999995,
+  "fee_pct_of_gross": 3714.700766065819
+}

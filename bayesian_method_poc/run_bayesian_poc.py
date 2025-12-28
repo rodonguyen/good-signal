@@ -80,26 +80,46 @@ def split_data(df: pd.DataFrame, train_ratio: float = 2 / 3) -> tuple:
     return train_df, test_df
 
 
-def plot_results(test_df: pd.DataFrame, results: list, metrics: dict, output_path: str = None):
+def plot_results(test_df: pd.DataFrame, results: list, metrics: dict, output_path: str = None, config: dict = None):
     """
-    Plot backtest results.
+    Plot backtest results with configuration info.
 
     Args:
         test_df: Test data DataFrame
         results: List of result dictionaries from backtest
         metrics: Performance metrics dictionary
         output_path: Path to save plot (optional)
+        config: Configuration dictionary with model/strategy parameters
     """
     results_df = pd.DataFrame(results)
 
-    # Calculate cumulative P&L
+    # Calculate cumulative P&L (GROSS - before fees)
     positions = results_df["position"].values
     prices = results_df["price"].values
     price_changes = np.diff(prices, prepend=prices[0])
     pnl = positions[:-1] * price_changes[1:]  # P&L from position changes
     cumulative_pnl = np.cumsum(np.concatenate([[0], pnl]))
 
-    fig, axes = plt.subplots(3, 1, figsize=(14, 10))
+    # Increase height by 30% (10 -> 13) and add space for config text
+    fig, axes = plt.subplots(3, 1, figsize=(14, 13))
+
+    # Add configuration info as suptitle
+    if config:
+        config_text = (
+            f"Config: Windows={config.get('window_sizes', 'N/A')} | "
+            f"Clusters={config.get('n_clusters', 'N/A')}/{config.get('n_select', 'N/A')} | "
+            f"Threshold={config.get('threshold', 'N/A')} | "
+            f"Stop={config.get('stop_strategy', 'None')} (th={config.get('stop_threshold', 'N/A')}) | "
+            f"Fees={config.get('fee_pct', 0)*100:.3f}%"
+        )
+        results_text = (
+            f"Results: Gross=${metrics.get('total_gross_profit', metrics.get('total_profit', 0)):.2f} | "
+            f"Fees=${metrics.get('total_fees', 0):.2f} | "
+            f"Net=${metrics.get('total_profit', 0):.2f} | "
+            f"Trades={metrics.get('completed_trades', 0)} | "
+            f"Win Rate={metrics.get('win_rate', 0)*100:.1f}%"
+        )
+        fig.suptitle(f"{config_text}\n{results_text}", fontsize=10, y=0.98)
 
     # Plot 1: Price and Position
     ax1 = axes[0]
@@ -109,7 +129,6 @@ def plot_results(test_df: pd.DataFrame, results: list, metrics: dict, output_pat
     # Color-code positions
     long_mask = positions == 1
     short_mask = positions == -1
-    neutral_mask = positions == 0
 
     ax1_twin.fill_between(range(len(positions)), 0, positions, where=long_mask, color="green", alpha=0.3, label="Long")
     ax1_twin.fill_between(range(len(positions)), 0, positions, where=short_mask, color="red", alpha=0.3, label="Short")
@@ -122,7 +141,7 @@ def plot_results(test_df: pd.DataFrame, results: list, metrics: dict, output_pat
     ax1_twin.legend(loc="upper right")
     ax1.grid(True, alpha=0.3)
 
-    # Plot 2: Cumulative P&L
+    # Plot 2: Cumulative P&L (Gross)
     ax2 = axes[1]
     ax2.plot(cumulative_pnl, color="blue", linewidth=2)
     ax2.axhline(y=0, color="black", linestyle="--", alpha=0.5)
@@ -130,7 +149,9 @@ def plot_results(test_df: pd.DataFrame, results: list, metrics: dict, output_pat
     ax2.fill_between(range(len(cumulative_pnl)), 0, cumulative_pnl, where=cumulative_pnl < 0, color="red", alpha=0.3)
     ax2.set_xlabel("Time Step")
     ax2.set_ylabel("Cumulative P&L ($)")
-    ax2.set_title(f'Cumulative Profit/Loss - Total: ${metrics.get("total_profit", 0):.2f}')
+    gross_pnl = metrics.get("total_gross_profit", metrics.get("total_profit", 0))
+    net_pnl = metrics.get("total_profit", 0)
+    ax2.set_title(f"Cumulative P&L (GROSS) - Gross: ${gross_pnl:.2f} | Net: ${net_pnl:.2f}")
     ax2.grid(True, alpha=0.3)
 
     # Plot 3: Predictions vs Actual
@@ -151,7 +172,7 @@ def plot_results(test_df: pd.DataFrame, results: list, metrics: dict, output_pat
     ax3.set_title("Prediction Accuracy (Sample)")
     ax3.grid(True, alpha=0.3)
 
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0, 1, 0.96])  # Leave space for suptitle
 
     if output_path:
         plt.savefig(output_path, dpi=150, bbox_inches="tight")
@@ -181,7 +202,7 @@ def main():
 
     # Stop-loss configuration
     use_stop_loss = True
-    stop_threshold = 0.04  # Lower threshold for faster exit on reversal
+    stop_threshold = 0.06  # Lower threshold for faster exit on reversal
 
     print(f"[LOG] Configuration:")
     print(f"  Window sizes: {window_sizes}")
@@ -275,10 +296,19 @@ def main():
             json.dump(stop_stats, f, indent=2)
         print(f"[OK] Stop-loss stats saved to: {stop_stats_file}")
 
-    # Plot results (disabled for POC to avoid blocking)
+    # Plot results with config info
     plot_path = output_dir / f"performance_plot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+    plot_config = {
+        "window_sizes": window_sizes,
+        "n_clusters": n_clusters,
+        "n_select": n_select,
+        "threshold": threshold,
+        "stop_strategy": "PredictionReversalStop" if use_stop_loss else "None",
+        "stop_threshold": stop_threshold if use_stop_loss else None,
+        "fee_pct": FeeConfig().round_trip_pct,
+    }
     try:
-        plot_results(test_df, results, metrics, str(plot_path))
+        plot_results(test_df, results, metrics, str(plot_path), config=plot_config)
     except Exception as e:
         print(f"[WARNING] Could not generate plot: {e}")
 
