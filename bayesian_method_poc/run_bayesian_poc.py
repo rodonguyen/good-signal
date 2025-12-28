@@ -235,14 +235,14 @@ def main():
     test_prices = test_df["close"].values
     test_imbalance = test_df["imbalance_ratio"].values if "imbalance_ratio" in test_df.columns else None
 
-    # Initialize and train model
+    # Initialize and train model (with weight caching)
     print(f"\n[LOG] Initializing Bayesian model...")
     sys.stdout.flush()
     model = BayesianBitcoinTrader(window_sizes=window_sizes, n_clusters=n_clusters, n_select=n_select)
 
-    print(f"[LOG] Starting model training...")
+    print(f"[LOG] Starting model training (will use cached weights if available)...")
     sys.stdout.flush()
-    model.fit(train_prices, train_imbalance)
+    model.fit_with_cache(train_prices, train_imbalance)
 
     # Run backtest on test set
     print(f"[LOG] Running backtest on test set...")

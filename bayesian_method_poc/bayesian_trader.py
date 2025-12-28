@@ -10,13 +10,13 @@ Window sizes are adjusted to maintain similar time coverage:
 """
 
 import numpy as np
-import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.linear_model import LinearRegression
-from scipy.optimize import minimize_scalar
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Dict, Optional
 from pathlib import Path
 from dataclasses import dataclass
+import hashlib
+import pickle
 
 
 @dataclass
@@ -66,6 +66,124 @@ class BayesianBitcoinTrader:
         self.c_values = [1.0, 1.0, 1.0]
         # Combination weights [w0, w1, w2, w3, w4]
         self.weights = [0.0, 0.25, 0.25, 0.25, 0.25]
+
+    @staticmethod
+    def _generate_config_hash(window_sizes: List[int], n_clusters: int, n_select: int, dataset_length: int) -> str:
+        """
+        Generate a hash key based on model configuration and dataset length.
+
+        Args:
+            window_sizes: List of window sizes
+            n_clusters: Number of clusters
+            n_select: Number of selected clusters
+            dataset_length: Length of training dataset
+
+        Returns:
+            Hash string identifier
+        """
+        config_str = f"{sorted(window_sizes)}_{n_clusters}_{n_select}_{dataset_length}"
+        return hashlib.md5(config_str.encode()).hexdigest()
+
+    def _get_weights_path(self, weights_dir: Path, config_hash: str) -> Path:
+        """Get path to saved weights file."""
+        weights_dir.mkdir(parents=True, exist_ok=True)
+        return weights_dir / f"model_weights_{config_hash}.pkl"
+
+    def save_weights(self, weights_dir: str = "bayesian_method_poc/model_weights", dataset_length: Optional[int] = None) -> Path:
+        """
+        Save model weights and pattern libraries to disk.
+
+        Args:
+            weights_dir: Directory to save weights
+            dataset_length: Length of training dataset (for config hash)
+
+        Returns:
+            Path to saved weights file
+        """
+        if any(lib is None for lib in self.pattern_libs):
+            raise ValueError("Cannot save weights: model has not been trained yet")
+
+        if dataset_length is None:
+            raise ValueError("dataset_length must be provided to generate config hash")
+
+        config_hash = self._generate_config_hash(self.window_sizes, self.n_clusters, self.n_select, dataset_length)
+        weights_path = self._get_weights_path(Path(weights_dir), config_hash)
+
+        # Prepare model state
+        model_state = {
+            "window_sizes": self.window_sizes,
+            "n_clusters": self.n_clusters,
+            "n_select": self.n_select,
+            "pattern_libs": self.pattern_libs,
+            "label_libs": self.label_libs,
+            "c_values": self.c_values,
+            "weights": self.weights,
+            "config_hash": config_hash,
+            "dataset_length": dataset_length,
+        }
+
+        # Save as pickle
+        with open(weights_path, "wb") as f:
+            pickle.dump(model_state, f)
+
+        print(f"[OK] Model weights saved to: {weights_path}")
+        return weights_path
+
+    @classmethod
+    def load_weights(
+        cls,
+        window_sizes: List[int],
+        n_clusters: int,
+        n_select: int,
+        dataset_length: int,
+        weights_dir: str = "bayesian_method_poc/model_weights",
+    ) -> Optional["BayesianBitcoinTrader"]:
+        """
+        Load model weights from disk if they exist.
+
+        Args:
+            window_sizes: List of window sizes
+            n_clusters: Number of clusters
+            n_select: Number of selected clusters
+            dataset_length: Length of training dataset
+            weights_dir: Directory containing weights
+
+        Returns:
+            BayesianBitcoinTrader instance with loaded weights, or None if not found
+        """
+        config_hash = cls._generate_config_hash(window_sizes, n_clusters, n_select, dataset_length)
+        weights_path = Path(weights_dir) / f"model_weights_{config_hash}.pkl"
+
+        if not weights_path.exists():
+            return None
+
+        try:
+            with open(weights_path, "rb") as f:
+                model_state = pickle.load(f)
+
+            # Validate configuration matches
+            if (
+                model_state["window_sizes"] != window_sizes
+                or model_state["n_clusters"] != n_clusters
+                or model_state["n_select"] != n_select
+                or model_state["dataset_length"] != dataset_length
+            ):
+                print(f"[WARNING] Config mismatch for loaded weights, skipping load")
+                return None
+
+            # Create model instance
+            model = cls(window_sizes=window_sizes, n_clusters=n_clusters, n_select=n_select)
+            model.pattern_libs = model_state["pattern_libs"]
+            model.label_libs = model_state["label_libs"]
+            model.c_values = model_state["c_values"]
+            model.weights = model_state["weights"]
+
+            print(f"[OK] Model weights loaded from: {weights_path}")
+            return model
+
+        except Exception as e:
+            print(f"[WARNING] Failed to load weights: {e}")
+            return None
 
     def normalize_pattern(self, pattern: np.ndarray) -> np.ndarray:
         """
@@ -309,6 +427,50 @@ class BayesianBitcoinTrader:
         print("TRAINING COMPLETE")
         print(f"{'='*60}\n")
         sys.stdout.flush()
+
+        return self
+
+    def fit_with_cache(
+        self,
+        price_series: np.ndarray,
+        imbalance_ratios: np.ndarray = None,
+        weights_dir: str = "bayesian_method_poc/model_weights",
+        force_retrain: bool = False,
+    ) -> "BayesianBitcoinTrader":
+        """
+        Train the model, loading weights from cache if available and config matches.
+
+        Args:
+            price_series: Array of close prices
+            imbalance_ratios: Array of order book imbalance ratios (optional)
+            weights_dir: Directory to save/load weights
+            force_retrain: If True, ignore cached weights and retrain
+
+        Returns:
+            Self for chaining
+        """
+        dataset_length = len(price_series)
+
+        # Try to load weights if not forcing retrain
+        if not force_retrain:
+            loaded_model = self.load_weights(self.window_sizes, self.n_clusters, self.n_select, dataset_length, weights_dir)
+            if loaded_model is not None:
+                # Copy loaded state to self
+                self.pattern_libs = loaded_model.pattern_libs
+                self.label_libs = loaded_model.label_libs
+                self.c_values = loaded_model.c_values
+                self.weights = loaded_model.weights
+                print(f"[OK] Using cached weights, skipping training")
+                return self
+
+        # Train model
+        self.fit(price_series, imbalance_ratios)
+
+        # Save weights after training
+        try:
+            self.save_weights(weights_dir, dataset_length)
+        except Exception as e:
+            print(f"[WARNING] Failed to save weights: {e}")
 
         return self
 
