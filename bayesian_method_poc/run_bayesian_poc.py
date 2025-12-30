@@ -196,7 +196,7 @@ def main():
     window_sizes = [180, 360, 720]  # Same bar counts as paper: 180, 360, 720 bars (3hr, 6hr, 12hr for 1-min intervals)
     n_clusters = 100  # Increased for full dataset (paper uses 100)
     n_select = 12  # Increased for full dataset (paper uses 20)
-    threshold = 0.22  # Trading threshold (adjusted based on prediction scale)
+    threshold = 0.2  # Trading threshold (adjusted based on prediction scale)
     use_sample = False  # USE FULL DATASET
     sample_size = 50000  # Not used when use_sample=False
 
@@ -278,23 +278,23 @@ def main():
     output_dir = Path("E:/Personal/GitHub/good-signal/bayesian_method_poc/results")
     output_dir.mkdir(exist_ok=True)
 
-    results_csv = output_dir / f"backtest_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-    results_df.to_csv(results_csv, index=False)
-    print(f"[OK] Detailed results saved to: {results_csv}")
+    # results_csv = output_dir / f"backtest_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    # results_df.to_csv(results_csv, index=False)
+    # print(f"[OK] Detailed results saved to: {results_csv}")
 
-    trades_df = pd.DataFrame(trades)
-    trades_csv = output_dir / f"trades_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-    trades_df.to_csv(trades_csv, index=False)
-    print(f"[OK] Trade log saved to: {trades_csv}")
+    # trades_df = pd.DataFrame(trades)
+    # trades_csv = output_dir / f"trades_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    # trades_df.to_csv(trades_csv, index=False)
+    # print(f"[OK] Trade log saved to: {trades_csv}")
 
-    # Save stop-loss stats if available
-    if stop_stats:
-        import json
+    # # Save stop-loss stats if available
+    # if stop_stats:
+    # import json
 
-        stop_stats_file = output_dir / f"stop_stats_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        with open(stop_stats_file, "w") as f:
-            json.dump(stop_stats, f, indent=2)
-        print(f"[OK] Stop-loss stats saved to: {stop_stats_file}")
+    # stop_stats_file = output_dir / f"stop_stats_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    # with open(stop_stats_file, "w") as f:
+    #     json.dump(stop_stats, f, indent=2)
+    # print(f"[OK] Stop-loss stats saved to: {stop_stats_file}")
 
     # Plot results with config info
     plot_path = output_dir / f"performance_plot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
