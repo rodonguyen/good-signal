@@ -365,26 +365,6 @@ w4 (order book):       -248.92  ← Large magnitude (scaled differently)
 
 ## 6. Analysis and Discussion
 
-### 6.1 Why the Strategy is Profitable
-
-**Expected Value Calculation:**
-
-For each trade, expected profit is:
-```
-E[Profit] = P(Win) × E[Win | Win] + P(Loss) × E[Loss | Loss]
-          = 0.631 × $9.64 + 0.369 × (-$15.97)
-          = $6.08 - $5.89
-          = +$0.19 per trade ✓
-```
-
-This matches our observed $0.18/trade, validating the model's consistency.
-
-**Why High Win Rate Compensates for Larger Losses:**
-
-The 63.1% win rate is **sufficiently high** to overcome the 1.66× loss-to-win ratio:
-- Breakeven win rate needed: $15.97 / ($15.97 + $9.64) = 62.4%
-- Actual win rate: 63.1% > 62.4% ✓
-
 ### 6.2 Impact of Parameter Changes
 
 **Effect of Cluster Count:**

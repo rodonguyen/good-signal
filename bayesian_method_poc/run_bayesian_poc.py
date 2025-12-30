@@ -159,12 +159,17 @@ def plot_results(test_df: pd.DataFrame, results: list, metrics: dict, output_pat
     predictions = results_df["prediction"].values
     actual_changes = np.diff(prices, prepend=prices[0])[1:]  # Skip first
 
+    # Align arrays: actual_changes is one element shorter
+    min_len = min(len(predictions), len(actual_changes))
+    predictions_aligned = predictions[:min_len]
+    actual_changes_aligned = actual_changes[:min_len]
+
     # Sample to avoid overplotting
-    sample_size = min(1000, len(predictions))
-    sample_indices = np.random.choice(len(predictions), sample_size, replace=False)
+    sample_size = min(1000, min_len)
+    sample_indices = np.random.choice(min_len, sample_size, replace=False)
     sample_indices = np.sort(sample_indices)
 
-    ax3.scatter(actual_changes[sample_indices], predictions[sample_indices], alpha=0.5, s=10)
+    ax3.scatter(actual_changes_aligned[sample_indices], predictions_aligned[sample_indices], alpha=0.5, s=10)
     ax3.axhline(y=0, color="black", linestyle="--", alpha=0.5)
     ax3.axvline(x=0, color="black", linestyle="--", alpha=0.5)
     ax3.set_xlabel("Actual Price Change")
@@ -193,9 +198,9 @@ def main():
 
     # Configuration
     data_path = "E:/Personal/GitHub/good-signal/bayesian_method_poc/ETHUSDT_1min_with_imbalance.csv"
-    window_sizes = [180, 360, 720]  # Same bar counts as paper: 180, 360, 720 bars (3hr, 6hr, 12hr for 1-min intervals)
+    window_sizes = [60, 120, 240]  # Same bar counts as paper: 180, 360, 720 bars (3hr, 6hr, 12hr for 1-min intervals)
     n_clusters = 100  # Increased for full dataset (paper uses 100)
-    n_select = 12  # Increased for full dataset (paper uses 20)
+    n_select = 50  # Increased for full dataset (paper uses 20)
     threshold = 0.2  # Trading threshold (adjusted based on prediction scale)
     use_sample = False  # USE FULL DATASET
     sample_size = 50000  # Not used when use_sample=False
