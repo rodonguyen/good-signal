@@ -1,5 +1,78 @@
 # Bayesian Trading Strategy - Improvements Roadmap
 
+## Latest Analysis (15-min Data with Extended History)
+
+**Results (310 days, fees disabled):**
+| Metric | Value |
+|--------|-------|
+| Gross P&L | +$2,289.15 |
+| Trades | 1,594 |
+| Win Rate | 36.3% |
+| Avg Profit | $46.62 |
+| Avg Loss | -$24.27 |
+| Avg Profit/Trade | $1.44 |
+| Sharpe Ratio | 0.02 |
+
+**Key Insight:** The strategy has a **low win rate (~36%)** but profits through higher average wins than losses (profit factor ~1.9x). This means:
+- Each trade has a small edge (~$1.44)
+- **Reducing trade count won't help** - the strategy depends on volume to compound the small edge
+- **The edge ($1.44) < fees (~$4.50 per trade)** - this is why it loses money with fees enabled
+
+### The Real Problem
+
+The model's **prediction quality is too low** to overcome transaction costs. We need:
+- Either: Higher win rate (50%+)
+- Or: Higher profit factor (avg win / avg loss > 3x)
+
+### ML Solutions to Improve Signal Quality
+
+#### 1. Better Features (Most Impactful)
+
+The current model only uses raw price patterns. Add:
+
+```python
+# Volatility regime - model may work better in certain regimes
+volatility = df['close'].pct_change().rolling(20).std()
+vol_regime = volatility / volatility.rolling(100).mean()
+
+# Trend strength - filter trades against strong trends
+trend = (df['close'].rolling(20).mean() - df['close'].rolling(60).mean()) / df['close']
+
+# Volume confirmation
+volume_ratio = df['volume'] / df['volume'].rolling(20).mean()
+```
+
+#### 2. Regime Detection (Filter Bad Periods)
+
+Only trade when the model historically performs well:
+
+```python
+# High volatility regime: model predictions are more reliable
+# Low volatility: too much noise, skip trading
+if vol_regime < 0.8:
+    position = 0  # Don't trade in low-vol regimes
+```
+
+#### 3. Replace K-Means with Gradient Boosting
+
+K-means clustering is unsupervised - it finds patterns but doesn't optimize for profitability. LightGBM would:
+- Learn which features actually predict returns
+- Handle non-linear relationships
+- Provide feature importance for debugging
+
+#### 4. Multi-Signal Confirmation
+
+Only trade when multiple timeframes agree:
+
+```python
+# Current: trade if combined prediction > threshold
+# Better: trade only if ALL timeframes agree on direction
+if sign(dp1) == sign(dp2) == sign(dp3) and abs(delta_p) > threshold:
+    take_trade = True
+```
+
+---
+
 **Date:** December 30, 2025
 **Status:** Analysis Complete
 **Problem:** Strategy loses money due to excessive trading (10,244 trades, $58k fees vs $2k gross profit)

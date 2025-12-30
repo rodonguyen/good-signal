@@ -92,7 +92,7 @@ steps:
 
   filters:
     # enabled: Enable pre-entry filter pipeline (filters trading days).
-    enabled: false
+    enabled: true 
     
     # config_path: Path to filter rules configuration.
     config_path: config/backtest/filters.yaml

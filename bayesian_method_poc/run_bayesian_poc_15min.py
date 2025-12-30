@@ -134,11 +134,16 @@ def plot_results(test_df: pd.DataFrame, results: list, metrics: dict, output_pat
     predictions = results_df["prediction"].values
     actual_changes = np.diff(prices, prepend=prices[0])[1:]
 
-    sample_size = min(1000, len(predictions))
-    sample_indices = np.random.choice(len(predictions), sample_size, replace=False)
+    # Align arrays: actual_changes is one element shorter
+    min_len = min(len(predictions), len(actual_changes))
+    predictions_aligned = predictions[:min_len]
+    actual_changes_aligned = actual_changes[:min_len]
+
+    sample_size = min(1000, min_len)
+    sample_indices = np.random.choice(min_len, sample_size, replace=False)
     sample_indices = np.sort(sample_indices)
 
-    ax3.scatter(actual_changes[sample_indices], predictions[sample_indices], alpha=0.5, s=10)
+    ax3.scatter(actual_changes_aligned[sample_indices], predictions_aligned[sample_indices], alpha=0.5, s=10)
     ax3.axhline(y=0, color="black", linestyle="--", alpha=0.5)
     ax3.axvline(x=0, color="black", linestyle="--", alpha=0.5)
     ax3.set_xlabel("Actual Price Change (15-min)")
@@ -171,11 +176,9 @@ def main():
     window_sizes = [12, 24, 48]
     n_clusters = 100
     n_select = 20
-    threshold = 0.12  # May need adjustment based on 15-min price movements
-    use_sample = False
-
+    threshold = 0.12
     # Stop-loss configuration
-    use_stop_loss = True
+    use_stop_loss = False
     stop_threshold = 0.02
 
     print(f"[LOG] Configuration (15-min):")
