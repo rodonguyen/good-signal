@@ -1059,6 +1059,13 @@ def calculate_metrics(trades: List[Dict], start_price: float, end_price: float) 
     avg_profit = np.mean(profits)
     win_rate = np.mean(profits > 0)
 
+    # Gross profitability metrics (before fees)
+    gross_winners = gross_profits[gross_profits > 0]
+    gross_losers = gross_profits[gross_profits <= 0]
+    gross_win_rate = np.mean(gross_profits > 0)
+    avg_gross_profit = np.mean(gross_winners) if len(gross_winners) > 0 else 0.0
+    avg_gross_loss = np.mean(gross_losers) if len(gross_losers) > 0 else 0.0
+
     # Calculate Sharpe ratio as per paper
     C = abs(end_price - start_price)  # Buy-and-hold return
     L = len(completed_trades)
@@ -1083,6 +1090,9 @@ def calculate_metrics(trades: List[Dict], start_price: float, end_price: float) 
         "total_fees": total_fees,
         "avg_profit_per_trade": avg_profit,
         "win_rate": win_rate,
+        "gross_win_rate": gross_win_rate,
+        "avg_gross_profit": avg_gross_profit,
+        "avg_gross_loss": avg_gross_loss,
         "max_profit": np.max(profits),
         "max_loss": np.min(profits),
         "profit_std": std_profit,
@@ -1108,6 +1118,9 @@ def print_performance_report(metrics: Dict, test_period_days: float):
     print(f"\nPROFITABILITY (GROSS - before fees):")
     print(f"  Gross Profit: ${metrics.get('total_gross_profit', metrics.get('total_profit', 0)):.2f}")
     print(f"  Gross Return: {metrics.get('gross_return_pct', metrics.get('return_pct', 0)):.2f}%")
+    print(f"  Avg Profit: ${metrics.get('avg_gross_profit', 0):.2f}")
+    print(f"  Avg Loss: ${metrics.get('avg_gross_loss', 0):.2f}")
+    print(f"  Win Rate: {metrics.get('gross_win_rate', 0)*100:.1f}%")
     print(f"\nFEES:")
     print(f"  Total Fees: ${metrics.get('total_fees', 0):.2f}")
     print(f"\nPROFITABILITY (NET - after fees):")

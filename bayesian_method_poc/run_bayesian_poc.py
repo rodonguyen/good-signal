@@ -195,14 +195,14 @@ def main():
     data_path = "E:/Personal/GitHub/good-signal/bayesian_method_poc/ETHUSDT_1min_with_imbalance.csv"
     window_sizes = [180, 360, 720]  # Same bar counts as paper: 180, 360, 720 bars (3hr, 6hr, 12hr for 1-min intervals)
     n_clusters = 100  # Increased for full dataset (paper uses 100)
-    n_select = 20  # Increased for full dataset (paper uses 20)
-    threshold = 0.10  # Trading threshold (adjusted based on prediction scale)
+    n_select = 12  # Increased for full dataset (paper uses 20)
+    threshold = 0.22  # Trading threshold (adjusted based on prediction scale)
     use_sample = False  # USE FULL DATASET
     sample_size = 50000  # Not used when use_sample=False
 
     # Stop-loss configuration
     use_stop_loss = True
-    stop_threshold = 0.06  # Lower threshold for faster exit on reversal
+    stop_threshold = 0.02  # Lower threshold for faster exit on reversal
 
     print(f"[LOG] Configuration:")
     print(f"  Window sizes: {window_sizes}")
