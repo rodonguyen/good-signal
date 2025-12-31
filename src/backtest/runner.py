@@ -231,29 +231,14 @@ class BacktestRunner:
                     outputs=self.config.outputs,
                 )
 
-                # Build filter allow_map if filters are enabled (Step 3)
-                filter_allow_map: dict[str, bool] = {}
+                # Load filter pipeline if filters are enabled (Step 3)
+                filter_pipeline = None
                 filters_cfg = self.config.filters_config
                 if 3 in enabled_blocks and filters_cfg.get("enabled", False):
                     filter_config_path = filters_cfg.get("config_path", "config/backtest/filters.yaml")
-                    pipeline = load_filter_pipeline(filter_config_path)
-                    if pipeline is not None:
-                        print(f"  {symbol}: building filter allow map...")
-                        # Load hourly bars for filters that need them
-                        signal_tf = str(strat_cfg.get("signal_timeframe", "1h"))
-                        hourly_df = None
-                        if signal_tf == "1h":
-                            hourly_df = self.store.load_resampled(symbol, timeframe="1h")
-                        else:
-                            # Load 1h anyway for filters
-                            hourly_df = self.store.load_resampled(symbol, timeframe="1h")
-
-                        # Build daily bars for day-level filters
-                        daily_df = aggregate_24h_periods(minute_df, day_start_hour=13)
-
-                        filter_allow_map = pipeline.build_allow_map(minute_df, hourly_df, daily_df)
-                        allowed_count = sum(1 for v in filter_allow_map.values() if v)
-                        print(f"  {symbol}: filter allow map: {allowed_count}/{len(filter_allow_map)} days allowed")
+                    filter_pipeline = load_filter_pipeline(filter_config_path)
+                    if filter_pipeline is not None:
+                        print(f"  {symbol}: filter pipeline loaded with {len(filter_pipeline.rules)} rule(s)")
 
                 # Flatten config for strategy implementation
                 signal_tf = str(strat_cfg.get("signal_timeframe", "1h"))
@@ -264,7 +249,7 @@ class BacktestRunner:
                     "rr_take_profit": ((strat_cfg.get("execution", {}) or {}).get("rr_take_profit", 4.0)),
                     "conflict_resolution": ((strat_cfg.get("execution", {}) or {}).get("conflict_resolution", "stop_first")),
                     "debug": self.config.debug,  # Pass global debug flag to strategy
-                    "filter_allow_map": filter_allow_map,  # Pass filter allow map to strategy
+                    "filter_pipeline": filter_pipeline,  # Pass filter pipeline to strategy
                 }
 
                 # Add strategy-specific params (e.g., ATR breakout params)
@@ -275,8 +260,15 @@ class BacktestRunner:
                 # Provide cached signal timeframe bars (e.g., 1h) to avoid re-resampling every run.
                 if signal_tf != "1m":
                     print(f"  {symbol}: loading cached {signal_tf} bars (parquet cache if available)...")
-                    params["_signal_bars"] = self.store.load_resampled(symbol, timeframe=signal_tf)
-                    print(f"  {symbol}: loaded {len(params['_signal_bars']):,} {signal_tf} rows")
+                    signal_df = self.store.load_resampled(symbol, timeframe=signal_tf)
+
+                    # Apply filters to signal DataFrame if pipeline exists
+                    if filter_pipeline is not None:
+                        print(f"  {symbol}: applying filters to {signal_tf} bars...")
+                        signal_df = filter_pipeline.apply(signal_df)
+
+                    params["_signal_bars"] = signal_df
+                    print(f"  {symbol}: loaded {len(signal_df):,} {signal_tf} rows")
 
                 print(f"  {symbol}: generating trades...")
                 trades_df = strategy.generate_trades(minute_df, context=ctx, params=params)
@@ -317,10 +309,8 @@ class BacktestRunner:
             analysis_cfg = self.config.analysis_config
             if 5 in enabled_blocks and analysis_cfg.get("enabled", False) and portfolio_file:
                 print(f"\n=== Generating analysis report for {strategy_id} ===")
-                # Get strategy params for config display (only for ATR breakout)
-                strategy_params = None
-                if strategy_type == "atr_breakout":
-                    strategy_params = strat_cfg.get("params", {})
+                # Get strategy params for config display (all strategies)
+                strategy_params = strat_cfg.get("params", {})
 
                 report_file = run_analysis_step(
                     portfolio_file=portfolio_file,

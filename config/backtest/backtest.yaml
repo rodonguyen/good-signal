@@ -12,7 +12,7 @@ engine:
 
   # debug: Enable verbose logging (progress prints, strategy details).
   #        Set to false for cleaner output.
-  debug: true
+  debug: false
 
   cache:
     # enabled: Enable Parquet caching for resampled OHLCV data (e.g., 1m->1h).
@@ -92,7 +92,7 @@ steps:
 
   filters:
     # enabled: Enable pre-entry filter pipeline (filters trading days).
-    enabled: true 
+    enabled: false 
     
     # config_path: Path to filter rules configuration.
     config_path: config/backtest/filters.yaml
@@ -198,5 +198,5 @@ strategies:
       atr_period: 12
 
       # multiplier: ATR multiplier for Supertrend bands (default 3.0).
-      multiplier: 5
+      multiplier: 7
 

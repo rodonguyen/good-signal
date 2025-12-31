@@ -1,29 +1,19 @@
 # Backtest filter configuration (pre-entry).
 #
-# This file defines a filter pipeline that can be applied BEFORE strategies
-# generate trades (skip trading days/periods that fail conditions).
+# This file defines a filter pipeline that can be applied to signal timeframe data.
+# Filters add columns to the DataFrame and check if trades are allowed.
 
-version: 1
+version: 2
 
-logic_mode: OR  # AND = all enabled filters must pass, OR = any filter passes
+logic_mode: AND  # AND = all enabled filters must pass, OR = any filter passes
 
 rules:
-  # Placeholder example rule. Implementation will arrive in Phase 5.
-  # Keep disabled until the rule exists.
-  low_true_range:
-    enabled: false
+  # Supertrend trend confirmation filter
+  # Only allows trades when filter direction matches trade direction
+  supertrend:
+    enabled: true
     params:
-      lookback_days: 20
-      threshold_pct_of_avg: 0.5
-
-  # From the breakout project: low volatility percentage on hourly bars.
-  # Allows entry when ATR (1h) at day start < threshold × price.
-  low_volatility_pct:
-    enabled: true  # Disabled by default, enable when needed
-    params:
-      timeframe: 1h
       atr_period: 12
-      threshold: 0.01  # 1% of price
-      day_start_hour: 13
+      multiplier: 15.0
 
 

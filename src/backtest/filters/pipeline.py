@@ -1,15 +1,13 @@
-"""Filter pipeline that composes multiple filter rules."""
+"""Filter pipeline that applies multiple filter rules to DataFrame."""
 
 from typing import Any, Mapping
 import pandas as pd
-from pathlib import Path
 
 from .base import BaseFilterRule
-from ..data.ohlcv_store import OhlcvStore
 
 
 class FilterPipeline:
-    """Pipeline that applies multiple filter rules with AND/OR logic."""
+    """Pipeline that applies multiple filter rules to price DataFrame."""
 
     def __init__(
         self,
@@ -27,74 +25,62 @@ class FilterPipeline:
         if self.logic_mode not in ("AND", "OR"):
             raise ValueError(f"logic_mode must be 'AND' or 'OR', got: {logic_mode}")
 
-    def build_allow_map(
-        self,
-        minute_df: pd.DataFrame,
-        hourly_df: pd.DataFrame | None,
-        daily_df: pd.DataFrame | None,
-    ) -> dict[str, bool]:
-        """Build a day -> allow/deny map by applying all rules.
+    def apply(self, price_df: pd.DataFrame) -> pd.DataFrame:
+        """Apply all filters to price DataFrame, adding filter columns.
 
         Args:
-            minute_df: 1-minute OHLCV data
-            hourly_df: 1-hour OHLCV data (optional)
-            daily_df: Daily (24h) OHLCV data (optional)
+            price_df: DataFrame with OHLCV data
 
         Returns:
-            Dictionary mapping day_key -> bool (True = allowed, False = filtered)
+            DataFrame with filter columns added (one column per filter)
+        """
+        df = price_df.copy()
+
+        # Apply each filter sequentially
+        for rule in self.rules:
+            try:
+                df = rule.apply(df)
+            except Exception as e:
+                print(f"Warning: Filter {rule.__class__.__name__} failed: {e}")
+                # On error, add column with NaN (will filter out all trades)
+                df[rule.column_name] = pd.NA
+
+        return df
+
+    def is_allowed(self, df: pd.DataFrame, row_idx: int, trade_direction: str) -> bool:
+        """Check if trade is allowed at given row index.
+
+        Args:
+            df: DataFrame with filter columns (after apply())
+            row_idx: Row index to check
+            trade_direction: "long" or "short"
+
+        Returns:
+            True if trade is allowed, False if filtered out
         """
         if not self.rules:
-            # No rules = allow all days
-            return {}
+            return True  # No filters = allow all
 
-        # Prepare all rules
-        prepared_data = {}
+        if row_idx < 0 or row_idx >= len(df):
+            return False
+
+        results = []
         for rule in self.rules:
-            prepared_data[rule] = rule.prepare(minute_df, hourly_df, daily_df)
-
-        # Get unique days from daily_df (if available) or derive from minute_df
-        if daily_df is not None and "day" in daily_df.columns:
-            unique_days = set(daily_df["day"].unique())
-        else:
-            # Fallback: derive days from minute_df timestamps
-            # This is a simple approach - strategies using days should provide daily_df
-            minute_df = minute_df.copy()
-            if "timestamp" in minute_df.columns:
-                minute_df["timestamp"] = pd.to_datetime(minute_df["timestamp"], utc=True)
-                # Use date as day key (simple fallback)
-                unique_days = set(minute_df["timestamp"].dt.date.astype(str))
-            else:
-                unique_days = set()
-
-        # Evaluate each day
-        allow_map: dict[str, bool] = {}
-        for day_key in unique_days:
-            results = []
-            for rule in self.rules:
-                try:
-                    result = rule.allow_entry(day_key, prepared_data[rule])
-                    results.append(result)
-                except Exception as e:
-                    # If rule fails, default to False (filter out)
-                    print(f"Warning: Filter rule {rule.__class__.__name__} failed for day {day_key}: {e}")
+            try:
+                # Get filter value at this row
+                if rule.column_name not in df.columns:
                     results.append(False)
+                    continue
 
-            # Combine results based on logic mode
-            if self.logic_mode == "AND":
-                allow_map[day_key] = all(results)
-            else:  # OR
-                allow_map[day_key] = any(results)
+                filter_value = df.iloc[row_idx][rule.column_name]
+                allowed = rule.is_allowed(filter_value, trade_direction)
+                results.append(allowed)
+            except Exception as e:
+                print(f"Warning: Filter {rule.__class__.__name__} check failed: {e}")
+                results.append(False)
 
-        return allow_map
-
-    def is_allowed(self, day_key: str, allow_map: dict[str, bool]) -> bool:
-        """Check if a day is allowed using the pre-built allow map.
-
-        Args:
-            day_key: Day identifier
-            allow_map: Pre-built allow map from build_allow_map()
-
-        Returns:
-            True if allowed, False if filtered (or not in map)
-        """
-        return allow_map.get(day_key, True)  # Default to allowed if not in map
+        # Combine results based on logic mode
+        if self.logic_mode == "AND":
+            return all(results)
+        else:  # OR
+            return any(results)

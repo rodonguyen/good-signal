@@ -10,7 +10,7 @@ position_sizing:
   
   # Risk-based sizing (default)
   risk_based:
-    risk_per_trade: 0.02  # Risk x of capital per trade
+    risk_per_trade: 0.04  # Risk x of capital per trade
     use_atr_for_risk: true  # Use ATR to calculate position size based on stop distance
   
   # Fixed dollar sizing

@@ -33,9 +33,7 @@ class SupertrendStrategy(BaseBacktestStrategy):
     def strategy_id(self) -> str:
         return "supertrend"
 
-    def generate_trades(
-        self, minute_df: pd.DataFrame, *, context: BacktestContext, params: Mapping[str, Any]
-    ) -> pd.DataFrame:
+    def generate_trades(self, minute_df: pd.DataFrame, *, context: BacktestContext, params: Mapping[str, Any]) -> pd.DataFrame:
         minute_df = ensure_utc_timestamp(minute_df, "timestamp").sort_values("timestamp").reset_index(drop=True)
 
         empty_cols = [
@@ -61,11 +59,15 @@ class SupertrendStrategy(BaseBacktestStrategy):
         atr_period = int(params.get("atr_period", 10))
         multiplier = float(params.get("multiplier", 3.0))
         signal_timeframe = params.get("signal_timeframe", "4h")
-        filter_allow_map: dict[str, bool] = params.get("filter_allow_map", {})
+        filter_pipeline = params.get("filter_pipeline")
         debug = bool(params.get("debug", False))
 
-        # Resample to signal timeframe
-        resampled_df = self._resample_to_timeframe(minute_df, signal_timeframe)
+        # Use pre-filtered signal bars if available, otherwise resample
+        if "_signal_bars" in params and params["_signal_bars"] is not None:
+            resampled_df = params["_signal_bars"].copy()
+        else:
+            # Resample to signal timeframe
+            resampled_df = self._resample_to_timeframe(minute_df, signal_timeframe)
 
         if len(resampled_df) < atr_period + 5:
             if debug:
@@ -90,11 +92,13 @@ class SupertrendStrategy(BaseBacktestStrategy):
         # Generate trades
         trades_out: list[dict[str, Any]] = []
 
-        for i in range(1, len(resampled_df)):
+        i = 1
+        while i < len(resampled_df):
             direction_change = resampled_df.iloc[i]["direction_change"]
 
             # Skip if no direction change
             if pd.isna(direction_change) or direction_change == 0:
+                i += 1
                 continue
 
             # Determine trade direction
@@ -103,12 +107,42 @@ class SupertrendStrategy(BaseBacktestStrategy):
             elif direction_change < 0:  # Changed from bullish (1) to bearish (-1)
                 trade_direction = "short"
             else:
+                i += 1
                 continue
 
-            # Entry on the signal bar
-            entry_time = resampled_df.iloc[i]["timestamp"]
-            entry_price = float(resampled_df.iloc[i]["close"])
-            entry_supertrend = float(resampled_df.iloc[i]["supertrend"])
+            # Keep checking subsequent bars until filter allows or direction changes
+            entry_idx = None
+            for j in range(i, len(resampled_df)):
+                # Check if direction changed again (signal invalid)
+                next_direction_change = resampled_df.iloc[j]["direction_change"]
+                if j > i and not pd.isna(next_direction_change) and next_direction_change != 0:
+                    # Direction changed again before filter allowed - give up on this signal
+                    if debug:
+                        print(f"  Trade signal invalidated at row {j}: direction changed before filter allowed")
+                    i = j  # Continue from this new direction change
+                    break
+
+                # Check filter if pipeline exists
+                if filter_pipeline is not None:
+                    if not filter_pipeline.is_allowed(resampled_df, j, trade_direction):
+                        if debug and j == i:
+                            print(f"  Trade filtered out at row {j}: {trade_direction}, will keep checking...")
+                        continue  # Filter still doesn't allow, check next bar
+
+                # Filter allows (or no filter) - entry at this bar
+                entry_idx = j
+                i = j + 1  # Move past this entry point
+                break
+
+            # If no entry found (reached end of data without filter allowing), skip this signal
+            if entry_idx is None:
+                i += 1
+                continue
+
+            # Entry on the allowed bar
+            entry_time = resampled_df.iloc[entry_idx]["timestamp"]
+            entry_price = float(resampled_df.iloc[entry_idx]["close"])
+            entry_supertrend = float(resampled_df.iloc[entry_idx]["supertrend"])
 
             # Find exit: look for next direction change or end of data
             exit_idx = None
@@ -117,8 +151,8 @@ class SupertrendStrategy(BaseBacktestStrategy):
             exit_reason = None
             exit_supertrend = None
 
-            # Scan forward for next direction change
-            for j in range(i + 1, len(resampled_df)):
+            # Scan forward for next direction change (start from entry_idx + 1)
+            for j in range(entry_idx + 1, len(resampled_df)):
                 next_direction_change = resampled_df.iloc[j]["direction_change"]
 
                 if not pd.isna(next_direction_change) and next_direction_change != 0:

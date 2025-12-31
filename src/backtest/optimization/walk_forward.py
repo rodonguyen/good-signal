@@ -20,7 +20,6 @@ from src.backtest.contracts import BacktestContext, BaseBacktestStrategy
 from src.backtest.runner import BacktestConfig, _strategy_factory
 from src.backtest.historical_data_provider.ohlcv_store import OhlcvStore, OhlcvStoreConfig
 from src.backtest.filters.factory import load_filter_pipeline
-from src.backtest.utils.crypto_day_utils import aggregate_24h_periods
 from src.backtest.steps.portfolio import PortfolioBuilder
 from src.backtest.optimization.grid_search import generate_parameter_grid
 from src.backtest.optimization.metrics import (
@@ -182,19 +181,13 @@ class WalkForwardOptimizer:
         # Reset index to avoid issues with non-contiguous indices
         return df.loc[mask].reset_index(drop=True)
 
-    def _build_filter_allow_map(self, minute_df: pd.DataFrame) -> dict[str, bool]:
-        """Build filter allow map if filters are enabled."""
-        filter_allow_map: dict[str, bool] = {}
+    def _get_filter_pipeline(self):
+        """Get filter pipeline if filters are enabled."""
         filters_cfg = self.config.filters_config
         if filters_cfg.get("enabled", False):
             filter_config_path = filters_cfg.get("config_path", "config/backtest/filters.yaml")
-            pipeline = load_filter_pipeline(filter_config_path)
-            if pipeline is not None:
-                signal_tf = str(self.strategy_cfg.get("signal_timeframe", "1h"))
-                hourly_df = self.store.load_resampled(self.symbol, timeframe="1h")
-                daily_df = aggregate_24h_periods(minute_df, day_start_hour=13)
-                filter_allow_map = pipeline.build_allow_map(minute_df, hourly_df, daily_df)
-        return filter_allow_map
+            return load_filter_pipeline(filter_config_path)
+        return None
 
     def _run_single_backtest(
         self,
@@ -230,11 +223,10 @@ class WalkForwardOptimizer:
             return None
         logger.debug(f"Filtered data: {len(minute_df):,} rows")
 
-        # Build filter allow map
-        logger.debug("Building filter allow map...")
-        filter_allow_map = self._build_filter_allow_map(minute_df)
-        if filter_allow_map:
-            logger.debug(f"Filter allow map created: {len(filter_allow_map)} entries")
+        # Get filter pipeline
+        filter_pipeline = self._get_filter_pipeline()
+        if filter_pipeline:
+            logger.debug(f"Filter pipeline loaded with {len(filter_pipeline.rules)} rule(s)")
 
         # Create context
         ctx = BacktestContext(
@@ -253,7 +245,7 @@ class WalkForwardOptimizer:
             "rr_take_profit": ((self.strategy_cfg.get("execution", {}) or {}).get("rr_take_profit", 4.0)),
             "conflict_resolution": ((self.strategy_cfg.get("execution", {}) or {}).get("conflict_resolution", "stop_first")),
             "debug": False,  # Disable debug for WFO
-            "filter_allow_map": filter_allow_map,
+            "filter_pipeline": filter_pipeline,
         }
 
         # Add strategy-specific params (merge with provided params)
@@ -263,9 +255,15 @@ class WalkForwardOptimizer:
 
         # Load signal bars if needed
         if signal_tf != "1m":
-            hourly_df = self.store.load_resampled(self.symbol, timeframe=signal_tf)
-            hourly_df = self._filter_data_by_date(hourly_df, start, end)
-            strategy_params["_signal_bars"] = hourly_df
+            signal_df = self.store.load_resampled(self.symbol, timeframe=signal_tf)
+            signal_df = self._filter_data_by_date(signal_df, start, end)
+            
+            # Apply filters to signal DataFrame if pipeline exists
+            if filter_pipeline is not None:
+                logger.debug("Applying filters to signal bars...")
+                signal_df = filter_pipeline.apply(signal_df)
+            
+            strategy_params["_signal_bars"] = signal_df
 
         # Generate trades
         logger.debug("Generating trades...")

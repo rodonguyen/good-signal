@@ -6,14 +6,14 @@ import yaml
 
 from .base import BaseFilterRule
 from .pipeline import FilterPipeline
-from .rules.low_volatility_pct import LowVolatilityPctFilter
+from .rules.supertrend import SupertrendFilter
 
 
 def _create_rule(rule_name: str, rule_config: Mapping[str, Any]) -> BaseFilterRule | None:
     """Create a filter rule instance from config.
     
     Args:
-        rule_name: Name of the rule (e.g., "low_volatility_pct")
+        rule_name: Name of the rule (e.g., "supertrend")
         rule_config: Rule configuration dict with "enabled" and "params"
         
     Returns:
@@ -26,8 +26,8 @@ def _create_rule(rule_name: str, rule_config: Mapping[str, Any]) -> BaseFilterRu
 
     # Map rule names to classes
     rule_classes: dict[str, type[BaseFilterRule]] = {
-        "low_volatility_pct": LowVolatilityPctFilter,
-        "low_true_range": None,  # TODO: implement in future phase
+        "supertrend": SupertrendFilter,
+        "low_volatility_pct": None,  # Old filter - not compatible with new system
     }
 
     rule_class = rule_classes.get(rule_name)
@@ -72,4 +72,3 @@ def load_filter_pipeline(config_path: str | Path) -> FilterPipeline | None:
         return None
 
     return FilterPipeline(rules=rules, logic_mode=logic_mode)
-

@@ -452,14 +452,9 @@ class PortfolioAnalysis:
             paths = {}
 
         # Override with values from backtest.yaml if provided (via monkey-patch)
+        # Add all strategy params dynamically (no hardcoded filtering)
         if hasattr(self, "_strategy_config_override") and self._strategy_config_override:
-            strategy.update(
-                {
-                    k: v
-                    for k, v in self._strategy_config_override.items()
-                    if v is not None and k in ["atr_period", "breakout_multiplier", "stop_multiplier", "day_start_hour"]
-                }
-            )
+            strategy.update({k: v for k, v in self._strategy_config_override.items() if v is not None})
 
         if hasattr(self, "_fee_rate_override") and self._fee_rate_override is not None:
             strategy["fee_rate"] = self._fee_rate_override
@@ -557,38 +552,41 @@ class PortfolioAnalysis:
                     except Exception as e:
                         print(f"  Warning: Could not load chart data for {symbol}: {e}")
 
-        # Format config as plain table
+        # Format config as plain table (dynamic - iterate through all params)
+        def format_config_key(key: str) -> str:
+            """Convert snake_case to Title Case with proper formatting."""
+            return key.replace("_", " ").title()
+
+        def format_config_value(key: str, value: Any) -> str:
+            """Format config value based on key type."""
+            if value is None:
+                return "N/A"
+
+            # Special formatting for fee_rate
+            if key == "fee_rate":
+                fee_val = float(value)
+                return f"{fee_val} ({fee_val * 100:.2f}%)"
+
+            # Special formatting for day_start_hour (add UTC)
+            if key == "day_start_hour":
+                return f"{value} UTC"
+
+            # Default: convert to string
+            return str(value)
+
+        config_rows = []
+        # Add strategy parameters
+        for key, value in sorted(strategy.items()):
+            config_rows.append(f"<tr><td>{format_config_key(key)}</td><td>{format_config_value(key, value)}</td></tr>")
+
+        # Add path parameters
+        for key, value in sorted(paths.items()):
+            config_rows.append(f"<tr><td>{format_config_key(key)}</td><td>{format_config_value(key, value)}</td></tr>")
+
         config_html = f"""
         <h2>Configuration</h2>
         <table>
-            <tr>
-                <td>ATR Period</td>
-                <td>{strategy.get('atr_period', 'N/A')}</td>
-            </tr>
-            <tr>
-                <td>Breakout Multiplier</td>
-                <td>{strategy.get('breakout_multiplier', 'N/A')}</td>
-            </tr>
-            <tr>
-                <td>Stop Multiplier</td>
-                <td>{strategy.get('stop_multiplier', 'N/A')}</td>
-            </tr>
-            <tr>
-                <td>Day Start Hour</td>
-                <td>{strategy.get('day_start_hour', 'N/A')} UTC</td>
-            </tr>
-            <tr>
-                <td>Fee Rate</td>
-                <td>{strategy.get('fee_rate', 'N/A')} ({strategy.get('fee_rate', 0) * 100 if strategy.get('fee_rate') else 0:.2f}%)</td>
-            </tr>
-            <tr>
-                <td>Data Directory</td>
-                <td>{paths.get('data_dir', 'N/A')}</td>
-            </tr>
-            <tr>
-                <td>Output Directory</td>
-                <td>{paths.get('output_dir', 'N/A')}</td>
-            </tr>
+            {''.join(config_rows) if config_rows else '<tr><td>No configuration available</td><td>N/A</td></tr>'}
         </table>
         """
         html = f"""
@@ -1323,24 +1321,7 @@ class PortfolioAnalysis:
             raise ImportError("PortfolioBuilder not found")
 
         for symbol in symbols:
-            try:
-                # Export JSON data using PortfolioBuilder method
-                json_file = builder.export_chart_data(
-                    trades_df=trades_df, symbol=symbol, raw_data_dir=str(self.raw_data_dir), output_dir=str(self.output_dir)
-                )
-
-                if json_file:
-                    # Load JSON data to embed in HTML (avoids CORS issues)
-                    with open(json_file, "r", encoding="utf-8") as f:
-                        chart_data = json.load(f)
-                    # Generate HTML file for this symbol with embedded data
-                    html_file = self.output_dir / f"{symbol}_chart.html"
-                    self.generate_symbol_chart_html(html_file, symbol, chart_data)
-                    print(f"  Generated chart file: {Path(html_file).resolve()}")
-
-            except Exception as e:
-                print(f"  Error generating chart for {symbol}: {e}")
-                continue
+            builder.export_chart_data(trades_df=trades_df, symbol=symbol, raw_data_dir=str(self.raw_data_dir), output_dir=str(self.output_dir))
 
     def export_chart_data_for_symbol(self, trades_df: pd.DataFrame, symbol: str, equity_curve: pd.Series) -> Optional[str]:
         """Export chart data as JSON for a specific symbol.
@@ -2151,7 +2132,6 @@ def run_analysis_step(
                                     traceback.print_exc()
 
                         html_file = Path(strategy_reports_dir) / f"{symbol}_chart.html"
-                        # Pass the modified chart_data (with BB data if added) to HTML generator
                         analysis.generate_symbol_chart_html(html_file, symbol, chart_data)
                         print(f"  Generated chart file: {html_file.resolve()}")
                 except Exception as e:
