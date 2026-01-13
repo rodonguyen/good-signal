@@ -22,10 +22,39 @@ schedule>=1.2.0
 # Date handling (pandas dependency)
 python-dateutil>=2.8.0
 
+# ============================================
+# Backend API Dependencies
+# ============================================
+
+# FastAPI framework
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+
+# Database
+sqlalchemy[asyncio]>=2.0.0
+aiosqlite>=0.19.0
+
+# Validation and settings
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# WebSocket support
+websockets>=12.0
+
+# File uploads
+python-multipart>=0.0.6
+
+# Structured logging
+structlog>=24.1.0
+
+# ============================================
 # Testing
+# ============================================
 pytest>=7.4.0
 pytest-mock>=3.12.0
 pytest-cov>=4.1.0
+pytest-asyncio>=0.23.0
+httpx>=0.26.0
 
 # Code formatting
 black>=23.0.0

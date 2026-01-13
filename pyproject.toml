@@ -3,3 +3,55 @@ line-length = 150
 target-version = ['py39', 'py310', 'py311', 'py312']
 include = '\.pyi?$'
 
+[tool.pytest.ini_options]
+# Pytest configuration for good-signal backend tests
+asyncio_mode = "auto"
+testpaths = ["backend/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+# Minimum test coverage thresholds
+addopts = [
+    "-v",  # Verbose output
+    "--strict-markers",  # Strict marker checking
+    "--tb=short",  # Shorter traceback format
+    "--cov=backend",  # Coverage for backend package
+    "--cov-report=term-missing",  # Show missing lines in coverage report
+    "--cov-report=html:htmlcov",  # Generate HTML coverage report
+    "--cov-fail-under=80",  # Fail if coverage is below 80%
+]
+
+# Custom markers for test categorization
+markers = [
+    "unit: Unit tests that test individual components in isolation",
+    "integration: Integration tests that test multiple components together",
+    "slow: Tests that take a long time to run",
+    "asyncio: Tests that use asyncio",
+]
+
+# Configure asyncio testing
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.coverage.run]
+source = ["backend"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    "*/venv/*",
+    "*/.venv/*",
+]
+
+[tool.coverage.report]
+precision = 2
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+

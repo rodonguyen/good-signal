@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: oklch(100% 0 0);
+  --color-foreground: oklch(15% 0 0);
+  --color-card: oklch(100% 0 0);
+  --color-card-foreground: oklch(15% 0 0);
+  --color-popover: oklch(100% 0 0);
+  --color-popover-foreground: oklch(15% 0 0);
+  --color-primary: oklch(25% 0 0);
+  --color-primary-foreground: oklch(98% 0 0);
+  --color-secondary: oklch(96% 0 0);
+  --color-secondary-foreground: oklch(25% 0 0);
+  --color-muted: oklch(96% 0 0);
+  --color-muted-foreground: oklch(55% 0 0);
+  --color-accent: oklch(96% 0 0);
+  --color-accent-foreground: oklch(25% 0 0);
+  --color-destructive: oklch(55% 0.20 0);
+  --color-destructive-foreground: oklch(98% 0 0);
+  --color-border: oklch(90% 0 0);
+  --color-input: oklch(90% 0 0);
+  --color-ring: oklch(15% 0 0);
+  --radius: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  @theme {
+    --color-background: oklch(15% 0 0);
+    --color-foreground: oklch(98% 0 0);
+    --color-card: oklch(15% 0 0);
+    --color-card-foreground: oklch(98% 0 0);
+    --color-popover: oklch(15% 0 0);
+    --color-popover-foreground: oklch(98% 0 0);
+    --color-primary: oklch(98% 0 0);
+    --color-primary-foreground: oklch(25% 0 0);
+    --color-secondary: oklch(25% 0 0);
+    --color-secondary-foreground: oklch(98% 0 0);
+    --color-muted: oklch(25% 0 0);
+    --color-muted-foreground: oklch(65% 0 0);
+    --color-accent: oklch(25% 0 0);
+    --color-accent-foreground: oklch(98% 0 0);
+    --color-destructive: oklch(35% 0.20 0);
+    --color-destructive-foreground: oklch(98% 0 0);
+    --color-border: oklch(25% 0 0);
+    --color-input: oklch(25% 0 0);
+    --color-ring: oklch(85% 0 0);
+  }
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  margin: 0;
+  min-height: 100vh;
+}
+
+/* Native select/option styling for dark mode */
+select {
+  color-scheme: dark light;
+}
+
+select option {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+@media (prefers-color-scheme: dark) {
+  select {
+    color-scheme: dark;
+  }
+}
