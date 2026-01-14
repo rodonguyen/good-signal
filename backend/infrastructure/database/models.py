@@ -138,6 +138,10 @@ class BacktestTrade(Base):
     # Position sizing
     position_size: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
 
+    # Equity tracking
+    equity: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    drawdown: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+
     # Metadata
     exit_reason: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     metadata_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)

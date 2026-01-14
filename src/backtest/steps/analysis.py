@@ -6,8 +6,8 @@ from typing import Any, Dict, Mapping, Optional
 import numpy as np
 import pandas as pd
 
+import yaml
 from src.backtest.utils.analysis_utils import calculate_statistics
-from src.backtest.utils.config import load_config
 
 
 class PortfolioAnalysis:
@@ -444,7 +444,12 @@ class PortfolioAnalysis:
         """
         # Load breakout config
         try:
-            breakout_config = load_config(self.breakout_config_path)
+            config_path = Path(self.breakout_config_path)
+            if config_path.exists():
+                with open(config_path, "r", encoding="utf-8") as f:
+                    breakout_config = yaml.safe_load(f) or {}
+            else:
+                breakout_config = {}
             strategy = breakout_config.get("strategy", {}).copy()
             paths = breakout_config.get("paths", {}).copy()
         except Exception:
@@ -1990,6 +1995,8 @@ def run_analysis_step(
     breakout_config_path: str | None = None,
     strategy_config: Mapping[str, Any] | None = None,
     fee_rate: float | None = None,
+    initial_equity: float = 10000.0,
+    risk_per_trade: float = 0.02,
 ) -> Path | None:
     """Run portfolio analysis step for a strategy.
 
@@ -1999,6 +2006,10 @@ def run_analysis_step(
         trades_dir: Directory containing unfiltered trades (for comparison)
         strategy_id: Strategy identifier (for per-strategy reports)
         breakout_config_path: Path to breakout config (optional)
+        strategy_config: Strategy configuration dict (optional)
+        fee_rate: Fee rate (optional)
+        initial_equity: Initial portfolio equity (required from frontend)
+        risk_per_trade: Risk percentage per trade (required from frontend)
 
     Returns:
         Path to generated HTML report, or None if failed
@@ -2043,19 +2054,26 @@ def run_analysis_step(
             if len(symbols) == 0:
                 return
 
-            # Create PortfolioBuilder with a minimal config that has paths
-            # We'll use the portfolio config path if available
-            portfolio_config_path = "config/backtest/portfolio_config.yaml"
-            try:
-                builder = PortfolioBuilder(config_path=portfolio_config_path)
-            except Exception:
-                # Fallback: create instance and manually set paths
-                builder = PortfolioBuilder.__new__(PortfolioBuilder)
-                builder.paths = {
+            # Create PortfolioBuilder with config_dict (not file-based)
+            config_dict = {
+                "capital": {"initial": initial_equity, "currency": "USDT"},
+                "position_sizing": {
+                    "mode": "risk_pct",
+                    "risk_pct": risk_per_trade,
+                    "max_position_pct": 0.5,
+                },
+                "symbols": list(symbols),
+                "paths": {
                     "trades_dir": str(Path(trades_dir) / strategy_id),
                     "filtered_dir": str(Path(trades_dir) / strategy_id),
                     "use_filtered": False,
-                }
+                },
+                "output": {
+                    "portfolio_dir": str(strategy_reports_dir),
+                    "portfolio_file": "portfolio_trades.csv",
+                },
+            }
+            builder = PortfolioBuilder(config_dict=config_dict)
 
             # Now call export_chart_data for each symbol
             for symbol in symbols:

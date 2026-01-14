@@ -92,6 +92,8 @@ export interface BacktestTrade {
   net_pnl: number
   portfolio_pnl?: number
   position_size?: number
+  equity?: number
+  drawdown?: number
 }
 
 // Form state types for UI

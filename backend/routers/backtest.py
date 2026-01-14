@@ -201,6 +201,8 @@ def _trade_to_response(trade: BacktestTrade) -> BacktestTradeResponse:
         net_pnl=trade.net_pnl,
         portfolio_pnl=trade.portfolio_pnl,
         position_size=trade.position_size,
+        equity=trade.equity,
+        drawdown=trade.drawdown,
     )
 
 
@@ -677,8 +679,8 @@ async def delete_backtest(
     response_model=BacktestCancelResponse,
     summary="Cancel Backtest",
     description=(
-        "Cancel a pending backtest. "
-        "Running backtests cannot be cancelled via this endpoint. "
+        "Cancel a pending or running backtest. "
+        "The backtest status will be set to 'cancelled'. "
         "Completed, failed, or already cancelled backtests will return an error."
     ),
     responses={
@@ -726,19 +728,24 @@ async def cancel_backtest(
             )
 
         # Check if backtest can be cancelled
-        if backtest.status != "pending":
+        if backtest.status not in ("pending", "running"):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail={
                     "error": "BACKTEST_CANNOT_CANCEL",
-                    "message": f"Cannot cancel {backtest.status} backtest. Only pending backtests can be cancelled.",
+                    "message": f"Cannot cancel {backtest.status} backtest. Only pending or running backtests can be cancelled.",
                     "backtest_id": backtest_id,
                     "status": backtest.status,
                 },
             )
 
-        # Cancel in database
-        cancelled = await backtest_repo.cancel_pending(backtest_id)
+        # Cancel in database (works for both pending and running)
+        if backtest.status == "pending":
+            cancelled = await backtest_repo.cancel_pending(backtest_id)
+        else:  # running
+            # For running backtests, directly update status to cancelled
+            await backtest_repo.update_status(backtest_id, "cancelled", error_message="Cancelled by user")
+            cancelled = True
 
         if not cancelled:
             # Race condition - status changed between get and cancel

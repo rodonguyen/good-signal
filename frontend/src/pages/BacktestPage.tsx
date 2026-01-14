@@ -24,6 +24,7 @@ export default function BacktestPage() {
     setCurrentBacktest,
     fetchTrades,
     deleteBacktest,
+    cancelBacktest,
   } = useBacktestStore()
 
   // Fetch backtests on mount
@@ -46,6 +47,8 @@ export default function BacktestPage() {
     // Fetch full backtest details including metrics
     if (backtest) {
       await useBacktestStore.getState().fetchBacktest(backtest.id)
+      // Auto-switch to results tab when selecting a backtest
+      setActiveTab('results')
     }
   }
 
@@ -56,14 +59,41 @@ export default function BacktestPage() {
   }
 
   const handleDelete = async (id: string) => {
+    // Find the backtest to check its status
+    const backtest = backtests.find((b) => b.id === id)
+
+    // Show helpful message if trying to delete pending/running backtest
+    if (backtest && (backtest.status === 'pending' || backtest.status === 'running')) {
+      useBacktestStore.setState({
+        error: `Cannot delete ${backtest.status} backtest. Please cancel it first using the cancel button (X icon).`,
+      })
+      return
+    }
+
     try {
       await deleteBacktest(id)
       // If deleted backtest was selected, clear selection
       if (currentBacktest?.id === id) {
         setCurrentBacktest(null)
       }
+      // Clear any previous errors
+      useBacktestStore.setState({ error: null })
     } catch (error) {
       console.error('Failed to delete backtest:', error)
+      // Error will be set by the store
+    }
+  }
+
+  const handleCancel = async (id: string) => {
+    try {
+      await cancelBacktest(id)
+      // Refresh the list to show updated status
+      await fetchBacktests()
+      // Clear any previous errors
+      useBacktestStore.setState({ error: null })
+    } catch (error) {
+      console.error('Failed to cancel backtest:', error)
+      // Error will be set by the store
     }
   }
 
@@ -100,6 +130,7 @@ export default function BacktestPage() {
                 selectedId={currentBacktest?.id}
                 onSelect={handleSelectBacktest}
                 onDelete={handleDelete}
+                onCancel={handleCancel}
                 isLoading={isLoading}
               />
             </div>
@@ -131,6 +162,7 @@ export default function BacktestPage() {
                 selectedId={currentBacktest?.id}
                 onSelect={handleSelectBacktest}
                 onDelete={handleDelete}
+                onCancel={handleCancel}
                 isLoading={isLoading}
               />
             </div>

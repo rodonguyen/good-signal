@@ -296,35 +296,3 @@ class BybitDownloader:
         filepath = self.save_to_csv(df, symbol)
 
         return filepath
-
-
-def main():
-    """Main function for command-line usage."""
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Download Bybit crypto futures data")
-    parser.add_argument("--symbol", type=str, default=None, help="Symbol to download (e.g., ETHUSDT). Defaults to config default.")
-    parser.add_argument("--start-date", type=str, default=None, help="Start date (YYYY-MM-DD). Defaults to 1 year ago.")
-    parser.add_argument("--end-date", type=str, default=None, help="End date (YYYY-MM-DD). Defaults to now.")
-    parser.add_argument("--config", type=str, default="breakout/src/config/crypto_symbols.yaml", help="Path to config file")
-
-    args = parser.parse_args()
-
-    # Parse dates
-    start_date = None
-    end_date = None
-
-    if args.start_date:
-        start_date = datetime.strptime(args.start_date, "%Y-%m-%d")
-    if args.end_date:
-        end_date = datetime.strptime(args.end_date, "%Y-%m-%d")
-
-    # Download
-    downloader = BybitDownloader(config_path=args.config)
-    filepath = downloader.download_and_save(symbol=args.symbol, start_date=start_date, end_date=end_date)
-
-    print(f"\n✓ Download complete: {filepath}")
-
-
-if __name__ == "__main__":
-    main()

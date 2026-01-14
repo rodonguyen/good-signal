@@ -2,13 +2,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import type { BacktestResult } from '@/types/backtest'
-import { Trash2, Eye } from 'lucide-react'
+import { Trash2, Eye, XCircle } from 'lucide-react'
 
 interface BacktestListProps {
   backtests: BacktestResult[]
   selectedId?: string
   onSelect: (backtest: BacktestResult) => void
   onDelete: (id: string) => void
+  onCancel?: (id: string) => void
   isLoading?: boolean
 }
 
@@ -17,9 +18,19 @@ export default function BacktestList({
   selectedId,
   onSelect,
   onDelete,
+  onCancel,
   isLoading = false,
 }: BacktestListProps) {
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string | undefined) => {
+    // Handle undefined or null status
+    if (!status) {
+      return (
+        <Badge variant="secondary" className="text-xs">
+          UNKNOWN
+        </Badge>
+      )
+    }
+
     const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
       pending: 'secondary',
       running: 'default',
@@ -27,20 +38,29 @@ export default function BacktestList({
       failed: 'destructive',
       cancelled: 'secondary',
     }
+
+    // Lighter red for failed status
+    const extraClasses = status === 'failed' ? 'bg-red-400 text-white hover:bg-red-500 border-red-400' : ''
+
     return (
-      <Badge variant={variants[status] || 'default'} className="text-xs">
+      <Badge variant={variants[status] || 'default'} className={`text-xs ${extraClasses}`}>
         {status.toUpperCase()}
       </Badge>
     )
   }
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleString(undefined, {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
+  const formatDate = (dateStr: string | undefined) => {
+    if (!dateStr) return 'N/A'
+    try {
+      return new Date(dateStr).toLocaleString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    } catch {
+      return 'Invalid date'
+    }
   }
 
   const formatMetric = (value: number | undefined, suffix = '') => {
@@ -121,6 +141,21 @@ export default function BacktestList({
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
+                    {/* Cancel button for pending/running backtests */}
+                    {(backtest.status === 'pending' || backtest.status === 'running') && onCancel && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onCancel(backtest.id)
+                        }}
+                        className="h-8 w-8 p-0 hover:bg-orange-500 hover:text-white"
+                        title="Cancel backtest"
+                      >
+                        <XCircle className="h-4 w-4" />
+                      </Button>
+                    )}
                     <Button
                       variant="outline"
                       size="sm"
@@ -170,22 +205,6 @@ export default function BacktestList({
                     <div className="text-center">
                       <div className="text-xs text-muted-foreground">Trades</div>
                       <div className="text-sm font-semibold">{backtest.metrics.total_trades}</div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Progress Bar for Running Backtests */}
-                {backtest.status === 'running' && (
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Progress</span>
-                      <span>{backtest.progress}%</span>
-                    </div>
-                    <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-primary transition-all duration-300"
-                        style={{ width: `${backtest.progress}%` }}
-                      />
                     </div>
                   </div>
                 )}

@@ -352,6 +352,16 @@ class BacktestTradeResponse(BaseSchema):
         description="Position size used for this trade",
     )
 
+    # Equity tracking
+    equity: Optional[float] = Field(
+        default=None,
+        description="Portfolio equity after this trade",
+    )
+    drawdown: Optional[float] = Field(
+        default=None,
+        description="Drawdown percentage at this trade",
+    )
+
 
 class BacktestCancelResponse(BaseSchema):
     """Response schema for backtest cancellation."""

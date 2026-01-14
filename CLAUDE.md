@@ -11,8 +11,4 @@
 
 ## UI Verification (Playwright MCP)
 
-After implementing any related logic changes that could affect frontend or frontend changes, ALWAYS verify using Playwright MCP:
-1. Use `browser_navigate` to open the relevant page
-2. Use `browser_snapshot` to capture and verify the UI state
-3. If issues are found, fix them before marking the task complete
-4. For interactive features, test the functionality using `browser_click`, `browser_type`, etc.
+After implementing any related logic changes that could affect frontend or frontend changes, ALWAYS verify using /review Claude command

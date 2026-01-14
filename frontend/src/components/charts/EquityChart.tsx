@@ -6,8 +6,14 @@ interface EquityDataPoint {
   value: number
 }
 
+interface PriceDataPoint {
+  time: string
+  value: number
+}
+
 interface EquityChartProps {
   equityData: EquityDataPoint[]
+  priceData?: PriceDataPoint[]  // Optional symbol price data
   height?: number
 }
 
@@ -22,10 +28,11 @@ interface EquityChartProps {
  *   ]}
  * />
  */
-export default function EquityChart({ equityData, height = 300 }: EquityChartProps) {
+export default function EquityChart({ equityData, priceData, height = 300 }: EquityChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<IChartApi | null>(null)
-  const seriesRef = useRef<any>(null)
+  const equitySeriesRef = useRef<any>(null)
+  const priceSeriesRef = useRef<any>(null)
   const resizeObserverRef = useRef<ResizeObserver | null>(null)
 
   // Initialize chart
@@ -71,8 +78,8 @@ export default function EquityChart({ equityData, height = 300 }: EquityChartPro
 
     chartRef.current = chart
 
-    // Add line series for equity curve (v4+ API)
-    const lineSeries = chart.addSeries(LineSeries, {
+    // Add line series for equity curve on right axis
+    const equitySeries = chart.addSeries(LineSeries, {
       color: '#3b82f6',
       lineWidth: 2,
       crosshairMarkerVisible: true,
@@ -81,13 +88,35 @@ export default function EquityChart({ equityData, height = 300 }: EquityChartPro
       crosshairMarkerBackgroundColor: '#ffffff',
       lastValueVisible: true,
       priceLineVisible: true,
+      priceScaleId: 'right',
       priceFormat: {
         type: 'custom',
         formatter: (price: number) => `$${price.toFixed(2)}`,
       },
     })
 
-    seriesRef.current = lineSeries
+    equitySeriesRef.current = equitySeries
+
+    // Add line series for symbol price on left axis (if priceData provided)
+    if (priceData && priceData.length > 0) {
+      const priceSeries = chart.addSeries(LineSeries, {
+        color: '#f59e0b',  // Orange color for price
+        lineWidth: 1.5,
+        crosshairMarkerVisible: true,
+        crosshairMarkerRadius: 3,
+        crosshairMarkerBorderColor: '#f59e0b',
+        crosshairMarkerBackgroundColor: '#ffffff',
+        lastValueVisible: true,
+        priceLineVisible: false,
+        priceScaleId: 'left',
+        priceFormat: {
+          type: 'custom',
+          formatter: (price: number) => `$${price.toFixed(2)}`,
+        },
+      })
+
+      priceSeriesRef.current = priceSeries
+    }
 
     // Auto-resize with container
     resizeObserverRef.current = new ResizeObserver((entries) => {
@@ -107,13 +136,14 @@ export default function EquityChart({ equityData, height = 300 }: EquityChartPro
         chartRef.current.remove()
       }
       chartRef.current = null
-      seriesRef.current = null
+      equitySeriesRef.current = null
+      priceSeriesRef.current = null
     }
-  }, [height])
+  }, [height, priceData])
 
-  // Update data when equityData changes
+  // Update equity data when equityData changes
   useEffect(() => {
-    if (!seriesRef.current || equityData.length === 0) return
+    if (!equitySeriesRef.current || equityData.length === 0) return
 
     // Convert string dates to timestamps for lightweight-charts
     const chartData: LineData[] = equityData.map((point) => ({
@@ -121,13 +151,26 @@ export default function EquityChart({ equityData, height = 300 }: EquityChartPro
       value: point.value,
     }))
 
-    seriesRef.current.setData(chartData)
+    equitySeriesRef.current.setData(chartData)
 
     // Fit content to show all data
     if (chartRef.current) {
       chartRef.current.timeScale().fitContent()
     }
   }, [equityData])
+
+  // Update price data when priceData changes
+  useEffect(() => {
+    if (!priceSeriesRef.current || !priceData || priceData.length === 0) return
+
+    // Convert string dates to timestamps for lightweight-charts
+    const chartData: LineData[] = priceData.map((point) => ({
+      time: point.time as any,
+      value: point.value,
+    }))
+
+    priceSeriesRef.current.setData(chartData)
+  }, [priceData])
 
   return (
     <div

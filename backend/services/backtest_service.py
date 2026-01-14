@@ -212,63 +212,82 @@ class BacktestService:
         }
 
         try:
-            trades_dir = Path(runner_config["engine"]["outputs"]["trades_dir"])
+            # Read from portfolio_trades.csv (position-sized data) instead of all_trades.csv (raw)
+            portfolio_dir = Path(runner_config["engine"]["outputs"]["portfolio_dir"])
             strategies = runner_config.get("strategies", [])
 
             all_trades = []
 
             for strategy in strategies:
                 strategy_id = strategy.get("id", strategy.get("type"))
-                combined_file = trades_dir / strategy_id / "all_trades.csv"
+                portfolio_file = portfolio_dir / strategy_id / "portfolio_trades.csv"
 
-                if combined_file.exists():
-                    df = pd.read_csv(combined_file)
+                if portfolio_file.exists():
+                    df = pd.read_csv(portfolio_file)
                     all_trades.append(df)
 
             if all_trades:
                 combined_df = pd.concat(all_trades, ignore_index=True)
 
-                # Calculate metrics
+                # Calculate metrics using portfolio_pnl (position-sized) instead of net_pnl (raw)
                 if len(combined_df) > 0:
-                    net_pnl = combined_df["net_pnl"]
-                    winners = net_pnl[net_pnl > 0]
-                    losers = net_pnl[net_pnl < 0]
+                    # Use portfolio_pnl for position-sized P&L
+                    portfolio_pnl = combined_df["portfolio_pnl"]
+                    winners = portfolio_pnl[portfolio_pnl > 0]
+                    losers = portfolio_pnl[portfolio_pnl < 0]
 
                     gross_profit = winners.sum() if len(winners) > 0 else 0.0
                     gross_loss = abs(losers.sum()) if len(losers) > 0 else 0.0
 
-                    results["total_return"] = float(net_pnl.sum())
+                    results["total_return"] = float(portfolio_pnl.sum())
                     results["win_rate"] = float(len(winners) / len(combined_df))
                     results["profit_factor"] = float(gross_profit / gross_loss if gross_loss > 0 else float("inf"))
                     results["total_trades"] = len(combined_df)
                     results["winning_trades"] = len(winners)
                     results["losing_trades"] = len(losers)
 
-                    # Calculate avg win/loss
+                    # Calculate avg win/loss using portfolio_pnl
                     results["avg_win"] = float(winners.mean()) if len(winners) > 0 else 0.0
                     results["avg_loss"] = float(losers.mean()) if len(losers) > 0 else 0.0
 
-                    # Calculate largest win/loss
+                    # Calculate largest win/loss using portfolio_pnl
                     results["largest_win"] = float(winners.max()) if len(winners) > 0 else 0.0
                     results["largest_loss"] = float(losers.min()) if len(losers) > 0 else 0.0
 
-                    # Calculate max drawdown from cumulative PnL
+                    # Use pre-calculated drawdown from portfolio_trades.csv
+                    # Note: drawdown column is in % and negative values
                     initial_equity = backtest.initial_equity or 10000.0
-                    cumulative_pnl = net_pnl.cumsum()
-                    equity_curve = initial_equity + cumulative_pnl
-                    running_max = equity_curve.cummax()
-                    drawdown = running_max - equity_curve
-                    results["max_drawdown"] = float(drawdown.max())
+                    if "drawdown" in combined_df.columns:
+                        # drawdown column is already in %, get the minimum (worst) value
+                        results["max_drawdown"] = float(abs(combined_df["drawdown"].min()))
+                    else:
+                        # Fallback: calculate from equity curve
+                        if "equity" in combined_df.columns:
+                            combined_df = combined_df.sort_values("exit_time")
+                            equity_curve = combined_df["equity"]
+                            running_max = equity_curve.cummax()
+                            # Calculate drawdown as percentage from peak
+                            drawdown_pct = (equity_curve - running_max) / running_max * 100
+                            results["max_drawdown"] = float(abs(drawdown_pct.min()))
 
-                    # Calculate Sharpe Ratio (annualized, assuming daily returns)
-                    if len(net_pnl) > 1 and net_pnl.std() > 0:
+                    # Calculate Sharpe Ratio (annualized, with 5% risk-free rate)
+                    if len(portfolio_pnl) > 1 and portfolio_pnl.std() > 0:
                         import numpy as np
 
-                        daily_returns = net_pnl / initial_equity
-                        sharpe = (daily_returns.mean() / daily_returns.std()) * np.sqrt(252)
+                        # Calculate returns as percentage
+                        daily_returns = portfolio_pnl / initial_equity
+
+                        # Annual risk-free rate of 5%
+                        annual_risk_free_rate = 0.05
+                        # Convert to daily rate
+                        daily_risk_free_rate = (1 + annual_risk_free_rate) ** (1/252) - 1
+
+                        # Calculate Sharpe ratio with risk-free rate
+                        excess_returns = daily_returns - daily_risk_free_rate
+                        sharpe = (excess_returns.mean() / daily_returns.std()) * np.sqrt(252)
                         results["sharpe_ratio"] = float(sharpe) if not np.isnan(sharpe) else 0.0
 
-                    # Convert trades to list of dicts
+                    # Convert trades to list of dicts (now includes portfolio_pnl and position_size)
                     results["trades"] = combined_df.to_dict(orient="records")
 
             # Look for report file
@@ -323,6 +342,8 @@ class BacktestService:
                     net_pnl=float(trade_data.get("net_pnl", 0)),
                     portfolio_pnl=trade_data.get("portfolio_pnl"),
                     position_size=trade_data.get("position_size"),
+                    equity=trade_data.get("equity"),
+                    drawdown=trade_data.get("drawdown"),
                     exit_reason=trade_data.get("exit_reason"),
                     metadata_json=json.dumps(trade_data.get("metadata", {})),
                 )

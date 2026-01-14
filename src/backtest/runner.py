@@ -224,6 +224,36 @@ class BacktestRunner:
                 minute_df = self.store.load_1m(symbol)
                 print(f"  {symbol}: loaded {len(minute_df):,} 1m rows")
 
+                # Filter by start_date and end_date if provided
+                data_cfg = self.config.data_config
+                start_date = data_cfg.get("start_date")
+                end_date = data_cfg.get("end_date")
+
+                if start_date or end_date:
+                    original_len = len(minute_df)
+                    # Ensure timestamp column is datetime
+                    if 'timestamp' in minute_df.columns:
+                        if minute_df['timestamp'].dtype == 'object':
+                            minute_df['timestamp'] = pd.to_datetime(minute_df['timestamp'], utc=True)
+
+                        if start_date:
+                            # Ensure timezone awareness matches the data
+                            start_dt = pd.to_datetime(start_date, utc=True)
+                            minute_df = minute_df[minute_df['timestamp'] >= start_dt]
+                            print(f"  {symbol}: filtered by start_date {start_date}")
+
+                        if end_date:
+                            # Ensure timezone awareness matches the data
+                            end_dt = pd.to_datetime(end_date, utc=True) + pd.Timedelta(days=1)  # Include full end day
+                            minute_df = minute_df[minute_df['timestamp'] < end_dt]
+                            print(f"  {symbol}: filtered by end_date {end_date}")
+
+                        print(f"  {symbol}: {original_len:,} -> {len(minute_df):,} rows after date filtering")
+
+                        if len(minute_df) == 0:
+                            print(f"  {symbol}: WARNING - No data in date range, skipping")
+                            continue
+
                 ctx = BacktestContext(
                     symbol=symbol,
                     fee_rate=self.config.fee_rate,
@@ -261,6 +291,23 @@ class BacktestRunner:
                 if signal_tf != "1m":
                     print(f"  {symbol}: loading cached {signal_tf} bars (parquet cache if available)...")
                     signal_df = self.store.load_resampled(symbol, timeframe=signal_tf)
+
+                    # Filter signal bars by date range too
+                    if start_date or end_date:
+                        original_signal_len = len(signal_df)
+                        if 'timestamp' in signal_df.columns:
+                            if signal_df['timestamp'].dtype == 'object':
+                                signal_df['timestamp'] = pd.to_datetime(signal_df['timestamp'], utc=True)
+
+                            if start_date:
+                                start_dt = pd.to_datetime(start_date, utc=True)
+                                signal_df = signal_df[signal_df['timestamp'] >= start_dt]
+
+                            if end_date:
+                                end_dt = pd.to_datetime(end_date, utc=True) + pd.Timedelta(days=1)
+                                signal_df = signal_df[signal_df['timestamp'] < end_dt]
+
+                            print(f"  {symbol}: {signal_tf} bars filtered: {original_signal_len:,} -> {len(signal_df):,} rows")
 
                     # Apply filters to signal DataFrame if pipeline exists
                     if filter_pipeline is not None:
@@ -328,6 +375,8 @@ class BacktestRunner:
                     breakout_config_path=analysis_cfg.get("breakout_config_path"),
                     strategy_config=strategy_params,
                     fee_rate=self.config.fee_rate,
+                    initial_equity=float(portfolio_cfg["initial_equity"]),
+                    risk_per_trade=float(portfolio_cfg["risk_per_trade"]),
                 )
                 if report_file:
                     print(f"  Report generated: {report_file}")

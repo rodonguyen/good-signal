@@ -80,6 +80,28 @@ export default function BacktestResults({ backtest, trades = [], onLoadTrades }:
     return data
   }, [trades, backtest.initial_equity])
 
+  // Generate symbol price data from trades
+  const priceData = useMemo(() => {
+    if (trades.length === 0) return []
+
+    const priceByDate = new Map<string, number>()
+
+    trades.forEach((trade) => {
+      // Add entry price at entry time
+      const entryDate = new Date(trade.entry_time).toISOString().split('T')[0]
+      priceByDate.set(entryDate, trade.entry_price)
+
+      // Add exit price at exit time (will overwrite if same day)
+      const exitDate = new Date(trade.exit_time).toISOString().split('T')[0]
+      priceByDate.set(exitDate, trade.exit_price)
+    })
+
+    // Convert to array and sort by date ascending
+    return Array.from(priceByDate.entries())
+      .map(([time, value]) => ({ time, value }))
+      .sort((a, b) => a.time.localeCompare(b.time))
+  }, [trades])
+
   // Pagination calculations
   const totalPages = Math.ceil(trades.length / tradesPerPage)
   const startIndex = (currentPage - 1) * tradesPerPage
@@ -94,8 +116,12 @@ export default function BacktestResults({ backtest, trades = [], onLoadTrades }:
       failed: 'destructive',
       cancelled: 'secondary',
     }
+
+    // Lighter red for failed badge
+    const extraClasses = backtest.status === 'failed' ? 'bg-red-400 text-white hover:bg-red-500 border-red-400' : ''
+
     return (
-      <Badge variant={variants[backtest.status] || 'default'}>
+      <Badge variant={variants[backtest.status] || 'default'} className={extraClasses}>
         {backtest.status.toUpperCase()}
       </Badge>
     )
@@ -125,7 +151,7 @@ export default function BacktestResults({ backtest, trades = [], onLoadTrades }:
             </div>
           )}
           {backtest.status === 'failed' && backtest.error_message && (
-            <div className="text-sm text-destructive">
+            <div className="text-sm text-red-600 font-semibold">
               Error: {backtest.error_message}
             </div>
           )}
@@ -322,10 +348,11 @@ export default function BacktestResults({ backtest, trades = [], onLoadTrades }:
             <CardTitle>Equity Curve</CardTitle>
             <CardDescription>
               Portfolio value over time ({equityData.length} data points)
+              {priceData.length > 0 && ` • Symbol price overlay (${priceData.length} data points)`}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <EquityChart equityData={equityData} height={400} />
+            <EquityChart equityData={equityData} priceData={priceData} height={400} />
           </CardContent>
         </Card>
       )}
@@ -346,17 +373,20 @@ export default function BacktestResults({ backtest, trades = [], onLoadTrades }:
                   <tr>
                     <th className="text-left p-2">Symbol</th>
                     <th className="text-left p-2">Direction</th>
+                    <th className="text-right p-2">Size</th>
                     <th className="text-left p-2">Entry</th>
                     <th className="text-left p-2">Exit</th>
                     <th className="text-right p-2">Entry Price</th>
                     <th className="text-right p-2">Exit Price</th>
                     <th className="text-right p-2">PnL</th>
                     <th className="text-right p-2">PnL %</th>
+                    <th className="text-right p-2">Equity</th>
                   </tr>
                 </thead>
                 <tbody>
                   {paginatedTrades.map((trade) => {
                     const pnlPct = calculatePnlPct(trade)
+                    const pnl = trade.portfolio_pnl ?? trade.net_pnl
                     return (
                       <tr key={trade.id} className="border-t">
                         <td className="p-2">{trade.symbol}</td>
@@ -364,6 +394,9 @@ export default function BacktestResults({ backtest, trades = [], onLoadTrades }:
                           <Badge variant={trade.direction === 'long' ? 'default' : 'secondary'}>
                             {trade.direction.toUpperCase()}
                           </Badge>
+                        </td>
+                        <td className="p-2 text-right text-sm text-muted-foreground">
+                          {trade.position_size != null ? trade.position_size.toFixed(3) : '-'}
                         </td>
                         <td className="p-2 text-sm">
                           {new Date(trade.entry_time).toLocaleString()}
@@ -375,10 +408,10 @@ export default function BacktestResults({ backtest, trades = [], onLoadTrades }:
                         <td className="p-2 text-right">{formatCurrency(trade.exit_price)}</td>
                         <td
                           className={`p-2 text-right font-semibold ${
-                            trade.net_pnl >= 0 ? 'text-green-500' : 'text-red-500'
+                            pnl >= 0 ? 'text-green-500' : 'text-red-500'
                           }`}
                         >
-                          {formatCurrency(trade.net_pnl)}
+                          {formatCurrency(pnl)}
                         </td>
                         <td
                           className={`p-2 text-right ${
@@ -386,6 +419,9 @@ export default function BacktestResults({ backtest, trades = [], onLoadTrades }:
                           }`}
                         >
                           {formatPercent(pnlPct)}
+                        </td>
+                        <td className="p-2 text-right">
+                          {trade.equity != null ? formatCurrency(trade.equity) : '-'}
                         </td>
                       </tr>
                     )
