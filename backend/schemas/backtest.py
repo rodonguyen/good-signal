@@ -33,8 +33,8 @@ class StrategyConfig(BaseSchema):
         description="Whether this strategy is enabled for execution",
     )
     signal_timeframe: str = Field(
-        default="4h",
-        description="Timeframe for signal generation (e.g., '1h', '4h', '1d')",
+        ...,
+        description="Timeframe for signal generation (e.g., '1h', '4h', '1d'). Required.",
         examples=["1h", "4h", "15m", "1d"],
     )
     params: dict[str, Any] = Field(
@@ -120,23 +120,23 @@ class BacktestRequest(BaseSchema):
         description="Optional list of pre-entry filters to apply",
     )
     fee_rate: float = Field(
-        default=0.0015,
+        ...,
         ge=0.0,
         le=0.1,
-        description="Total round-trip fee rate (e.g., 0.0015 = 0.15%)",
+        description="Total round-trip fee rate (e.g., 0.0015 = 0.15%). Required.",
         examples=[0.0015, 0.001, 0.002],
     )
     initial_equity: float = Field(
-        default=10000.0,
+        ...,
         gt=0,
-        description="Initial equity for portfolio simulation",
+        description="Initial equity for portfolio simulation. Required.",
         examples=[10000.0, 50000.0, 100000.0],
     )
-    risk_per_trade: Optional[float] = Field(
-        default=0.02,
+    risk_per_trade: float = Field(
+        ...,
         ge=0.001,
         le=1.0,
-        description="Risk percentage per trade for position sizing (e.g., 0.02 = 2%)",
+        description="Risk percentage per trade for position sizing (e.g., 0.02 = 2%). Required.",
         examples=[0.01, 0.02, 0.05],
     )
     start_date: Optional[str] = Field(

@@ -17,8 +17,8 @@ from .base import BaseRepository
 
 
 def _utc_now() -> str:
-    """Generate UTC timestamp in ISO format."""
-    return datetime.utcnow().isoformat()
+    """Generate UTC timestamp in ISO format with Z suffix."""
+    return datetime.utcnow().isoformat() + "Z"
 
 
 def _today_date() -> str:

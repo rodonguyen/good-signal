@@ -294,13 +294,20 @@ class BacktestRunner:
             portfolio_cfg = self.config.portfolio_config
             portfolio_file = None
             if 4 in enabled_blocks and portfolio_cfg.get("enabled", False):
+                # Required values from frontend - no defaults
+                if "initial_equity" not in portfolio_cfg:
+                    raise ValueError("initial_equity is required in portfolio config")
+                if "risk_per_trade" not in portfolio_cfg:
+                    raise ValueError("risk_per_trade is required in portfolio config")
+
                 print(f"\n=== Building portfolio for {strategy_id} ===")
                 portfolio_file = run_portfolio_step(
                     trades_dir=str(self.config.outputs["trades_dir"]),
                     portfolio_dir=str(self.config.outputs["portfolio_dir"]),
-                    portfolio_config_path=str(portfolio_cfg.get("config_path", "config/backtest/portfolio_config.yaml")),
                     symbols=self.config.symbols,
                     strategy_id=strategy_id,
+                    initial_equity=float(portfolio_cfg["initial_equity"]),
+                    risk_per_trade=float(portfolio_cfg["risk_per_trade"]),
                 )
                 if portfolio_file:
                     print(f"  Portfolio built: {portfolio_file}")

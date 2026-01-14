@@ -11,27 +11,50 @@ import json
 class PortfolioBuilder:
     """Build portfolio from trades with position sizing."""
 
-    def __init__(self, config_path: str = "src/config/portfolio_config.yaml"):
+    def __init__(
+        self,
+        config_path: str | None = None,
+        config_dict: Dict | None = None,
+    ):
         """Initialize portfolio builder with configuration.
 
         Args:
-            config_path: Path to portfolio configuration file
+            config_path: Path to portfolio configuration file (optional)
+            config_dict: Direct configuration dict (takes precedence over file)
         """
-        self.config = self._load_config(config_path)
+        if config_dict:
+            self.config = config_dict
+        elif config_path:
+            self.config = self._load_config(config_path)
+        else:
+            # Default configuration
+            self.config = self._get_default_config()
+
         self.capital_config = self.config["capital"]
         self.sizing_config = self.config["position_sizing"]
-        self.symbols = self.config["symbols"]
-        self.paths = self.config["paths"]
-        self.output = self.config["output"]
+        self.symbols = self.config.get("symbols", [])
+        self.paths = self.config.get("paths", {})
+        self.output = self.config.get("output", {"portfolio_dir": "data/portfolio"})
 
         # Create output directory
         Path(self.output["portfolio_dir"]).mkdir(parents=True, exist_ok=True)
 
+    def _get_default_config(self) -> Dict:
+        """Return default configuration."""
+        return {
+            "capital": {"initial": 10000, "currency": "USDT"},
+            "position_sizing": {"mode": "risk_pct", "risk_pct": 0.02, "max_position_pct": 0.2},
+            "symbols": [],
+            "paths": {"trades_dir": "data/trades", "filtered_dir": "data/trades", "use_filtered": False},
+            "output": {"portfolio_dir": "data/portfolio", "portfolio_file": "portfolio_trades.csv"},
+        }
+
     def _load_config(self, config_path: str) -> Dict:
-        """Load portfolio configuration."""
+        """Load portfolio configuration from file."""
         config_file = Path(config_path)
         if not config_file.exists():
-            raise FileNotFoundError(f"Configuration file not found: {config_path}")
+            print(f"  Warning: Config file not found: {config_path}, using defaults")
+            return self._get_default_config()
 
         with open(config_file, "r") as f:
             config = yaml.safe_load(f)
@@ -135,11 +158,17 @@ class PortfolioBuilder:
             DataFrame with position_size and adjusted PnL columns
         """
         trades_df = trades_df.copy()
-        method = self.sizing_config["method"]
+        # Support both old format ("method") and new format ("mode")
+        method = self.sizing_config.get("mode") or self.sizing_config.get("method")
         initial_capital = self.capital_config["initial"]
 
-        if method == "risk_based":
-            risk_per_trade = self.sizing_config["risk_based"]["risk_per_trade"]
+        if method in ("risk_pct", "risk_based"):
+            # Support both old format (nested) and new format (flat)
+            if "risk_pct" in self.sizing_config:
+                risk_per_trade = self.sizing_config["risk_pct"]
+            else:
+                risk_per_trade = self.sizing_config["risk_based"]["risk_per_trade"]
+
             capital = initial_capital
 
             # Calculate position size for each trade
@@ -214,7 +243,8 @@ class PortfolioBuilder:
 
         # Apply position sizing
         trades_df = self.apply_position_sizing(trades_df)
-        print(f"  Applied position sizing: {self.sizing_config['method']}")
+        sizing_method = self.sizing_config.get("mode") or self.sizing_config.get("method")
+        print(f"  Applied position sizing: {sizing_method}")
 
         # Calculate equity curve
         equity_curve = self.calculate_equity_curve(trades_df)
@@ -405,24 +435,24 @@ class PortfolioBuilder:
 def run_portfolio_step(
     trades_dir: str,
     portfolio_dir: str,
-    portfolio_config_path: str,
     symbols: list[str],
     strategy_id: str,
+    initial_equity: float,
+    risk_per_trade: float,
 ) -> Path | None:
     """Run portfolio builder step for a strategy.
 
     Args:
         trades_dir: Directory containing trade CSVs
         portfolio_dir: Output directory for portfolio files
-        portfolio_config_path: Path to portfolio config YAML
         symbols: List of symbols to include
         strategy_id: Strategy identifier (for per-strategy portfolio)
+        initial_equity: Initial capital for position sizing (required)
+        risk_per_trade: Risk percentage per trade, e.g., 0.02 = 2% (required)
 
     Returns:
         Path to generated portfolio CSV, or None if failed
     """
-    # Create a temporary config dict that points to the strategy's trades
-    # We'll modify the portfolio builder to use strategy-specific paths
     strategy_trades_dir = Path(trades_dir) / strategy_id
 
     if not strategy_trades_dir.exists():
@@ -435,24 +465,33 @@ def run_portfolio_step(
         print(f"  Warning: No trade files found in {strategy_trades_dir}")
         return None
 
-    # Create portfolio builder with modified config
-    # We need to patch the config to point to our strategy's trades
+    # Create strategy-specific output directory
+    strategy_portfolio_dir = Path(portfolio_dir) / strategy_id
+    strategy_portfolio_dir.mkdir(parents=True, exist_ok=True)
+
+    # Build config dict directly with values from request
+    config_dict = {
+        "capital": {"initial": initial_equity, "currency": "USDT"},
+        "position_sizing": {
+            "mode": "risk_pct",
+            "risk_pct": risk_per_trade,
+            "max_position_pct": 0.5,  # Max 50% of portfolio per trade
+        },
+        "symbols": symbols,
+        "paths": {
+            "trades_dir": str(strategy_trades_dir),
+            "filtered_dir": str(strategy_trades_dir),
+            "use_filtered": False,
+        },
+        "output": {
+            "portfolio_dir": str(strategy_portfolio_dir),
+            "portfolio_file": "portfolio_trades.csv",
+        },
+    }
+
     try:
-        builder = PortfolioBuilder(config_path=portfolio_config_path)
-
-        # Override paths to use strategy-specific trades
-        builder.paths["trades_dir"] = str(strategy_trades_dir)
-        builder.paths["filtered_dir"] = str(strategy_trades_dir)  # Use same dir for now
-        builder.paths["use_filtered"] = False  # Use raw trades (no isFiltered column yet)
-
-        # Override symbols to match what we actually have
-        builder.symbols = symbols
-
-        # Override output to be strategy-specific
-        strategy_portfolio_dir = Path(portfolio_dir) / strategy_id
-        strategy_portfolio_dir.mkdir(parents=True, exist_ok=True)
-        builder.output["portfolio_dir"] = str(strategy_portfolio_dir)
-        builder.output["portfolio_file"] = "portfolio_trades.csv"
+        # Create portfolio builder with direct config
+        builder = PortfolioBuilder(config_dict=config_dict)
 
         # Build portfolio
         portfolio_df = builder.build_portfolio()

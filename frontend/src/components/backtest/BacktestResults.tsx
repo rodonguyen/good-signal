@@ -111,7 +111,7 @@ export default function BacktestResults({ backtest, trades = [], onLoadTrades }:
             {getStatusBadge()}
           </div>
           <CardDescription>
-            Symbols: {backtest.symbols.join(', ')} | Timeframe: {backtest.timeframe || 'N/A'}
+            Symbols: {backtest.symbols?.join(', ') || 'N/A'} | Timeframe: {backtest.timeframe || 'N/A'}
           </CardDescription>
         </CardHeader>
         <CardContent>

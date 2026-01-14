@@ -19,20 +19,20 @@ const DEFAULT_STRATEGIES: StrategyConfig[] = [
   {
     type: 'supertrend',
     enabled: true,
-    signal_timeframe: '15m',
+    signal_timeframe: '4h',
     params: {
       atr_period: 10,
-      atr_multiplier: 3.0,
+      atr_multiplier: 10,
     },
   },
 ]
 
 export default function BacktestForm({ onSubmit, isLoading = false }: BacktestFormProps) {
-  const [symbols, setSymbols] = useState<string[]>(['BTCUSDT'])
+  const [symbols, setSymbols] = useState<string[]>(['ETHUSDT'])
   const [symbolInput, setSymbolInput] = useState('')
   const [strategies, setStrategies] = useState<StrategyConfig[]>(DEFAULT_STRATEGIES)
   const [filters] = useState<FilterConfig[]>([])
-  const [timeframe, setTimeframe] = useState('15m')
+  const [timeframe, setTimeframe] = useState('4h')
 
   // Sync timeframe to all strategies when changed
   const updateTimeframe = (newTimeframe: string) => {
@@ -45,10 +45,11 @@ export default function BacktestForm({ onSubmit, isLoading = false }: BacktestFo
     )
   }
 
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
-  const [feeRate, setFeeRate] = useState(0.001)
-  const [initialEquity, setInitialEquity] = useState(10000)
+  const [startDate, setStartDate] = useState('2025-01-01')
+  const [endDate, setEndDate] = useState('2025-11-01')
+  const [feeRate, setFeeRate] = useState(0.0015)
+  const [initialEquity, setInitialEquity] = useState(1000)
+  const [riskPerTrade, setRiskPerTrade] = useState(0.02)
 
   const addSymbol = (symbol: string) => {
     const upperSymbol = symbol.toUpperCase()
@@ -101,11 +102,11 @@ export default function BacktestForm({ onSubmit, isLoading = false }: BacktestFo
       symbols,
       strategies: enabledStrategies,
       filters: filters.filter((f) => f.enabled),
-      timeframe,
       start_date: startDate || undefined,
       end_date: endDate || undefined,
       fee_rate: feeRate,
       initial_equity: initialEquity,
+      risk_per_trade: riskPerTrade,
     }
 
     onSubmit(request)
@@ -249,7 +250,7 @@ export default function BacktestForm({ onSubmit, isLoading = false }: BacktestFo
           </div>
 
           {/* Trading Parameters */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Fee Rate (%)</label>
               <Input
@@ -269,6 +270,18 @@ export default function BacktestForm({ onSubmit, isLoading = false }: BacktestFo
                 value={initialEquity}
                 onChange={(e) => setInitialEquity(Number(e.target.value))}
                 min={1}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Risk Per Trade (%)</label>
+              <Input
+                type="number"
+                step="0.1"
+                value={riskPerTrade * 100}
+                onChange={(e) => setRiskPerTrade(Number(e.target.value) / 100)}
+                min={0.1}
+                max={100}
               />
             </div>
           </div>

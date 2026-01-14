@@ -28,8 +28,8 @@ def generate_uuid() -> str:
 
 
 def utc_now() -> str:
-    """Generate UTC timestamp in ISO format."""
-    return datetime.utcnow().isoformat()
+    """Generate UTC timestamp in ISO format with Z suffix."""
+    return datetime.utcnow().isoformat() + "Z"
 
 
 class Backtest(Base):

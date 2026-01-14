@@ -11,7 +11,7 @@ export interface PaginatedResponse<T> {
 export interface StrategyConfig {
   type: string // 'supertrend' | 'ma_cross' | 'rsi' | etc.
   enabled: boolean
-  signal_timeframe?: string
+  signal_timeframe: string // Required - no default
   params: Record<string, number | string | boolean>
 }
 
@@ -25,11 +25,11 @@ export interface BacktestRequest {
   symbols: string[]
   strategies: StrategyConfig[]
   filters?: FilterConfig[]
-  timeframe?: string
   start_date?: string
   end_date?: string
-  fee_rate?: number
-  initial_equity?: number
+  fee_rate: number        // Required - frontend preset: 0.0015 (0.15%)
+  initial_equity: number  // Required - frontend preset: 1000
+  risk_per_trade: number  // Required - frontend preset: 0.02 (2%)
 }
 
 export type BacktestStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'

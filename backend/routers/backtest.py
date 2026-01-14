@@ -63,9 +63,11 @@ async def get_task_manager() -> TaskManager:
     Uses the same session factory as the main application for SQLite compatibility.
     """
     from backend.dependencies import db_manager
+
     if db_manager._session_factory is None:
         # Fallback for tests or when db_manager isn't initialized
         from backend.infrastructure.database.connection import AsyncSessionLocal
+
         return TaskManager(session_factory=AsyncSessionLocal, max_workers=2)
     return TaskManager(session_factory=db_manager._session_factory, max_workers=2)
 
@@ -77,8 +79,8 @@ TaskManagerDep = Annotated[TaskManager, Depends(get_task_manager)]
 
 
 def _utc_now() -> str:
-    """Generate UTC timestamp in ISO format."""
-    return datetime.utcnow().isoformat()
+    """Generate UTC timestamp in ISO format with Z suffix."""
+    return datetime.utcnow().isoformat() + "Z"
 
 
 def _backtest_to_summary(backtest: Backtest) -> BacktestSummary:
@@ -268,6 +270,8 @@ async def create_backtest(
                 "source": "bybit",
                 "raw_dir": "data/raw/crypto",
                 "raw_1m_dir": "data/raw/crypto",
+                "start_date": request.start_date,
+                "end_date": request.end_date,
             },
             "universe": {
                 "symbols": request.symbols,
@@ -283,18 +287,17 @@ async def create_backtest(
                 for s in request.strategies
             ],
             "steps": {
-                "enabled_blocks": [2, 3, 4, 5],
                 "filters": {
                     "enabled": bool(request.filters),
                     "config_path": "config/backtest/filters.yaml",
                 },
                 "portfolio": {
                     "enabled": True,
-                    "config_path": "config/backtest/portfolio_config.yaml",
+                    "initial_equity": request.initial_equity,
+                    "risk_per_trade": request.risk_per_trade,
                 },
                 "analysis": {
                     "enabled": True,
-                    "breakout_config_path": "breakout/src/config/breakout_config.yaml",
                 },
             },
         }
@@ -359,6 +362,9 @@ async def create_backtest(
             task_id=task_id,
         )
 
+        # Commit transaction so backtest is visible immediately in list
+        await backtest_repo.session.commit()
+
         return _backtest_to_result(backtest)
 
     except ValidationError as e:
@@ -380,8 +386,7 @@ async def create_backtest(
     response_model=PaginatedResponse[BacktestSummary],
     summary="List Backtests",
     description=(
-        "List all backtests with optional status filtering and pagination. "
-        "Returns summaries ordered by creation date (most recent first)."
+        "List all backtests with optional status filtering and pagination. " "Returns summaries ordered by creation date (most recent first)."
     ),
     responses={
         200: {
@@ -450,10 +455,7 @@ async def list_backtests(
     "/{backtest_id}",
     response_model=BacktestResult,
     summary="Get Backtest Details",
-    description=(
-        "Get detailed information about a specific backtest including "
-        "configuration, performance metrics, and execution status."
-    ),
+    description=("Get detailed information about a specific backtest including " "configuration, performance metrics, and execution status."),
     responses={
         200: {
             "description": "Backtest details retrieved successfully",
@@ -510,10 +512,7 @@ async def get_backtest(
     "/{backtest_id}/trades",
     response_model=PaginatedResponse[BacktestTradeResponse],
     summary="Get Backtest Trades",
-    description=(
-        "Get all trades from a specific backtest with pagination support. "
-        "Trades are ordered by entry time."
-    ),
+    description=("Get all trades from a specific backtest with pagination support. " "Trades are ordered by entry time."),
     responses={
         200: {
             "description": "Trades retrieved successfully",
