@@ -265,10 +265,7 @@ export default function BacktestResults({ backtest, trades = [], onLoadTrades }:
               <div className="space-y-1">
                 <div className="text-sm text-muted-foreground">Max Drawdown</div>
                 <div className="text-2xl font-bold text-red-500">
-                  {formatPercent(metrics.max_drawdown_pct)}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {formatCurrency(metrics.max_drawdown)}
+                  {metrics.max_drawdown != null ? `${metrics.max_drawdown.toFixed(2)}%` : 'N/A'}
                 </div>
               </div>
 

@@ -40,7 +40,6 @@ export interface BacktestMetrics {
   sharpe_ratio: number
   sortino_ratio?: number
   max_drawdown: number
-  max_drawdown_pct: number
   win_rate: number
   profit_factor: number
   total_trades: number

@@ -19,6 +19,16 @@ def calculate_statistics(equity_curve: pd.Series, trades_df: pd.DataFrame, initi
     """
     stats = {}
 
+    # Prepend initial capital at the start to capture full drawdown from initial equity
+    if len(equity_curve) > 0 and len(trades_df) > 0:
+        # Get the entry time of the first trade
+        first_entry_time = trades_df["entry_time"].min()
+        # Create a new equity curve that starts with initial capital before first trade
+        initial_equity_point = pd.Series([initial_capital], index=[first_entry_time])
+        equity_curve = pd.concat([initial_equity_point, equity_curve]).sort_index()
+        # Remove duplicates, keeping the later (actual) values
+        equity_curve = equity_curve[~equity_curve.index.duplicated(keep='last')]
+
     # Basic metrics
     final_equity = equity_curve.iloc[-1] if len(equity_curve) > 0 else initial_capital
     total_return = (final_equity / initial_capital - 1) * 100

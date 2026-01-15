@@ -111,7 +111,6 @@ def _backtest_to_result(backtest: Backtest) -> BacktestResult:
 
         # Calculate derived metrics
         total_return_pct = total_return / initial_equity if initial_equity > 0 else 0
-        max_drawdown_pct = max_drawdown / initial_equity if initial_equity > 0 else 0
         winning_trades = int(round(total_trades * win_rate))
         losing_trades = total_trades - winning_trades
 
@@ -135,7 +134,6 @@ def _backtest_to_result(backtest: Backtest) -> BacktestResult:
             total_return_pct=total_return_pct,
             sharpe_ratio=backtest.sharpe_ratio,
             max_drawdown=abs(max_drawdown),
-            max_drawdown_pct=abs(max_drawdown_pct),
             win_rate=win_rate,
             profit_factor=backtest.profit_factor,
             total_trades=total_trades,
