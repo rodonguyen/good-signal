@@ -6,3 +6,4 @@ config/assets.yaml
 .playwright-mcp/
 frontend/dist/
 old
+nul

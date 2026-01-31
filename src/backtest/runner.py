@@ -287,17 +287,10 @@ class BacktestRunner:
             analysis_cfg = self.config.analysis_config
             if 5 in enabled_blocks and analysis_cfg.get("enabled", False) and portfolio_file:
                 print(f"\n=== Generating analysis report for {strategy_id} ===")
-                # Get strategy params for config display (all strategies)
-                strategy_params = strat_cfg.get("params", {})
-
                 report_file = run_analysis_step(
                     portfolio_file=portfolio_file,
                     reports_dir=str(self.config.outputs["reports_dir"]),
-                    raw_data_dir=self.config.raw_1m_dir,
-                    trades_dir=str(self.config.outputs["trades_dir"]),
                     strategy_id=strategy_id,
-                    breakout_config_path=analysis_cfg.get("breakout_config_path"),
-                    strategy_config=strategy_params,
                     fee_rate=self.config.fee_rate,
                 )
                 if report_file:

@@ -30,37 +30,46 @@ class NadarayaWatsonEnvelope(BaseIndicator):
 
     def calculate(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        Calculate NW envelope on the DataFrame's close prices.
+        Calculate rolling NW envelope on the DataFrame's close prices.
 
-        Only the last `window` bars get indicator values; earlier bars are NaN.
+        For each bar i >= window-1, computes kernel regression over the
+        preceding `window` bars. Bars before that are NaN.
         """
         df = df.copy()
         n = len(df)
         w = min(self.window, n)
 
-        close = df["close"].values
-        prices = close[-w:]  # last `window` bars
+        close = df["close"].values.astype(np.float64)
 
-        # Pre-compute Gaussian kernel weights matrix
+        # Pre-compute Gaussian kernel weights matrix (w x w)
         idx = np.arange(w)
-        # weights[i, j] = exp(-((i-j)^2) / (2 * h^2))
         diff = idx[:, None] - idx[None, :]
         weights = np.exp(-(diff ** 2) / (2 * self.bandwidth ** 2))
+        row_sums = weights.sum(axis=1)  # (w,)
 
-        # Kernel regression: y[i] = sum(prices * weights[i]) / sum(weights[i])
-        y = (weights @ prices) / weights.sum(axis=1)
+        # Build sliding windows: shape (n - w + 1, w)
+        from numpy.lib.stride_tricks import sliding_window_view
+        windows = sliding_window_view(close, w)  # (n - w + 1, w)
 
-        # Mean absolute error
-        mae = np.mean(np.abs(prices - y)) * self.mult
+        # Batched kernel regression: Y[i, j] = regression value at position j
+        # for window i.  Shape: (n - w + 1, w)
+        Y = (weights @ windows.T).T / row_sums
 
-        # Fill into DataFrame (only last w rows)
+        # smooth = endpoint of each rolling window's regression
+        smooth_vals = Y[:, -1]  # (n - w + 1,)
+
+        # MAE per window
+        mae_vals = np.mean(np.abs(windows - Y), axis=1) * self.mult
+
+        # Fill into DataFrame (first w-1 bars are NaN)
         nw_smooth = np.full(n, np.nan)
         nw_upper = np.full(n, np.nan)
         nw_lower = np.full(n, np.nan)
 
-        nw_smooth[-w:] = y
-        nw_upper[-w:] = y + mae
-        nw_lower[-w:] = y - mae
+        start = w - 1
+        nw_smooth[start:] = smooth_vals
+        nw_upper[start:] = smooth_vals + mae_vals
+        nw_lower[start:] = smooth_vals - mae_vals
 
         df["nw_smooth"] = nw_smooth
         df["nw_upper"] = nw_upper

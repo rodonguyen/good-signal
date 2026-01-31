@@ -2,15 +2,15 @@
   "artifact": "1m_to_4h",
   "dependencies": [
     {
-      "mtime_ns": 1766370090919426700,
-      "path": "data\\raw\\crypto\\ETHUSDT\\ETHUSDT_1min.csv",
-      "size": 103727930
+      "mtime_ns": 1769823787403987700,
+      "path": "data\\raw\\crypto\\BTCUSDT\\BTCUSDT_1min.csv",
+      "size": 66826849
     }
   ],
   "namespace": "resample",
   "params": {
     "timeframe": "4h"
   },
-  "symbol": "ETHUSDT",
+  "symbol": "BTCUSDT",
   "version": "v1"
 }

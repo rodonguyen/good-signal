@@ -102,11 +102,12 @@ class NadarayaWatsonEnvelopeStrategy(BaseBacktestStrategy):
 
         i = 1
         while i < len(sig_df) - 1:
-            # Pine Script crossover detection (looking back):
-            # SELL: close[i] > upper[i] and close[i-1] <= upper[i-1]
-            # BUY:  close[i] < lower[i] and close[i-1] >= lower[i-1]
-            sell_signal = close[i] > upper[i] and close[i - 1] <= upper[i - 1]
-            buy_signal = close[i] < lower[i] and close[i - 1] >= lower[i - 1]
+            # Pine Script crossover: both bars compared against the SAME envelope level.
+            # Pine uses y[i-1] for both; non-repainting equivalent uses current bar's level.
+            # SELL: close crosses above upper  (close[i] > upper[i] and close[i-1] < upper[i])
+            # BUY:  close crosses below lower  (close[i] < lower[i] and close[i-1] > lower[i])
+            sell_signal = close[i] > upper[i] and close[i - 1] < upper[i]
+            buy_signal = close[i] < lower[i] and close[i - 1] > lower[i]
 
             if not sell_signal and not buy_signal:
                 i += 1

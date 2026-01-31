@@ -1,1061 +1,299 @@
-"""Portfolio analysis step wrapper for backtest runner."""
+"""Portfolio analysis step — CLI stats, markdown report, single chart PNG."""
 
-import json
 from pathlib import Path
-from typing import Any, Dict, Mapping, Optional
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 import numpy as np
 import pandas as pd
 
 from src.backtest.utils.analysis_utils import calculate_statistics
-from src.backtest.utils.config import load_config
 
 
-class PortfolioAnalysis:
-    """Analyze portfolio performance and generate reports."""
+def _load_portfolio(portfolio_file: Path):
+    """Load portfolio CSV and return (trades_df, equity_curve, initial_capital)."""
+    df = pd.read_csv(portfolio_file)
+    df["entry_time"] = pd.to_datetime(df["entry_time"], utc=True)
+    df["exit_time"] = pd.to_datetime(df["exit_time"], utc=True)
 
-    def __init__(
-        self,
-        portfolio_file: str = "data/portfolio/portfolio_trades.csv",
-        output_dir: str = "src/reports",
-        raw_data_dir: str = "data/raw/crypto",
-        breakout_config_path: str = "src/config/breakout_config.yaml",
-        trades_dir: str = "data/trades",
-    ):
-        """Initialize analysis engine.
+    equity_curve = pd.Series(df["equity"].values, index=df["exit_time"]).sort_index()
+    initial_capital = df["equity"].iloc[0] - df["portfolio_pnl"].iloc[0]
+    return df, equity_curve, initial_capital
 
-        Args:
-            portfolio_file: Path to portfolio trades CSV
-            output_dir: Directory for output reports
-            raw_data_dir: Directory containing raw price data
-            breakout_config_path: Path to breakout config file
-            trades_dir: Directory containing unfiltered trades (for identifying filtered trades)
-        """
-        self.portfolio_file = Path(portfolio_file)
-        self.output_dir = Path(output_dir)
-        self.raw_data_dir = Path(raw_data_dir)
-        self.breakout_config_path = breakout_config_path
-        self.trades_dir = Path(trades_dir)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
 
-    def load_portfolio(self) -> tuple[pd.DataFrame, pd.Series, float]:
-        """Load portfolio data.
+def _build_stats_table(stats: dict) -> str:
+    """Return a markdown-formatted stats table."""
+    start = stats.get("start_date", "N/A")
+    end = stats.get("end_date", "N/A")
+    if hasattr(start, "strftime"):
+        start = start.strftime("%Y-%m-%d")
+    if hasattr(end, "strftime"):
+        end = end.strftime("%Y-%m-%d")
 
-        Returns:
-            Tuple of (trades_df, equity_curve, initial_capital)
-        """
-        if not self.portfolio_file.exists():
-            raise FileNotFoundError(f"Portfolio file not found: {self.portfolio_file}")
+    rows = [
+        ("Period", f"{start} -> {end}"),
+        ("Total Return", f"{stats.get('total_return_pct', 0):.2f}%"),
+        ("Annualized Return", f"{stats.get('annualized_return', 0):.2f}%"),
+        ("", ""),
+        ("Total Trades", f"{stats.get('total_trades', 0)}"),
+        ("Long / Short", f"{stats.get('long_trades', 0)} / {stats.get('short_trades', 0)}"),
+        ("Win Rate", f"{stats.get('win_rate', 0):.1f}%"),
+        ("Avg Win", f"${stats.get('avg_win', 0):,.2f}"),
+        ("Avg Loss", f"${stats.get('avg_loss', 0):,.2f}"),
+        ("Profit Factor", f"{stats.get('profit_factor', 0):.2f}"),
+        ("", ""),
+        ("Max Drawdown", f"{stats.get('max_drawdown', 0):.2f}%"),
+        ("Avg Drawdown", f"{stats.get('avg_drawdown', 0):.2f}%"),
+        ("Sharpe Ratio", f"{stats.get('sharpe_ratio', 0):.2f}"),
+        ("Sortino Ratio", f"{stats.get('sortino_ratio', 0):.2f}"),
+        ("", ""),
+        ("Initial Capital", f"${stats.get('initial_capital', 0):,.2f}"),
+        ("Final Equity", f"${stats.get('final_equity', 0):,.2f}"),
+    ]
 
-        df = pd.read_csv(self.portfolio_file)
-        df["entry_time"] = pd.to_datetime(df["entry_time"], utc=True)
-        df["exit_time"] = pd.to_datetime(df["exit_time"], utc=True)
-
-        # Get equity curve
-        equity_curve = pd.Series(df["equity"].values, index=df["exit_time"]).sort_index()
-
-        # Get initial capital (from first equity value or calculate)
-        initial_capital = df["equity"].iloc[0] - df["portfolio_pnl"].iloc[0]
-
-        return df, equity_curve, initial_capital
-
-    def load_price_data(self, symbol: str) -> Optional[pd.DataFrame]:
-        """Load price data for a symbol.
-
-        Args:
-            symbol: Symbol name (e.g., 'ETHUSDT')
-
-        Returns:
-            DataFrame with price data or None if not found
-        """
-        data_file = self.raw_data_dir / symbol / f"{symbol}_1min.csv"
-
-        if not data_file.exists():
-            return None
-
-        df = pd.read_csv(data_file)
-        df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True)
-
-        return df
-
-    def _identify_filtered_trades(self, portfolio_trades: pd.DataFrame, symbol: str) -> set:
-        """Identify which trades were filtered out by comparing portfolio trades with unfiltered trades.
-
-        Args:
-            portfolio_trades: DataFrame with portfolio trades (filtered)
-            symbol: Symbol name
-
-        Returns:
-            Set of trade identifiers (entry_time timestamps) that were filtered out
-        """
-        # Load unfiltered trades for this symbol
-        unfiltered_file = self.trades_dir / f"{symbol}_trades.csv"
-        if not unfiltered_file.exists():
-            return set()
-
-        try:
-            unfiltered_df = pd.read_csv(unfiltered_file)
-            unfiltered_df["entry_time"] = pd.to_datetime(unfiltered_df["entry_time"], utc=True)
-
-            # Create identifiers for portfolio trades (filtered) - use entry_time as identifier
-            portfolio_ids = set(portfolio_trades["entry_time"].values)
-
-            # Create identifiers for unfiltered trades
-            unfiltered_ids = set(unfiltered_df["entry_time"].values)
-
-            # Filtered out trades are in unfiltered but not in portfolio
-            filtered_out = unfiltered_ids - portfolio_ids
-            return filtered_out
-
-        except Exception:
-            return set()
-
-    def create_interactive_chart(self, trades_df: pd.DataFrame, price_df: pd.DataFrame, equity_curve: pd.Series) -> str:
-        """Create interactive TradingView-style chart using Lightweight Charts JavaScript.
-
-        Args:
-            trades_df: DataFrame with trades
-            price_df: DataFrame with price data (1-minute bars)
-            equity_curve: Series with equity values
-
-        Returns:
-            HTML string with embedded TradingView chart
-        """
-        # Get date range from trades
-        if len(trades_df) == 0:
-            return "<p>No trades to display</p>"
-
-        min_date = trades_df["entry_time"].min()
-        max_date = trades_df["exit_time"].max()
-
-        # Filter price data to relevant range
-        price_filtered = price_df[
-            (price_df["timestamp"] >= min_date - pd.Timedelta(days=1)) & (price_df["timestamp"] <= max_date + pd.Timedelta(days=1))
-        ].copy()
-
-        if len(price_filtered) == 0:
-            return "<p>No price data available for chart</p>"
-
-        # Resample to 15-minute bars for better performance (or use 1-min if dataset is small)
-        if len(price_filtered) > 10000:
-            price_chart = (
-                price_filtered.set_index("timestamp")
-                .resample("15min")
-                .agg({"open": "first", "high": "max", "low": "min", "close": "last", "volume": "sum"})
-                .reset_index()
-            )
+    # Build markdown table
+    lines = ["| Metric | Value |", "|--------|-------|"]
+    for metric, value in rows:
+        if metric == "":
+            lines.append("| | |")
         else:
-            price_chart = price_filtered.copy()
-
-        # Convert timestamps to Unix timestamps (seconds)
-        # Ensure timestamps are timezone-aware
-        if price_chart["timestamp"].dtype == "object":
-            price_chart["timestamp"] = pd.to_datetime(price_chart["timestamp"], utc=True)
-        price_chart["time"] = (price_chart["timestamp"].astype("int64") // 10**9).astype(int)
-
-        # Prepare candlestick data - ensure all values are numeric
-        candlestick_data = []
-        for _, row in price_chart.iterrows():
-            candlestick_data.append(
-                {
-                    "time": int(row["time"]),
-                    "open": float(row["open"]),
-                    "high": float(row["high"]),
-                    "low": float(row["low"]),
-                    "close": float(row["close"]),
-                    "volume": float(row["volume"]) if pd.notna(row["volume"]) else 0.0,
-                }
-            )
-
-        # Prepare equity curve data
-        equity_df = pd.DataFrame({"timestamp": equity_curve.index, "equity": equity_curve.values})
-        # Ensure timestamps are timezone-aware
-        if equity_df["timestamp"].dtype == "object":
-            equity_df["timestamp"] = pd.to_datetime(equity_df["timestamp"], utc=True)
-        equity_df["time"] = (equity_df["timestamp"].astype("int64") // 10**9).astype(int)
-
-        # Ensure all values are numeric - TradingView expects 'value' for line series
-        equity_data = []
-        for _, row in equity_df.iterrows():
-            if pd.notna(row["equity"]):
-                equity_data.append({"time": int(row["time"]), "value": float(row["equity"])})
-
-        # Prepare trades data with markers
-        trades_list = []
-        for idx, trade in trades_df.iterrows():
-            entry_time = int(pd.Timestamp(trade["entry_time"]).timestamp())
-            exit_time = int(pd.Timestamp(trade["exit_time"]).timestamp())
-
-            # Entry marker (triangle) - Buy/Sell
-            entry_color = "#00ff00" if trade["direction"] == "long" else "#ff0000"
-            trades_list.append(
-                {
-                    "time": entry_time,
-                    "position": "aboveBar",
-                    "color": entry_color,
-                    "shape": "triangleUp" if trade["direction"] == "long" else "triangleDown",
-                    "text": f"{'BUY' if trade['direction'] == 'long' else 'SELL'} @ {trade['entry_price']:.2f}",
-                    "price": float(trade["entry_price"]),
-                }
-            )
-
-            # Stop Loss marker (circle) at entry time
-            if pd.notna(trade["stop_level"]):
-                trades_list.append(
-                    {
-                        "time": entry_time,
-                        "position": "belowBar",
-                        "color": "#ffa500",
-                        "shape": "circle",
-                        "text": f"SL @ {trade['stop_level']:.2f}",
-                        "price": float(trade["stop_level"]),
-                    }
-                )
-
-            # Exit marker (circle) - shows if SL hit or EOD exit
-            if "exit_reason" in trade.index:
-                exit_reason = trade["exit_reason"] if pd.notna(trade["exit_reason"]) else "end_of_day"
-            else:
-                exit_reason = "end_of_day"
-            if exit_reason == "stop_loss":
-                exit_color = "#ff0000"
-                exit_text = f"SL HIT @ {trade['exit_price']:.2f} (PnL: ${trade['portfolio_pnl']:.2f})"
-            else:
-                exit_color = "#00ff00" if trade["portfolio_pnl"] > 0 else "#ff0000"
-                exit_text = f"EXIT @ {trade['exit_price']:.2f} (PnL: ${trade['portfolio_pnl']:.2f})"
-
-            trades_list.append(
-                {
-                    "time": exit_time,
-                    "position": "belowBar",
-                    "color": exit_color,
-                    "shape": "circle",
-                    "text": exit_text,
-                    "price": float(trade["exit_price"]),
-                }
-            )
-
-        # Prepare horizontal lines (breakout levels and stops) - only for days with trades
-        # Group trades by day to show levels only for days with trades
-        trades_df["trade_date"] = pd.to_datetime(trades_df["entry_time"]).dt.date
-        days_with_trades = trades_df["trade_date"].unique()
-
-        horizontal_lines = []
-        seen_levels_per_day = {}  # Track levels per day to avoid duplicates
-
-        for idx, trade in trades_df.iterrows():
-            trade_date = trade["trade_date"]
-            trade_date_str = str(trade_date)
-
-            # Initialize seen_levels for this day if not exists
-            if trade_date_str not in seen_levels_per_day:
-                seen_levels_per_day[trade_date_str] = {"upper": set(), "lower": set(), "stop": set()}
-
-            # Upper breakout level (only show once per day)
-            if pd.notna(trade["upper_level"]):
-                level_key = f"{trade['upper_level']:.4f}"
-                if level_key not in seen_levels_per_day[trade_date_str]["upper"]:
-                    horizontal_lines.append(
-                        {
-                            "price": float(trade["upper_level"]),
-                            "color": "#00ff00",
-                            "lineWidth": 1,
-                            "lineStyle": 2,  # Dashed
-                            "axisLabelVisible": True,
-                            "title": f'Upper Breakout: {trade["upper_level"]:.2f}',
-                        }
-                    )
-                    seen_levels_per_day[trade_date_str]["upper"].add(level_key)
-
-            # Lower breakout level (only show once per day)
-            if pd.notna(trade["lower_level"]):
-                level_key = f"{trade['lower_level']:.4f}"
-                if level_key not in seen_levels_per_day[trade_date_str]["lower"]:
-                    horizontal_lines.append(
-                        {
-                            "price": float(trade["lower_level"]),
-                            "color": "#ff0000",
-                            "lineWidth": 1,
-                            "lineStyle": 2,  # Dashed
-                            "axisLabelVisible": True,
-                            "title": f'Lower Breakout: {trade["lower_level"]:.2f}',
-                        }
-                    )
-                    seen_levels_per_day[trade_date_str]["lower"].add(level_key)
-
-            # Stop level (only show once per day)
-            if pd.notna(trade["stop_level"]):
-                level_key = f"{trade['stop_level']:.4f}"
-                if level_key not in seen_levels_per_day[trade_date_str]["stop"]:
-                    horizontal_lines.append(
-                        {
-                            "price": float(trade["stop_level"]),
-                            "color": "#ffa500",
-                            "lineWidth": 1,
-                            "lineStyle": 0,  # Dotted
-                            "axisLabelVisible": True,
-                            "title": f'Stop Loss: {trade["stop_level"]:.2f}',
-                        }
-                    )
-                    seen_levels_per_day[trade_date_str]["stop"].add(level_key)
-
-        # Generate HTML with TradingView Lightweight Charts
-        # Escape JSON data properly for embedding in HTML
-        candlestick_data_json = json.dumps(candlestick_data)
-        equity_data_json = json.dumps(equity_data)
-        horizontal_lines_json = json.dumps(horizontal_lines)
-        trades_list_json = json.dumps(trades_list)
-
-        chart_html = f"""
-<div id="trading-chart-container" style="width: 100%; height: 700px; margin: 20px 0;"></div>
-<script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
-<script>
-(function() {{
-    // Wait for library to load and DOM to be ready
-    function initChart() {{
-        if (typeof LightweightCharts === 'undefined') {{
-            setTimeout(initChart, 100);
-            return;
-        }}
-        
-        const chartContainer = document.getElementById('trading-chart-container');
-        if (!chartContainer) {{
-            setTimeout(initChart, 100);
-            return;
-        }}
-        
-        const candlestickData = {candlestick_data_json};
-        const equityData = {equity_data_json};
-        const horizontalLines = {horizontal_lines_json};
-        const markers = {trades_list_json};
-        
-        const chart = LightweightCharts.createChart(chartContainer, {{
-            layout: {{
-                background: {{ color: '#ffffff' }},
-                textColor: '#333',
-            }},
-            grid: {{
-                vertLines: {{ color: '#e0e0e0' }},
-                horzLines: {{ color: '#e0e0e0' }},
-            }},
-            crosshair: {{
-                mode: LightweightCharts.CrosshairMode.Normal,
-            }},
-            rightPriceScale: {{
-                borderColor: '#cccccc',
-            }},
-            timeScale: {{
-                borderColor: '#cccccc',
-                timeVisible: true,
-                secondsVisible: false,
-                minBarSpacing: 0.5,
-            }},
-            width: chartContainer.clientWidth,
-            height: 700,
-        }});
-        
-        // Add candlestick series
-        const {{ CandlestickSeries }} = LightweightCharts;
-        const candlestickSeries = chart.addSeries(CandlestickSeries, {{
-            upColor: '#26a69a',
-            downColor: '#ef5350',
-            borderVisible: false,
-            wickUpColor: '#26a69a',
-            wickDownColor: '#ef5350',
-        }});
-        
-        candlestickSeries.setData(candlestickData);
-        
-        // Add equity curve on right price scale
-        const equitySeries = chart.addLineSeries({{
-            color: '#2196F3',
-            lineWidth: 2,
-            title: 'Equity',
-            priceFormat: {{
-                type: 'price',
-                precision: 2,
-                minMove: 0.01,
-            }},
-            priceScaleId: 'right',
-            lastValueVisible: true,
-            priceLineVisible: false,
-        }});
-        
-        if (equityData && equityData.length > 0) {{
-            equitySeries.setData(equityData);
-        }}
-        
-        // Configure right price scale for equity
-        chart.priceScale('right').applyOptions({{
-            scaleMargins: {{
-                top: 0.1,
-                bottom: 0.1,
-            }},
-        }});
-        
-        // Add horizontal lines
-        horizontalLines.forEach(line => {{
-            candlestickSeries.createPriceLine({{
-                price: line.price,
-                color: line.color,
-                lineWidth: line.lineWidth,
-                lineStyle: line.lineStyle,
-                axisLabelVisible: line.axisLabelVisible,
-                title: line.title,
-            }});
-        }});
-        
-        // Add trade markers
-        const {{ createSeriesMarkers }} = LightweightCharts;
-        if (typeof createSeriesMarkers === 'function' && markers.length > 0) {{
-            createSeriesMarkers(candlestickSeries, markers);
-        }}
-        
-        // Fit content
-        chart.timeScale().fitContent();
-        
-        // Handle window resize
-        window.addEventListener('resize', () => {{
-            chart.applyOptions({{ width: chartContainer.clientWidth }});
-        }});
-    }}
-    
-    // Start initialization
-    if (document.readyState === 'loading') {{
-        document.addEventListener('DOMContentLoaded', initChart);
-    }} else {{
-        initChart();
-    }}
-}})();
-</script>
-"""
-
-        return chart_html
-
-    def generate_html_report(self, stats: Dict, equity_curve: pd.Series, trades_df: pd.DataFrame) -> str:
-        """Generate HTML report with embedded charts.
-
-        Args:
-            stats: Dictionary with statistics
-            equity_curve: Series with equity values over time
-            trades_df: DataFrame with trades
-
-        Returns:
-            HTML report as string
-        """
-        # Load breakout config
-        try:
-            breakout_config = load_config(self.breakout_config_path)
-            strategy = breakout_config.get("strategy", {}).copy()
-            paths = breakout_config.get("paths", {}).copy()
-        except Exception:
-            strategy = {}
-            paths = {}
-
-        # Override with values from backtest.yaml if provided (via monkey-patch)
-        # Add all strategy params dynamically (no hardcoded filtering)
-        if hasattr(self, "_strategy_config_override") and self._strategy_config_override:
-            strategy.update({k: v for k, v in self._strategy_config_override.items() if v is not None})
-
-        if hasattr(self, "_fee_rate_override") and self._fee_rate_override is not None:
-            strategy["fee_rate"] = self._fee_rate_override
-
-        if hasattr(self, "_raw_data_dir_override"):
-            paths["data_dir"] = self._raw_data_dir_override
-
-        if hasattr(self, "_trades_dir_override"):
-            paths["output_dir"] = self._trades_dir_override
-
-        # Calculate equity curve data
-        if len(equity_curve) > 0:
-            equity_data = [
-                {"time": int(pd.Timestamp(idx).timestamp()), "value": float(val)} for idx, val in zip(equity_curve.index, equity_curve.values)
-            ]
-        else:
-            equity_data = []
-
-        # Prepare symbol price data for comparison
-        price_data = []
-        primary_symbol = None
-        if len(trades_df) > 0 and len(equity_curve) > 0:
-            # Get the most traded symbol
-            symbol_counts = trades_df["symbol"].value_counts()
-            if len(symbol_counts) > 0:
-                primary_symbol = symbol_counts.index[0]
-                # Load price data for the primary symbol
-                price_df = self.load_price_data(primary_symbol)
-                if price_df is not None:
-                    # Get date range from equity curve
-                    min_date = equity_curve.index.min()
-                    max_date = equity_curve.index.max()
-
-                    # Filter price data to relevant range
-                    price_filtered = price_df[
-                        (price_df["timestamp"] >= min_date - pd.Timedelta(days=1)) & (price_df["timestamp"] <= max_date + pd.Timedelta(days=1))
-                    ].copy()
-
-                    if len(price_filtered) > 0:
-                        # Resample to daily close prices to match equity curve frequency
-                        price_daily = price_filtered.set_index("timestamp").resample("D").agg({"close": "last"}).reset_index()
-                        price_daily = price_daily.dropna()
-
-                        # Align price data with equity curve timestamps (use closest available price)
-                        for equity_time in equity_curve.index:
-                            # Find closest price timestamp
-                            time_diff = abs(price_daily["timestamp"] - equity_time)
-                            closest_idx = time_diff.idxmin()
-                            if time_diff.iloc[closest_idx] <= pd.Timedelta(days=1):
-                                price_data.append(
-                                    {"time": int(pd.Timestamp(equity_time).timestamp()), "value": float(price_daily.iloc[closest_idx]["close"])}
-                                )
-
-        # Calculate drawdown series
-        if len(equity_curve) > 0:
-            running_max = equity_curve.expanding().max()
-            drawdown_series = (equity_curve - running_max) / running_max * 100
-            drawdown_data = [
-                {"time": int(pd.Timestamp(idx).timestamp()), "value": float(val)} for idx, val in zip(drawdown_series.index, drawdown_series.values)
-            ]
-        else:
-            drawdown_data = []
-
-        # Prepare PnL histogram data
-        if len(trades_df) > 0 and "portfolio_pnl" in trades_df.columns:
-            pnl_values = trades_df["portfolio_pnl"].dropna().tolist()
-            # Create bins for histogram
-            min_pnl = min(pnl_values) if pnl_values else 0
-            max_pnl = max(pnl_values) if pnl_values else 0
-            num_bins = 20
-            bin_width = (max_pnl - min_pnl) / num_bins if max_pnl != min_pnl else 1
-            bins = [min_pnl + i * bin_width for i in range(num_bins + 1)]
-            hist, bin_edges = np.histogram(pnl_values, bins=bins)
-            histogram_data = {"labels": [f"{bin_edges[i]:.0f} to {bin_edges[i+1]:.0f}" for i in range(len(hist))], "values": hist.tolist()}
-        else:
-            histogram_data = {"labels": [], "values": []}
-
-        # Load symbol chart data
-        symbols = trades_df["symbol"].unique() if len(trades_df) > 0 else []
-        symbol_chart_html = ""
-        symbol_chart_script = ""
-
-        if len(symbols) > 0:
-            chart_data_dir = self.output_dir / "chart_data"
-            for symbol in symbols:
-                json_file = chart_data_dir / f"{symbol}_chart_data.json"
-                if json_file.exists():
-                    try:
-                        with open(json_file, "r", encoding="utf-8") as f:
-                            chart_data = json.load(f)
-                            html_part, script_part = self._create_basic_chart_html_v2(symbol, chart_data)
-                            symbol_chart_html += html_part
-                            symbol_chart_script += script_part
-
-                    except Exception as e:
-                        print(f"  Warning: Could not load chart data for {symbol}: {e}")
-
-        # Format config as plain table (dynamic - iterate through all params)
-        def format_config_key(key: str) -> str:
-            """Convert snake_case to Title Case with proper formatting."""
-            return key.replace("_", " ").title()
-
-        def format_config_value(key: str, value: Any) -> str:
-            """Format config value based on key type."""
-            if value is None:
-                return "N/A"
-
-            # Special formatting for fee_rate
-            if key == "fee_rate":
-                fee_val = float(value)
-                return f"{fee_val} ({fee_val * 100:.2f}%)"
-
-            # Special formatting for day_start_hour (add UTC)
-            if key == "day_start_hour":
-                return f"{value} UTC"
-
-            # Default: convert to string
-            return str(value)
-
-        config_rows = []
-        # Add strategy parameters
-        for key, value in sorted(strategy.items()):
-            config_rows.append(f"<tr><td>{format_config_key(key)}</td><td>{format_config_value(key, value)}</td></tr>")
-
-        # Add path parameters
-        for key, value in sorted(paths.items()):
-            config_rows.append(f"<tr><td>{format_config_key(key)}</td><td>{format_config_value(key, value)}</td></tr>")
-
-        config_html = f"""
-        <h2>Configuration</h2>
-        <table>
-            {''.join(config_rows) if config_rows else '<tr><td>No configuration available</td><td>N/A</td></tr>'}
-        </table>
-        """
-        html = ""
-        return html
-
-    def generate_chart_files(self, trades_df: pd.DataFrame, equity_curve: pd.Series) -> None:
-        """Generate JSON data files and HTML chart files per symbol.
-
-        Args:
-            trades_df: DataFrame with all portfolio trades
-            equity_curve: Series with equity values
-        """
-        # Get unique symbols from trades
-        symbols = trades_df["symbol"].unique()
-
-        if len(symbols) == 0:
-            print("  No symbols found in trades, skipping chart file generation")
-            return
-
-        # Use PortfolioBuilder's export_chart_data method
-        try:
-            from src.backtest.steps.portfolio import PortfolioBuilder
-
-            builder = PortfolioBuilder()
-        except ImportError:
-            raise ImportError("PortfolioBuilder not found")
-
-        for symbol in symbols:
-            builder.export_chart_data(trades_df=trades_df, symbol=symbol, raw_data_dir=str(self.raw_data_dir), output_dir=str(self.output_dir))
-
-    def export_chart_data_for_symbol(self, trades_df: pd.DataFrame, symbol: str, equity_curve: pd.Series) -> Optional[str]:
-        """Export chart data as JSON for a specific symbol.
-
-        Args:
-            trades_df: DataFrame with all portfolio trades
-            symbol: Symbol to export data for
-            equity_curve: Series with equity values
-
-        Returns:
-            Path to exported JSON file or None if no data
-        """
-        # Filter trades for this symbol
-        symbol_trades = trades_df[trades_df["symbol"] == symbol].copy()
-
-        if len(symbol_trades) == 0:
-            return None
-
-        # Load price data
-        price_df = self.load_price_data(symbol)
-        if price_df is None:
-            return None
-
-        # Get date range from trades
-        min_date = symbol_trades["entry_time"].min()
-        max_date = symbol_trades["exit_time"].max()
-
-        # Filter price data to relevant range (add 1 day buffer)
-        price_filtered = price_df[
-            (price_df["timestamp"] >= min_date - pd.Timedelta(days=1)) & (price_df["timestamp"] <= max_date + pd.Timedelta(days=1))
-        ].copy()
-
-        if len(price_filtered) == 0:
-            return None
-
-        # Resample to 15-minute bars for better performance if dataset is large
-        if len(price_filtered) > 10000:
-            price_chart = (
-                price_filtered.set_index("timestamp")
-                .resample("15min")
-                .agg({"open": "first", "high": "max", "low": "min", "close": "last", "volume": "sum"})
-                .reset_index()
-            )
-        else:
-            price_chart = price_filtered.copy()
-
-        # Convert timestamps to Unix seconds
-        if price_chart["timestamp"].dtype == "object":
-            price_chart["timestamp"] = pd.to_datetime(price_chart["timestamp"], utc=True)
-        price_chart["time"] = (price_chart["timestamp"].astype("int64") // 10**9).astype(int)
-
-        # Prepare candlestick data
-        candlestick_data = []
-        for _, row in price_chart.iterrows():
-            candlestick_data.append(
-                {
-                    "time": int(row["time"]),
-                    "open": float(row["open"]),
-                    "high": float(row["high"]),
-                    "low": float(row["low"]),
-                    "close": float(row["close"]),
-                }
-            )
-
-        # Identify filtered trades (trades in unfiltered but not in portfolio)
-        filtered_trade_times = self._identify_filtered_trades(symbol_trades, symbol)
-
-        # Prepare trades data (portfolio trades - these are allowed/filtered in)
-        trades_list = []
-        for _, trade in symbol_trades.iterrows():
-            entry_time = int(pd.Timestamp(trade["entry_time"]).timestamp())
-            exit_time = int(pd.Timestamp(trade["exit_time"]).timestamp())
-
-            trade_data = {
-                "entryTime": entry_time,
-                "exitTime": exit_time,
-                "entryPrice": float(trade["entry_price"]),
-                "exitPrice": float(trade["exit_price"]),
-                "direction": str(trade["direction"]),
-                "portfolioPnl": float(trade["portfolio_pnl"]) if pd.notna(trade["portfolio_pnl"]) else 0.0,
-                "isFiltered": False,  # These are allowed trades
-            }
-
-            # Add optional fields
-            if pd.notna(trade.get("stop_level")):
-                trade_data["stopLevel"] = float(trade["stop_level"])
-            if pd.notna(trade.get("upper_level")):
-                trade_data["upperLevel"] = float(trade["upper_level"])
-            if pd.notna(trade.get("lower_level")):
-                trade_data["lowerLevel"] = float(trade["lower_level"])
-            if "exit_reason" in trade.index and pd.notna(trade["exit_reason"]):
-                trade_data["exitReason"] = str(trade["exit_reason"])
-
-            trades_list.append(trade_data)
-
-        # Add filtered out trades (trades that were removed by filters)
-        unfiltered_file = self.trades_dir / f"{symbol}_trades.csv"
-        if unfiltered_file.exists():
-            try:
-                unfiltered_df = pd.read_csv(unfiltered_file)
-                unfiltered_df["entry_time"] = pd.to_datetime(unfiltered_df["entry_time"], utc=True)
-                unfiltered_df["exit_time"] = pd.to_datetime(unfiltered_df["exit_time"], utc=True)
-
-                # Get filtered out trades (in unfiltered but not in portfolio)
-                portfolio_entry_times = set(symbol_trades["entry_time"].values)
-                filtered_out_df = unfiltered_df[~unfiltered_df["entry_time"].isin(portfolio_entry_times)]
-
-                for _, trade in filtered_out_df.iterrows():
-                    entry_time = int(pd.Timestamp(trade["entry_time"]).timestamp())
-                    exit_time = int(pd.Timestamp(trade["exit_time"]).timestamp())
-
-                    trade_data = {
-                        "entryTime": entry_time,
-                        "exitTime": exit_time,
-                        "entryPrice": float(trade["entry_price"]),
-                        "exitPrice": float(trade["exit_price"]),
-                        "direction": str(trade["direction"]),
-                        "portfolioPnl": float(trade.get("net_pnl", 0)) if pd.notna(trade.get("net_pnl")) else 0.0,
-                        "isFiltered": True,  # These are filtered out trades
-                    }
-
-                    # Add optional fields
-                    if pd.notna(trade.get("stop_level")):
-                        trade_data["stopLevel"] = float(trade["stop_level"])
-                    if pd.notna(trade.get("upper_level")):
-                        trade_data["upperLevel"] = float(trade["upper_level"])
-                    if pd.notna(trade.get("lower_level")):
-                        trade_data["lowerLevel"] = float(trade["lower_level"])
-                    if "exit_reason" in trade.index and pd.notna(trade["exit_reason"]):
-                        trade_data["exitReason"] = str(trade["exit_reason"])
-
-                    trades_list.append(trade_data)
-            except Exception:
-                pass  # If we can't load unfiltered trades, just skip
-
-        # Prepare equity data (filtered by symbol trades exit times)
-        equity_data = []
-        symbol_trades_sorted = symbol_trades.sort_values("exit_time")
-        for _, trade in symbol_trades_sorted.iterrows():
-            if pd.notna(trade.get("equity")):
-                exit_time = int(pd.Timestamp(trade["exit_time"]).timestamp())
-                equity_data.append({"time": exit_time, "value": float(trade["equity"])})
-
-        # Create output directory
-        chart_data_dir = self.output_dir / "chart_data"
-        chart_data_dir.mkdir(parents=True, exist_ok=True)
-
-        # Prepare JSON data
-        chart_data = {"symbol": symbol, "candlestickData": candlestick_data, "trades": trades_list, "equityData": equity_data}
-
-        # Save JSON file
-        json_file = chart_data_dir / f"{symbol}_chart_data.json"
-        with open(json_file, "w", encoding="utf-8") as f:
-            json.dump(chart_data, f, indent=2)
-
-        return str(json_file.relative_to(self.output_dir))
-
-    def generate_symbol_chart_html(self, html_file: Path, symbol: str, chart_data: dict) -> None:
-        """Generate HTML chart file for a symbol.
-
-        Args:
-            html_file: Path to output HTML file
-            symbol: Symbol name
-            chart_data: Chart data dictionary to embed
-        """
-        # Use the basic template with embedded data
-        html_content = self._create_basic_chart_html(symbol, chart_data)
-
-        # Write HTML file
-        with open(html_file, "w", encoding="utf-8") as f:
-            f.write(html_content)
-
-    def _create_basic_chart_html(self, symbol: str, chart_data: dict) -> str:
-        """Create basic HTML chart template with embedded data and JSON upload.
-
-        Args:
-            symbol: Symbol name
-            chart_data: Chart data dictionary to embed
-
-        Returns:
-            HTML content as string
-        """
-        # Convert chart_data to JSON string, escaping for JavaScript
-        chart_data_json = json.dumps(chart_data)
-
-        return ""
-
-    def _create_basic_chart_html_v2(self, symbol: str, chart_data: dict) -> tuple[str, str]:
-        """Create trimmed HTML chart section for embedding in portfolio report.
-
-        Args:
-            symbol: Symbol name
-            chart_data: Chart data dictionary to embed
-
-        Returns:
-            Tuple of (HTML content with chart container, JavaScript initialization code)
-        """
-        chart_data_json = json.dumps(chart_data)
-        chart_id = f"chart-{symbol.replace('/', '-').replace(' ', '-')}"
-        chart_id_var = chart_id.replace("-", "_")
-
-        html_part = f"""
-        <h2>Symbol Chart - {symbol}</h2>
-        <div id="{chart_id}" style="width: 100%; height: 700px; margin: 20px 0;"></div>
-"""
-
-        script_part = f"""
-            (function() {{
-                const chartData_{chart_id_var} = {chart_data_json};
-                function initChart_{chart_id_var}() {{
-                    if (typeof PortfolioChart === 'undefined') {{
-                        setTimeout(initChart_{chart_id_var}, 100);
-                        return;
-                    }}
-                    try {{
-                        PortfolioChart.init('{chart_id}', chartData_{chart_id_var}, {{ height: 700 }});
-                    }} catch (error) {{
-                        console.error('Error initializing chart for {symbol}:', error);
-                    }}
-                }}
-                if (document.readyState === 'loading') {{
-                    document.addEventListener('DOMContentLoaded', initChart_{chart_id_var});
-                }} else {{
-                    initChart_{chart_id_var}();
-                }}
-            }})();
-"""
-
-        return html_part, script_part
-
-    def analyze(self) -> str:
-        """Run complete analysis and generate report.
-
-        Returns:
-            Path to generated HTML report
-        """
-        print("Analyzing portfolio...")
-
-        # Load portfolio
-        trades_df, equity_curve, initial_capital = self.load_portfolio()
-        print(f"  Loaded {len(trades_df)} trades")
-
-        # Calculate statistics
-        stats = calculate_statistics(equity_curve, trades_df, initial_capital)
-        print("  Calculated statistics")
-
-        # Generate separate chart files per symbol
-        print("  Generating chart files per symbol...")
-        self.generate_chart_files(trades_df, equity_curve)
-
-        # Generate HTML report
-        html = self.generate_html_report(stats, equity_curve, trades_df)
-
-        # Save report
-        report_file = self.output_dir / "portfolio_report.html"
-        with open(report_file, "w", encoding="utf-8") as f:
-            f.write(html)
-
-        print(f"  Saved report to: {Path(report_file).resolve()}")
-
-        # Print summary
-        print(f"\nPerformance Summary:")
-        print(f"  Total Return: {stats['total_return']:.2f}%")
-        print(f"  Annualized Return: {stats['annualized_return']:.2f}%")
-        print(f"  Sharpe Ratio: {stats['sharpe_ratio']:.2f}")
-        print(f"  Max Drawdown: {stats['max_drawdown']:.2f}%")
-        print(f"  Win Rate: {stats['win_rate']:.1f}%")
-        print(f"  Profit Factor: {stats['profit_factor']:.2f}")
-
-        return str(report_file)
+            lines.append(f"| {metric} | {value} |")
+    return "\n".join(lines)
+
+
+def _print_stats(stats: dict) -> None:
+    """Print stats table to CLI."""
+    table = _build_stats_table(stats)
+    print("\n--- Performance Summary ---")
+    for line in table.split("\n"):
+        print(line)
+    print()
+
+
+def _load_symbol_price(symbol: str, start: pd.Timestamp, end: pd.Timestamp) -> pd.Series | None:
+    """Try to load daily close prices for a symbol from cached parquet or raw data."""
+    cache_dir = Path("data/cache/backtest/resample")
+    # Try common cache patterns
+    for pattern in [f"{symbol}__1m_to_4h__*.parquet", f"{symbol}__*.parquet"]:
+        matches = sorted(cache_dir.glob(pattern))
+        if matches:
+            df = pd.read_parquet(matches[0])
+            if "timestamp" in df.columns:
+                df = df.set_index("timestamp")
+            df.index = pd.to_datetime(df.index, utc=True)
+            price = df["close"].loc[start:end]
+            # Resample to daily for cleaner chart
+            return price.resample("1D").last().ffill().dropna()
+    return None
+
+
+def _generate_chart(equity_curve: pd.Series, out_path: Path, symbols: list[str] | None = None, trades_df: pd.DataFrame | None = None) -> None:
+    """Generate a single PNG with 3 vertically-stacked subplots."""
+    fig, axes = plt.subplots(3, 1, figsize=(12, 10), sharex=False)
+    fig.suptitle("Backtest Results", fontsize=14, fontweight="bold")
+
+    # --- Top: Equity curve + symbol price overlay ---
+    ax = axes[0]
+    ax.plot(equity_curve.index, equity_curve.values, linewidth=1, color="steelblue", label="Equity")
+    ax.set_title("Equity Curve")
+    ax.set_ylabel("Equity ($)")
+    ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"${x:,.0f}"))
+    ax.grid(True, alpha=0.3)
+
+    # Overlay symbol price on right y-axis
+    if symbols:
+        price = _load_symbol_price(symbols[0], equity_curve.index[0], equity_curve.index[-1])
+        if price is not None and len(price) > 1:
+            ax2 = ax.twinx()
+            ax2.plot(price.index, price.values, linewidth=1, color="orange", alpha=0.7, label=symbols[0])
+            ax2.set_ylabel(f"{symbols[0]} Price ($)", color="orange")
+            ax2.tick_params(axis="y", labelcolor="orange")
+            ax2.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"${x:,.0f}"))
+            # Combined legend
+            lines1, labels1 = ax.get_legend_handles_labels()
+            lines2, labels2 = ax2.get_legend_handles_labels()
+            ax.legend(lines1 + lines2, labels1 + labels2, loc="upper left", fontsize=8)
+
+    # --- Middle: Drawdown ---
+    running_max = equity_curve.expanding().max()
+    drawdown_pct = (equity_curve - running_max) / running_max * 100
+    ax = axes[1]
+    ax.fill_between(drawdown_pct.index, drawdown_pct.values, 0, color="indianred", alpha=0.6)
+    ax.set_title("Drawdown")
+    ax.set_ylabel("Drawdown (%)")
+    ax.grid(True, alpha=0.3)
+
+    # --- Bottom: Monthly returns ---
+    equity_monthly = equity_curve.resample("ME").last().ffill()
+    monthly_returns = equity_monthly.pct_change().dropna() * 100
+    ax = axes[2]
+    colors = ["forestgreen" if r >= 0 else "indianred" for r in monthly_returns.values]
+    ax.bar(monthly_returns.index, monthly_returns.values, width=20, color=colors, alpha=0.8)
+    ax.set_title("Monthly Returns")
+    ax.set_ylabel("Return (%)")
+    ax.grid(True, alpha=0.3, axis="y")
+
+    plt.tight_layout()
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+
+def _load_symbol_ohlcv(symbol: str, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame | None:
+    """Load signal-timeframe OHLCV + NW indicator for a symbol in the equity curve period."""
+    cache_dir = Path("data/cache/backtest/resample")
+    for pattern in [f"{symbol}__1m_to_4h__*.parquet", f"{symbol}__*.parquet"]:
+        matches = sorted(cache_dir.glob(pattern))
+        if matches:
+            df = pd.read_parquet(matches[0])
+            if "timestamp" in df.columns:
+                df = df.set_index("timestamp")
+            df.index = pd.to_datetime(df.index, utc=True)
+            return df.loc[start:end]
+    return None
+
+
+def _generate_interactive_chart(
+    trades_df: pd.DataFrame,
+    symbols: list[str] | None,
+    equity_curve: pd.Series,
+    out_path: Path,
+) -> None:
+    """Generate an interactive Plotly HTML chart with candlesticks, NW envelope, and trade markers."""
+    import plotly.graph_objects as go
+    from src.indicators.nadaraya_watson import NadarayaWatsonEnvelope
+
+    if not symbols:
+        return
+
+    symbol = symbols[0]
+    ohlcv = _load_symbol_ohlcv(symbol, equity_curve.index[0], equity_curve.index[-1])
+    if ohlcv is None or len(ohlcv) < 2:
+        return
+
+    # Compute indicator on the loaded data
+    indicator = NadarayaWatsonEnvelope()
+    ohlcv_ind = indicator.calculate(ohlcv.reset_index().rename(columns={ohlcv.index.name or "index": "timestamp"}))
+    ohlcv_ind["timestamp"] = pd.to_datetime(ohlcv_ind["timestamp"], utc=True)
+
+    fig = go.Figure()
+
+    # Candlestick chart
+    fig.add_trace(go.Candlestick(
+        x=ohlcv_ind["timestamp"],
+        open=ohlcv_ind["open"], high=ohlcv_ind["high"],
+        low=ohlcv_ind["low"], close=ohlcv_ind["close"],
+        name=symbol,
+        increasing_line_color="#2a6e2a", increasing_fillcolor="#2a6e2a",
+        decreasing_line_color="#6e2a2a", decreasing_fillcolor="#6e2a2a",
+        opacity=0.8,
+    ))
+
+    # NW Envelope lines
+    valid = ohlcv_ind.dropna(subset=["nw_smooth"])
+    fig.add_trace(go.Scatter(
+        x=valid["timestamp"], y=valid["nw_smooth"],
+        mode="lines", name="NW Smooth",
+        line=dict(color="cyan", width=1.5),
+    ))
+    fig.add_trace(go.Scatter(
+        x=valid["timestamp"], y=valid["nw_upper"],
+        mode="lines", name="NW Upper",
+        line=dict(color="rgba(255,255,0,0.5)", width=1, dash="dash"),
+    ))
+    fig.add_trace(go.Scatter(
+        x=valid["timestamp"], y=valid["nw_lower"],
+        mode="lines", name="NW Lower",
+        line=dict(color="rgba(255,255,0,0.5)", width=1, dash="dash"),
+    ))
+
+    # Trade markers
+    tdf = trades_df.copy()
+    tdf["entry_time"] = pd.to_datetime(tdf["entry_time"], utc=True)
+    tdf["exit_time"] = pd.to_datetime(tdf["exit_time"], utc=True)
+
+    for direction, color, marker_sym in [("long", "lime", "triangle-up"), ("short", "red", "triangle-down")]:
+        subset = tdf[tdf["direction"] == direction]
+        if subset.empty:
+            continue
+        hover = [
+            f"<b>{direction.upper()}</b><br>"
+            f"Entry: ${row.entry_price:,.2f}<br>"
+            f"Exit: ${row.exit_price:,.2f}<br>"
+            f"PnL: ${row.net_pnl:,.2f}<br>"
+            f"Reason: {row.exit_reason}<br>"
+            f"Exit: {row.exit_time:%Y-%m-%d %H:%M}"
+            for row in subset.itertuples()
+        ]
+        fig.add_trace(go.Scatter(
+            x=subset["entry_time"], y=subset["entry_price"],
+            mode="markers", name=direction.capitalize(),
+            marker=dict(color=color, size=10, symbol=marker_sym, line=dict(width=0.5, color="white")),
+            hovertext=hover, hoverinfo="text",
+        ))
+
+    fig.update_layout(
+        title=f"{symbol} - Trades & NW Envelope",
+        xaxis_title="Date", yaxis_title="Price ($)",
+        template="plotly_dark", hovermode="closest",
+        xaxis_rangeslider_visible=False,
+        legend=dict(orientation="h", yanchor="bottom", y=1.02),
+    )
+
+    fig.write_html(str(out_path))
 
 
 def run_analysis_step(
     portfolio_file: Path,
     reports_dir: str,
-    raw_data_dir: str,
-    trades_dir: str,
     strategy_id: str,
-    breakout_config_path: str | None = None,
-    strategy_config: Mapping[str, Any] | None = None,
     fee_rate: float | None = None,
 ) -> Path | None:
-    """Run portfolio analysis step for a strategy.
-
-    Args:
-        portfolio_file: Path to portfolio trades CSV
-        reports_dir: Output directory for reports
-        trades_dir: Directory containing unfiltered trades (for comparison)
-        strategy_id: Strategy identifier (for per-strategy reports)
-        breakout_config_path: Path to breakout config (optional)
+    """Run portfolio analysis: compute stats, print to CLI, save report + chart.
 
     Returns:
-        Path to generated HTML report, or None if failed
+        Path to generated report.md, or None if failed.
     """
+    portfolio_file = Path(portfolio_file)
     if not portfolio_file.exists():
-        print(f"  Warning: Portfolio file not found: {portfolio_file}")
+        print(f"Portfolio file not found: {portfolio_file}")
         return None
 
-    try:
-        # Create strategy-specific reports directory
-        strategy_reports_dir = Path(reports_dir) / strategy_id
-        strategy_reports_dir.mkdir(parents=True, exist_ok=True)
+    # 1. Load data
+    trades_df, equity_curve, initial_capital = _load_portfolio(portfolio_file)
 
-        # Create analysis instance
-        analysis = PortfolioAnalysis(
-            portfolio_file=str(portfolio_file),
-            output_dir=str(strategy_reports_dir),
-            raw_data_dir=raw_data_dir,
-            breakout_config_path=breakout_config_path or "breakout/src/config/breakout_config.yaml",
-            trades_dir=str(Path(trades_dir) / strategy_id),
-        )
-
-        # Override config values from backtest.yaml if provided
-        # These will be used by _generate_html to override breakout_config.yaml values
-        if strategy_config is not None:
-            analysis._strategy_config_override = strategy_config
-        if fee_rate is not None:
-            analysis._fee_rate_override = fee_rate
-        analysis._raw_data_dir_override = raw_data_dir
-        analysis._trades_dir_override = str(Path(trades_dir) / strategy_id)
-
-        # Monkey-patch PortfolioBuilder creation in generate_chart_files to use proper config
-        # This fixes the 'PortfolioBuilder' object has no attribute 'paths' error
-        original_generate_chart_files = analysis.generate_chart_files
-
-        def patched_generate_chart_files(trades_df, equity_curve):
-            """Patched version that creates PortfolioBuilder with proper config."""
-            from src.backtest.steps.portfolio import PortfolioBuilder
-
-            # Get unique symbols
-            symbols = trades_df["symbol"].unique()
-            if len(symbols) == 0:
-                return
-
-            # Create PortfolioBuilder with a minimal config that has paths
-            # We'll use the portfolio config path if available
-            portfolio_config_path = "config/backtest/portfolio_config.yaml"
-            try:
-                builder = PortfolioBuilder(config_path=portfolio_config_path)
-            except Exception:
-                # Fallback: create instance and manually set paths
-                builder = PortfolioBuilder.__new__(PortfolioBuilder)
-                builder.paths = {
-                    "trades_dir": str(Path(trades_dir) / strategy_id),
-                    "filtered_dir": str(Path(trades_dir) / strategy_id),
-                    "use_filtered": False,
-                }
-
-            # Now call export_chart_data for each symbol
-            for symbol in symbols:
-                try:
-                    json_file = builder.export_chart_data(
-                        trades_df=trades_df,
-                        symbol=symbol,
-                        raw_data_dir=str(raw_data_dir),
-                        output_dir=str(strategy_reports_dir),
-                    )
-                    if json_file:
-                        import json
-
-                        with open(json_file, "r", encoding="utf-8") as f:
-                            chart_data = json.load(f)
-
-                        # Add Bollinger Bands data if this is a BB strategy
-                        # Check strategy type from strategy_id or trade columns
-                        symbol_trades = trades_df[trades_df["symbol"] == symbol]
-                        if not symbol_trades.empty:
-                            # Check if BB strategy (bb_trendline) or breakout (atr_breakout)
-                            has_bb = "bb_trendline" in strategy_id.lower()
-                            has_breakout = "atr_breakout" in strategy_id.lower() or any("upperLevel" in str(t) for t in chart_data.get("trades", []))
-
-                            # For BB strategies, we need to calculate BB on hourly bars and add to chart_data
-                            if has_bb:
-                                print(f"    Adding Bollinger Bands data for {symbol} (strategy: {strategy_id})")
-                                # Load hourly bars and calculate BB
-                                try:
-                                    from src.backtest.historical_data_provider.ohlcv_store import OhlcvStore, OhlcvStoreConfig
-                                    from src.indicators.bollinger_bands import BollingerBands
-
-                                    store_cfg = OhlcvStoreConfig(
-                                        raw_1m_dir=raw_data_dir,
-                                        cache_dir="data/cache/backtest",
-                                        cache_enabled=True,
-                                        cache_version="v1",
-                                    )
-                                    store = OhlcvStore(store_cfg)
-                                    hourly_df = store.load_resampled(symbol, timeframe="1h")
-
-                                    # Calculate BB (use default params or from config)
-                                    bb = BollingerBands(period=20, std_dev=2.0)
-                                    hourly_df = bb.calculate(hourly_df)
-
-                                    # Convert to chart data format (hourly timestamps)
-                                    hourly_df["timestamp"] = pd.to_datetime(hourly_df["timestamp"], utc=True)
-                                    hourly_df["time"] = (hourly_df["timestamp"].astype("int64") // 10**9).astype(int)
-
-                                    bb_data = []
-                                    for _, row in hourly_df.iterrows():
-                                        if pd.notna(row.get("bb_upper")) and pd.notna(row.get("bb_middle")) and pd.notna(row.get("bb_lower")):
-                                            bb_data.append(
-                                                {
-                                                    "time": int(row["time"]),
-                                                    "upper": float(row["bb_upper"]),
-                                                    "middle": float(row["bb_middle"]),
-                                                    "lower": float(row["bb_lower"]),
-                                                }
-                                            )
-
-                                    if bb_data:
-                                        chart_data["bollingerBands"] = bb_data
-                                        print(f"    Added {len(bb_data)} BB data points")
-                                        # Update JSON file with BB data for consistency
-                                        with open(json_file, "w", encoding="utf-8") as f:
-                                            json.dump(chart_data, f, indent=2)
-                                    else:
-                                        print(f"    Warning: No BB data points generated (all NaN?)")
-                                except Exception as e:
-                                    print(f"    Warning: Could not add BB data: {e}")
-                                    import traceback
-
-                                    traceback.print_exc()
-
-                        html_file = Path(strategy_reports_dir) / f"{symbol}_chart.html"
-                        analysis.generate_symbol_chart_html(html_file, symbol, chart_data)
-                        print(f"  Generated chart file: {html_file.resolve()}")
-                except Exception as e:
-                    print(f"  Error generating chart for {symbol}: {e}")
-                    continue
-
-        # Replace the method temporarily
-        analysis.generate_chart_files = patched_generate_chart_files
-
-        # Run analysis (this method handles everything)
-        report_path = analysis.analyze()
-
-        return Path(report_path) if report_path else None
-
-    except Exception as e:
-        print(f"  Error generating analysis for {strategy_id}: {e}")
-        import traceback
-
-        traceback.print_exc()
+    if len(trades_df) == 0:
+        print("No trades found in portfolio.")
         return None
+
+    # 2. Compute stats
+    stats = calculate_statistics(equity_curve, trades_df, initial_capital)
+
+    # 3. Print to CLI
+    _print_stats(stats)
+
+    # 4. Prepare output dir
+    out_dir = Path(reports_dir) / strategy_id
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # 5. Generate chart
+    chart_path = out_dir / "charts.png"
+    symbols = trades_df["symbol"].unique().tolist() if "symbol" in trades_df.columns else None
+    _generate_chart(equity_curve, chart_path, symbols=symbols, trades_df=trades_df)
+
+    # 6. Generate interactive trade chart (HTML)
+    interactive_path = out_dir / "trades.html"
+    _generate_interactive_chart(trades_df, symbols, equity_curve, interactive_path)
+
+    # 7. Write markdown report
+    report_path = out_dir / "report.md"
+    md_table = _build_stats_table(stats)
+    report_content = f"# Backtest Report — {strategy_id}\n\n{md_table}\n\n## Charts\n\n![Charts](charts.png)\n"
+    report_path.write_text(report_content, encoding="utf-8")
+
+    print(f"Report saved: {report_path}")
+    print(f"Chart saved:  {chart_path}")
+    print(f"Interactive:  {interactive_path}")
+
+    return report_path

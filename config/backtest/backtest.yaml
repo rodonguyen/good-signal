@@ -44,9 +44,9 @@ data:
   raw_1m_dir: data/raw/crypto
 
   download:
-    enabled: true
+    enabled: false
     provider: bybit
-    start_date: 2025-03-01
+    start_date: 2024-07-01
     end_date: 2026-01-31
 
   # Bybit API settings
@@ -58,10 +58,10 @@ universe:
   symbols:
     # ETHUSDT:
     #   category: linear
-    # BTCUSDT:
-    #   category: linear
-    XAUTUSDT:
+    BTCUSDT:
       category: linear
+    # XAUTUSDT:
+    #   category: linear
 steps:
   # enabled_blocks: List of pipeline steps to execute (1-5).
   #                 1 = Data download (if download.enabled=true)
@@ -71,7 +71,7 @@ steps:
   #                 5 = Analysis report generation
   #                 Example: [1, 2, 3, 4, 5] runs all steps.
   #                 Example: [1] downloads data only.
-  enabled_blocks: [2,3,4,5]
+  enabled_blocks: [1,2,3,4,5]
 
   filters:
     # enabled: Enable pre-entry filter pipeline (filters trading days).
@@ -171,7 +171,7 @@ strategies:
   #             Enters on trend changes, exits on trend reversals.
   - id: supertrend
     type: supertrend
-    enabled: true
+    enabled: true 
 
     # signal_timeframe: Timeframe for Supertrend calculation (4h = 4-hour bars).
     signal_timeframe: 4h
@@ -182,27 +182,3 @@ strategies:
 
       # multiplier: ATR multiplier for Supertrend bands (default 3.0).
       multiplier: 7
-
-  # Nadaraya-Watson Envelope: Mean-reversion strategy using kernel regression.
-  #   Sells when price pierces above upper envelope, buys when price pierces below lower.
-  #   Targets the smooth (middle) line as mean-reversion exit.
-  - id: nw_envelope
-    type: nw_envelope
-    enabled: false
-
-    # signal_timeframe: Timeframe for NW calculation (1h = hourly bars).
-    signal_timeframe: 1h
-
-    params:
-      # window: Lookback window for kernel regression (max 500).
-      window: 500
-
-      # bandwidth: Gaussian kernel bandwidth (controls smoothness).
-      bandwidth: 8.0
-
-      # mult: MAE multiplier for envelope width.
-      mult: 3.0
-
-      # stop_mult: Stop loss distance as multiple of envelope width.
-      stop_mult: 1.5
-
