@@ -3,7 +3,8 @@
     "allow": [
       "Bash(python -m pytest:*)",
       "Bash(python:*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(tree -L 3 -I '__pycache__|*.pyc|venv|node_modules|old|.git':*)"
     ],
     "deny": [],
     "ask": []

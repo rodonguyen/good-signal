@@ -19,7 +19,7 @@ import pandas as pd
 from datetime import datetime
 from src.backtest.contracts import BacktestContext
 from src.backtest.data.ohlcv_store import OhlcvStore, OhlcvStoreConfig
-from src.backtest.data.bybit_provider import BybitDataProvider
+from src.backtest.historical_data_provider.bybit_provider import BybitDataProvider
 from src.backtest.strategies.bb_trendline_rr4 import BBTrendlineRR4BacktestStrategy
 from src.backtest.strategies.atr_breakout import AtrBreakoutStrategy
 from src.backtest.strategies.supertrend import SupertrendStrategy
@@ -55,7 +55,6 @@ class BacktestConfig:
 
     @property
     def data_config(self) -> Mapping[str, Any]:
-        """Get data configuration."""
         return self.raw.get("data", {})
 
     @property
@@ -65,7 +64,11 @@ class BacktestConfig:
 
     @property
     def symbols(self) -> list[str]:
-        return list(self.raw["universe"]["symbols"])
+        return list(self.raw["universe"]["symbols"].keys())
+
+    @property
+    def symbol_configs(self) -> Mapping[str, Any]:
+        return self.raw["universe"]["symbols"]
 
     @property
     def strategies(self) -> list[Mapping[str, Any]]:
@@ -101,56 +104,32 @@ def _strategy_factory(strategy_type: str):
         return AtrBreakoutStrategy()
     if strategy_type == "supertrend":
         return SupertrendStrategy()
+    if strategy_type == "nw_envelope":
+        from src.backtest.strategies.nadaraya_watson_envelope import NadarayaWatsonEnvelopeStrategy
+        return NadarayaWatsonEnvelopeStrategy()
     raise ValueError(f"Unknown backtest strategy type: {strategy_type}")
 
 
 def _run_step1_data_download(config: BacktestConfig) -> None:
-    """Step 1: Download historical data if enabled.
-
-    Downloads data for all symbols in the universe if:
-    - Block 1 is enabled in enabled_blocks
-    - data.download.enabled is true
-    """
-    data_cfg = config.data_config
-    download_cfg = data_cfg.get("download", {})
+    """Step 1: Download historical data if enabled."""
+    download_cfg = config.data_config.get("download", {})
 
     if not download_cfg.get("enabled", False):
         if config.debug:
             print("Step 1 (data download) is disabled in config.")
         return
 
-    provider_name = download_cfg.get("provider", "bybit")
-    if provider_name != "bybit":
-        raise ValueError(f"Unsupported data provider: {provider_name}. Only 'bybit' is currently supported.")
-
-    # Initialize provider
-    crypto_config_path = download_cfg.get("crypto_config_path", "breakout/src/config/crypto_symbols.yaml")
-    raw_data_dir = data_cfg.get("raw_dir") or data_cfg.get("raw_1m_dir", "data/raw/crypto")
+    api_cfg = config.raw.get("data", {}).get("api", {})
     provider = BybitDataProvider(
-        crypto_config_path=crypto_config_path,
-        raw_data_dir=raw_data_dir,
+        symbol_configs=config.symbol_configs,
+        api_config=api_cfg,
+        raw_data_dir=config.raw_1m_dir,
     )
 
-    # Parse date range
-    start_date_str = download_cfg.get("start_date")
-    end_date_str = download_cfg.get("end_date")
-
-    start_date = None
-    end_date = None
-
-    if end_date_str and end_date_str not in ("null", "", None):
-        end_date = datetime.strptime(str(end_date_str), "%Y-%m-%d")
-    else:
-        end_date = datetime.now()
-
-    if start_date_str and start_date_str not in ("null", "", None):
-        start_date = datetime.strptime(str(start_date_str), "%Y-%m-%d")
-    else:
-        # Default to 1 year ago if not specified
-        start_date = end_date - pd.Timedelta(days=365)
+    start_date = datetime.strptime(str(download_cfg["start_date"]), "%Y-%m-%d")
+    end_date = datetime.strptime(str(download_cfg["end_date"]), "%Y-%m-%d")
 
     print(f"\n=== Step 1: Data Download ===")
-    print(f"Provider: {provider_name}")
     print(f"Date range: {start_date.date()} to {end_date.date()}")
 
     for symbol in config.symbols:
@@ -170,10 +149,9 @@ def _run_step1_data_download(config: BacktestConfig) -> None:
             print(f"  {symbol}: ERROR - {e}")
             if config.debug:
                 import traceback
-
                 traceback.print_exc()
 
-    print(f"\n✓ Step 1 complete")
+    print(f"\n[OK] Step 1 complete")
 
 
 class BacktestRunner:
@@ -197,7 +175,7 @@ class BacktestRunner:
 
         # If only step 1 is enabled, exit early
         if enabled_blocks == [1]:
-            print("\n✓ Backtest complete (data download only)")
+            print("\n[OK] Backtest complete (data download only)")
             return
 
         # Steps 2-5 require strategies

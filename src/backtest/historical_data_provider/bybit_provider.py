@@ -15,16 +15,15 @@ class BybitDataProvider(HistoricalDataProvider):
 
     def __init__(
         self,
-        crypto_config_path: str = "config/backtest/crypto_symbols.yaml",
-        raw_data_dir: str = "data/raw/crypto",
+        symbol_configs: dict,
+        api_config: dict,
+        raw_data_dir: str,
     ):
-        """Initialize Bybit data provider.
-
-        Args:
-            crypto_config_path: Path to crypto symbols configuration file
-            raw_data_dir: Directory where raw CSV files are stored
-        """
-        self.downloader = BybitDownloader(config_path=crypto_config_path)
+        self.downloader = BybitDownloader(
+            symbol_configs=symbol_configs,
+            api_config=api_config,
+            raw_data_dir=raw_data_dir,
+        )
         self.raw_data_dir = Path(raw_data_dir)
 
     def _get_csv_path(self, symbol: str) -> Path:

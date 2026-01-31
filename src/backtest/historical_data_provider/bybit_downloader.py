@@ -6,87 +6,31 @@ Supports multiple symbols and handles rate limiting.
 
 import pandas as pd
 import time
-import yaml
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Optional, Dict, Any
 
-import requests
 from pybit.unified_trading import HTTP
 
 NUMBER_OF_ENTRIES = 1000
 
 
-def load_config(config_path: str) -> Dict[str, Any]:
-    """Load configuration from YAML file.
-
-    Args:
-        config_path: Path to configuration file
-
-    Returns:
-        Dictionary containing configuration
-    """
-    config_file = Path(config_path)
-    if not config_file.exists():
-        raise FileNotFoundError(f"Configuration file not found: {config_path}")
-
-    with open(config_file, "r") as f:
-        config = yaml.safe_load(f)
-
-    return config
-
-
-def get_symbol_config(symbol: str, config: Dict[str, Any]) -> Dict[str, Any]:
-    """Get configuration for a specific symbol.
-
-    Args:
-        symbol: Symbol name (e.g., 'ETHUSDT')
-        config: Pre-loaded config dict
-
-    Returns:
-        Symbol configuration dictionary
-    """
-    if symbol not in config["symbols"]:
-        raise ValueError(f"Symbol '{symbol}' not found in configuration. " f"Available symbols: {list(config['symbols'].keys())}")
-
-    return config["symbols"][symbol]
-
-
-def get_default_symbol(config: Dict[str, Any]) -> str:
-    """Get default symbol from configuration.
-
-    Args:
-        config: Pre-loaded config dict
-
-    Returns:
-        Default symbol name
-    """
-    return config.get("default_symbol", "ETHUSDT")
-
-
 class BybitDownloader:
     """Downloader for Bybit historical kline data."""
 
-    def __init__(self, config_path: str = "breakout/src/config/crypto_symbols.yaml"):
-        """Initialize downloader with configuration.
+    def __init__(
+        self,
+        symbol_configs: dict,
+        api_config: dict,
+        raw_data_dir: str,
+    ):
+        self.symbol_configs = symbol_configs
+        self.client = HTTP(testnet=False, api_key=None, api_secret=None)
 
-        Args:
-            config_path: Path to configuration file
-        """
-        self.config = load_config(config_path)
-        self.api_config = self.config["api"]
-        self.data_config = self.config["data"]
-
-        # Initialize Bybit HTTP client
-        self.client = HTTP(testnet=False, api_key=None, api_secret=None)  # Not needed for public historical data
-
-        # Rate limiting
-        self.rate_limit = self.api_config["rate_limit_per_minute"]
-        self.request_delay = self.api_config["request_delay_seconds"]
+        self.rate_limit = api_config.get("rate_limit_per_minute", 500)
+        self.request_delay = api_config.get("request_delay_seconds", 0.3)
         self.last_request_time = 0
 
-        # Create data directory
-        self.data_dir = Path(self.data_config["data_directory"])
+        self.data_dir = Path(raw_data_dir)
         self.data_dir.mkdir(parents=True, exist_ok=True)
 
     def _rate_limit_wait(self):
@@ -174,8 +118,9 @@ class BybitDownloader:
         Returns:
             Combined DataFrame with all kline data
         """
-        symbol_config = get_symbol_config(symbol, self.config)
-        category = symbol_config["category"]
+        if symbol not in self.symbol_configs:
+            raise ValueError(f"Symbol '{symbol}' not in universe. Available: {list(self.symbol_configs.keys())}")
+        category = self.symbol_configs[symbol]["category"]
 
         print(f"Downloading {symbol} data from {start_date.date()} to {end_date.date()}")
 
@@ -254,77 +199,13 @@ class BybitDownloader:
         return filepath
 
     def download_and_save(
-        self, symbol: Optional[str] = None, start_date: Optional[datetime] = None, end_date: Optional[datetime] = None, interval: str = "1"
+        self, symbol: str, start_date: datetime, end_date: datetime, interval: str = "1"
     ) -> Path:
-        """Download and save data for a symbol.
-
-        Args:
-            symbol: Symbol name (defaults to config default)
-            start_date: Start date (overrides config, defaults to config or 1 year ago)
-            end_date: End date (overrides config, defaults to config or now)
-            interval: Kline interval
-
-        Returns:
-            Path to saved CSV file
-        """
-        # Use defaults if not provided
-        if symbol is None:
-            symbol = get_default_symbol(self.config)
-
-        # Get dates from config if not provided
-        if end_date is None:
-            config_end_date = self.data_config.get("end_date")
-            if config_end_date is None or config_end_date == "null" or config_end_date == "":
-                end_date = datetime.now()
-            else:
-                end_date = datetime.strptime(str(config_end_date), "%Y-%m-%d")
-
-        if start_date is None:
-            config_start_date = self.data_config.get("start_date")
-            if config_start_date is None or config_start_date == "null" or config_start_date == "":
-                start_date = end_date - timedelta(days=365)
-            else:
-                start_date = datetime.strptime(str(config_start_date), "%Y-%m-%d")
-
-        # Download data
         df = self.download_symbol_data(symbol, start_date, end_date, interval)
 
         if df.empty:
             raise ValueError(f"No data downloaded for {symbol}")
 
-        # Save to CSV
-        filepath = self.save_to_csv(df, symbol)
-
-        return filepath
+        return self.save_to_csv(df, symbol)
 
 
-def main():
-    """Main function for command-line usage."""
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Download Bybit crypto futures data")
-    parser.add_argument("--symbol", type=str, default=None, help="Symbol to download (e.g., ETHUSDT). Defaults to config default.")
-    parser.add_argument("--start-date", type=str, default=None, help="Start date (YYYY-MM-DD). Defaults to 1 year ago.")
-    parser.add_argument("--end-date", type=str, default=None, help="End date (YYYY-MM-DD). Defaults to now.")
-    parser.add_argument("--config", type=str, default="breakout/src/config/crypto_symbols.yaml", help="Path to config file")
-
-    args = parser.parse_args()
-
-    # Parse dates
-    start_date = None
-    end_date = None
-
-    if args.start_date:
-        start_date = datetime.strptime(args.start_date, "%Y-%m-%d")
-    if args.end_date:
-        end_date = datetime.strptime(args.end_date, "%Y-%m-%d")
-
-    # Download
-    downloader = BybitDownloader(config_path=args.config)
-    filepath = downloader.download_and_save(symbol=args.symbol, start_date=start_date, end_date=end_date)
-
-    print(f"\n✓ Download complete: {filepath}")
-
-
-if __name__ == "__main__":
-    main()

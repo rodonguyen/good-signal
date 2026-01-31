@@ -41,44 +41,27 @@ engine:
     reports_dir: outputs/reports
 
 data:
-  # source: Data provider name (currently only 'bybit' supported).
-  source: bybit
-  
-  # raw_dir: Directory where raw 1-minute CSV files are stored.
-  #          Expected structure: {raw_dir}/{SYMBOL}/{SYMBOL}_1min.csv
-  #          CSV format: timestamp,open,high,low,close,volume,turnover
-  raw_dir: data/raw/crypto
-  
-  # raw_1m_dir: Alias for raw_dir (for compatibility).
   raw_1m_dir: data/raw/crypto
 
-  # download: Optional data download configuration (Block 1).
   download:
-    # enabled: Enable automatic data download when files are missing.
-    #          If false, backtest will fail if CSV files don't exist.
-    enabled: false
-    
-    # provider: Data provider (must match 'source' above).
+    enabled: true
     provider: bybit
-    
-    # crypto_config_path: Path to crypto symbols config (for Bybit API).
-    #                      Defines symbol categories and API rate limits.
-    crypto_config_path: breakout/src/config/crypto_symbols.yaml
-    
-    # start_date: Start date for data download (YYYY-MM-DD format).
-    #             null = use config default or 1 year ago.
-    start_date: null
-    
-    # end_date: End date for data download (YYYY-MM-DD format).
-    #           null = use config default or now.
-    end_date: null
+    start_date: 2025-03-01
+    end_date: 2026-01-31
+
+  # Bybit API settings
+  api:
+    rate_limit_per_minute: 500
+    request_delay_seconds: 0.3
 
 universe:
-  # symbols: List of trading symbols to backtest (e.g., ['ETHUSDT', 'BTCUSDT']).
-  #          Each symbol must have a CSV file at {raw_dir}/{SYMBOL}/{SYMBOL}_1min.csv
   symbols:
-    - ETHUSDT
-
+    # ETHUSDT:
+    #   category: linear
+    # BTCUSDT:
+    #   category: linear
+    XAUTUSDT:
+      category: linear
 steps:
   # enabled_blocks: List of pipeline steps to execute (1-5).
   #                 1 = Data download (if download.enabled=true)
@@ -88,7 +71,7 @@ steps:
   #                 5 = Analysis report generation
   #                 Example: [1, 2, 3, 4, 5] runs all steps.
   #                 Example: [1] downloads data only.
-  enabled_blocks: [2, 3, 4, 5]
+  enabled_blocks: [2,3,4,5]
 
   filters:
     # enabled: Enable pre-entry filter pipeline (filters trading days).
@@ -199,4 +182,27 @@ strategies:
 
       # multiplier: ATR multiplier for Supertrend bands (default 3.0).
       multiplier: 7
+
+  # Nadaraya-Watson Envelope: Mean-reversion strategy using kernel regression.
+  #   Sells when price pierces above upper envelope, buys when price pierces below lower.
+  #   Targets the smooth (middle) line as mean-reversion exit.
+  - id: nw_envelope
+    type: nw_envelope
+    enabled: false
+
+    # signal_timeframe: Timeframe for NW calculation (1h = hourly bars).
+    signal_timeframe: 1h
+
+    params:
+      # window: Lookback window for kernel regression (max 500).
+      window: 500
+
+      # bandwidth: Gaussian kernel bandwidth (controls smoothness).
+      bandwidth: 8.0
+
+      # mult: MAE multiplier for envelope width.
+      mult: 3.0
+
+      # stop_mult: Stop loss distance as multiple of envelope width.
+      stop_mult: 1.5
 
